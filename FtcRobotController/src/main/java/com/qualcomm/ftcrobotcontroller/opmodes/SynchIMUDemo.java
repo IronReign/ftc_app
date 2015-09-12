@@ -19,8 +19,8 @@ public class SynchIMUDemo extends SynchronousOpMode
         // module and named "imu". Retrieve that raw I2cDevice and then wrap it in an object that
         // semantically understands this particular kind of sensor.
         IBNO055IMU.Parameters parameters = new IBNO055IMU.Parameters();
-        imu = ClassFactory.createAdaFruitBNO055IMU(hardwareMap.i2cDevice.get("imu"), parameters);
-        imu.startAccelerationIntegration(new IBNO055IMU.Position(), new IBNO055IMU.Velocity());
+            imu = ClassFactory.createAdaFruitBNO055IMU(hardwareMap.i2cDevice.get("imu"), parameters);
+            imu.startAccelerationIntegration(new IBNO055IMU.Position(), new IBNO055IMU.Velocity());
         
         // Set up our dashboard computations
         composeDashboard();

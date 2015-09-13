@@ -1,4 +1,4 @@
-package newinventions;
+package com.ironreign.FTCcommunity;
 
 import android.util.Log;
 
@@ -314,7 +314,10 @@ public class AdafruitIMU implements HardwareDevice, I2cController.I2cPortReadyCa
       * Modern Robotics Core Device Interface Module fail at any attempt to reset the IMU, or
       * command it to do its self-test
       */
-      outboundBytes[0] = 0x00;//Temporarily, write a "NO-OP" into the SYS_TRIGGER register
+      //outboundBytes[0] = 0x00;//Temporarily, write a "NO-OP" into the SYS_TRIGGER register
+
+      outboundBytes[0] = (byte)0x80;//Temporarily, write only "External clock select" into the
+                              // SYS_TRIGGER register
 
       if (i2cWriteImmediately(outboundBytes, 1, BNO055_SYS_TRIGGER_ADDR)) {
         Log.i("FtcRobotController", "Resetting the IMU........");

@@ -51,187 +51,187 @@ public class AdafruitIMU implements HardwareDevice, I2cController.I2cPortReadyCa
   public static final int BNO055_ID        = 0xA0;
   public static final int                         //From Adafruit_BNO055.h
       /* Page id register definition */
-    BNO055_PAGE_ID_ADDR                                     = 0X07,
+          BNO055_PAGE_ID_ADDR                                     = 0X07,
 
   /* PAGE0 REGISTER DEFINITION START*/
   BNO055_CHIP_ID_ADDR                                     = 0x00,
-    BNO055_ACCEL_REV_ID_ADDR                                = 0x01,
-    BNO055_MAG_REV_ID_ADDR                                  = 0x02,
-    BNO055_GYRO_REV_ID_ADDR                                 = 0x03,
-    BNO055_SW_REV_ID_LSB_ADDR                               = 0x04,
-    BNO055_SW_REV_ID_MSB_ADDR                               = 0x05,
-    BNO055_BL_REV_ID_ADDR                                   = 0X06,
+          BNO055_ACCEL_REV_ID_ADDR                                = 0x01,
+          BNO055_MAG_REV_ID_ADDR                                  = 0x02,
+          BNO055_GYRO_REV_ID_ADDR                                 = 0x03,
+          BNO055_SW_REV_ID_LSB_ADDR                               = 0x04,
+          BNO055_SW_REV_ID_MSB_ADDR                               = 0x05,
+          BNO055_BL_REV_ID_ADDR                                   = 0X06,
 
   /* Accel data register */
   BNO055_ACCEL_DATA_X_LSB_ADDR                            = 0X08,
-    BNO055_ACCEL_DATA_X_MSB_ADDR                            = 0X09,
-    BNO055_ACCEL_DATA_Y_LSB_ADDR                            = 0X0A,
-    BNO055_ACCEL_DATA_Y_MSB_ADDR                            = 0X0B,
-    BNO055_ACCEL_DATA_Z_LSB_ADDR                            = 0X0C,
-    BNO055_ACCEL_DATA_Z_MSB_ADDR                            = 0X0D,
+          BNO055_ACCEL_DATA_X_MSB_ADDR                            = 0X09,
+          BNO055_ACCEL_DATA_Y_LSB_ADDR                            = 0X0A,
+          BNO055_ACCEL_DATA_Y_MSB_ADDR                            = 0X0B,
+          BNO055_ACCEL_DATA_Z_LSB_ADDR                            = 0X0C,
+          BNO055_ACCEL_DATA_Z_MSB_ADDR                            = 0X0D,
 
   /* Mag data register */
   BNO055_MAG_DATA_X_LSB_ADDR                              = 0X0E,
-    BNO055_MAG_DATA_X_MSB_ADDR                              = 0X0F,
-    BNO055_MAG_DATA_Y_LSB_ADDR                              = 0X10,
-    BNO055_MAG_DATA_Y_MSB_ADDR                              = 0X11,
-    BNO055_MAG_DATA_Z_LSB_ADDR                              = 0X12,
-    BNO055_MAG_DATA_Z_MSB_ADDR                              = 0X13,
+          BNO055_MAG_DATA_X_MSB_ADDR                              = 0X0F,
+          BNO055_MAG_DATA_Y_LSB_ADDR                              = 0X10,
+          BNO055_MAG_DATA_Y_MSB_ADDR                              = 0X11,
+          BNO055_MAG_DATA_Z_LSB_ADDR                              = 0X12,
+          BNO055_MAG_DATA_Z_MSB_ADDR                              = 0X13,
 
   /* Gyro data registers */
   BNO055_GYRO_DATA_X_LSB_ADDR                             = 0X14,
-    BNO055_GYRO_DATA_X_MSB_ADDR                             = 0X15,
-    BNO055_GYRO_DATA_Y_LSB_ADDR                             = 0X16,
-    BNO055_GYRO_DATA_Y_MSB_ADDR                             = 0X17,
-    BNO055_GYRO_DATA_Z_LSB_ADDR                             = 0X18,
-    BNO055_GYRO_DATA_Z_MSB_ADDR                             = 0X19,
+          BNO055_GYRO_DATA_X_MSB_ADDR                             = 0X15,
+          BNO055_GYRO_DATA_Y_LSB_ADDR                             = 0X16,
+          BNO055_GYRO_DATA_Y_MSB_ADDR                             = 0X17,
+          BNO055_GYRO_DATA_Z_LSB_ADDR                             = 0X18,
+          BNO055_GYRO_DATA_Z_MSB_ADDR                             = 0X19,
   /* For IMU mode, the register addresses 0X1A thru 0X2D (20 bytes) should be read consecutively */
   /* Euler data registers */
   BNO055_EULER_H_LSB_ADDR                                 = 0X1A,
-    BNO055_EULER_H_MSB_ADDR                                 = 0X1B,
-    BNO055_EULER_R_LSB_ADDR                                 = 0X1C,
-    BNO055_EULER_R_MSB_ADDR                                 = 0X1D,
-    BNO055_EULER_P_LSB_ADDR                                 = 0X1E,
-    BNO055_EULER_P_MSB_ADDR                                 = 0X1F,
+          BNO055_EULER_H_MSB_ADDR                                 = 0X1B,
+          BNO055_EULER_R_LSB_ADDR                                 = 0X1C,
+          BNO055_EULER_R_MSB_ADDR                                 = 0X1D,
+          BNO055_EULER_P_LSB_ADDR                                 = 0X1E,
+          BNO055_EULER_P_MSB_ADDR                                 = 0X1F,
 
   /* Quaternion data registers */
   BNO055_QUATERNION_DATA_W_LSB_ADDR                       = 0X20,
-    BNO055_QUATERNION_DATA_W_MSB_ADDR                       = 0X21,
-    BNO055_QUATERNION_DATA_X_LSB_ADDR                       = 0X22,
-    BNO055_QUATERNION_DATA_X_MSB_ADDR                       = 0X23,
-    BNO055_QUATERNION_DATA_Y_LSB_ADDR                       = 0X24,
-    BNO055_QUATERNION_DATA_Y_MSB_ADDR                       = 0X25,
-    BNO055_QUATERNION_DATA_Z_LSB_ADDR                       = 0X26,
-    BNO055_QUATERNION_DATA_Z_MSB_ADDR                       = 0X27,
+          BNO055_QUATERNION_DATA_W_MSB_ADDR                       = 0X21,
+          BNO055_QUATERNION_DATA_X_LSB_ADDR                       = 0X22,
+          BNO055_QUATERNION_DATA_X_MSB_ADDR                       = 0X23,
+          BNO055_QUATERNION_DATA_Y_LSB_ADDR                       = 0X24,
+          BNO055_QUATERNION_DATA_Y_MSB_ADDR                       = 0X25,
+          BNO055_QUATERNION_DATA_Z_LSB_ADDR                       = 0X26,
+          BNO055_QUATERNION_DATA_Z_MSB_ADDR                       = 0X27,
 
   /* Linear acceleration data registers */
   BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR                     = 0X28,
-    BNO055_LINEAR_ACCEL_DATA_X_MSB_ADDR                     = 0X29,
-    BNO055_LINEAR_ACCEL_DATA_Y_LSB_ADDR                     = 0X2A,
-    BNO055_LINEAR_ACCEL_DATA_Y_MSB_ADDR                     = 0X2B,
-    BNO055_LINEAR_ACCEL_DATA_Z_LSB_ADDR                     = 0X2C,
-    BNO055_LINEAR_ACCEL_DATA_Z_MSB_ADDR                     = 0X2D,
+          BNO055_LINEAR_ACCEL_DATA_X_MSB_ADDR                     = 0X29,
+          BNO055_LINEAR_ACCEL_DATA_Y_LSB_ADDR                     = 0X2A,
+          BNO055_LINEAR_ACCEL_DATA_Y_MSB_ADDR                     = 0X2B,
+          BNO055_LINEAR_ACCEL_DATA_Z_LSB_ADDR                     = 0X2C,
+          BNO055_LINEAR_ACCEL_DATA_Z_MSB_ADDR                     = 0X2D,
 
   /* Gravity data registers */
   BNO055_GRAVITY_DATA_X_LSB_ADDR                          = 0X2E,
-    BNO055_GRAVITY_DATA_X_MSB_ADDR                          = 0X2F,
-    BNO055_GRAVITY_DATA_Y_LSB_ADDR                          = 0X30,
-    BNO055_GRAVITY_DATA_Y_MSB_ADDR                          = 0X31,
-    BNO055_GRAVITY_DATA_Z_LSB_ADDR                          = 0X32,
-    BNO055_GRAVITY_DATA_Z_MSB_ADDR                          = 0X33,
+          BNO055_GRAVITY_DATA_X_MSB_ADDR                          = 0X2F,
+          BNO055_GRAVITY_DATA_Y_LSB_ADDR                          = 0X30,
+          BNO055_GRAVITY_DATA_Y_MSB_ADDR                          = 0X31,
+          BNO055_GRAVITY_DATA_Z_LSB_ADDR                          = 0X32,
+          BNO055_GRAVITY_DATA_Z_MSB_ADDR                          = 0X33,
 
   /* Temperature data register */
   BNO055_TEMP_ADDR                                        = 0X34,
 
   /* Status registers */
   BNO055_CALIB_STAT_ADDR                                  = 0X35,
-    BNO055_SELFTEST_RESULT_ADDR                             = 0X36,
-    BNO055_INTR_STAT_ADDR                                   = 0X37,
+          BNO055_SELFTEST_RESULT_ADDR                             = 0X36,
+          BNO055_INTR_STAT_ADDR                                   = 0X37,
 
   BNO055_SYS_CLK_STAT_ADDR                                = 0X38,
-    BNO055_SYS_STAT_ADDR                                    = 0X39,
-    BNO055_SYS_ERR_ADDR                                     = 0X3A,
+          BNO055_SYS_STAT_ADDR                                    = 0X39,
+          BNO055_SYS_ERR_ADDR                                     = 0X3A,
 
   /* Unit selection register */
   BNO055_UNIT_SEL_ADDR                                    = 0X3B,
-    BNO055_DATA_SELECT_ADDR                                 = 0X3C,
+          BNO055_DATA_SELECT_ADDR                                 = 0X3C,
 
   /* Mode registers */
   BNO055_OPR_MODE_ADDR                                    = 0X3D,
-    BNO055_PWR_MODE_ADDR                                    = 0X3E,
+          BNO055_PWR_MODE_ADDR                                    = 0X3E,
 
   BNO055_SYS_TRIGGER_ADDR                                 = 0X3F,
-    BNO055_TEMP_SOURCE_ADDR                                 = 0X40,
+          BNO055_TEMP_SOURCE_ADDR                                 = 0X40,
 
   /* Axis remap registers */
   BNO055_AXIS_MAP_CONFIG_ADDR                             = 0X41,
-    BNO055_AXIS_MAP_SIGN_ADDR                               = 0X42,
+          BNO055_AXIS_MAP_SIGN_ADDR                               = 0X42,
 
   /* SIC registers */
   BNO055_SIC_MATRIX_0_LSB_ADDR                            = 0X43,
-    BNO055_SIC_MATRIX_0_MSB_ADDR                            = 0X44,
-    BNO055_SIC_MATRIX_1_LSB_ADDR                            = 0X45,
-    BNO055_SIC_MATRIX_1_MSB_ADDR                            = 0X46,
-    BNO055_SIC_MATRIX_2_LSB_ADDR                            = 0X47,
-    BNO055_SIC_MATRIX_2_MSB_ADDR                            = 0X48,
-    BNO055_SIC_MATRIX_3_LSB_ADDR                            = 0X49,
-    BNO055_SIC_MATRIX_3_MSB_ADDR                            = 0X4A,
-    BNO055_SIC_MATRIX_4_LSB_ADDR                            = 0X4B,
-    BNO055_SIC_MATRIX_4_MSB_ADDR                            = 0X4C,
-    BNO055_SIC_MATRIX_5_LSB_ADDR                            = 0X4D,
-    BNO055_SIC_MATRIX_5_MSB_ADDR                            = 0X4E,
-    BNO055_SIC_MATRIX_6_LSB_ADDR                            = 0X4F,
-    BNO055_SIC_MATRIX_6_MSB_ADDR                            = 0X50,
-    BNO055_SIC_MATRIX_7_LSB_ADDR                            = 0X51,
-    BNO055_SIC_MATRIX_7_MSB_ADDR                            = 0X52,
-    BNO055_SIC_MATRIX_8_LSB_ADDR                            = 0X53,
-    BNO055_SIC_MATRIX_8_MSB_ADDR                            = 0X54,
+          BNO055_SIC_MATRIX_0_MSB_ADDR                            = 0X44,
+          BNO055_SIC_MATRIX_1_LSB_ADDR                            = 0X45,
+          BNO055_SIC_MATRIX_1_MSB_ADDR                            = 0X46,
+          BNO055_SIC_MATRIX_2_LSB_ADDR                            = 0X47,
+          BNO055_SIC_MATRIX_2_MSB_ADDR                            = 0X48,
+          BNO055_SIC_MATRIX_3_LSB_ADDR                            = 0X49,
+          BNO055_SIC_MATRIX_3_MSB_ADDR                            = 0X4A,
+          BNO055_SIC_MATRIX_4_LSB_ADDR                            = 0X4B,
+          BNO055_SIC_MATRIX_4_MSB_ADDR                            = 0X4C,
+          BNO055_SIC_MATRIX_5_LSB_ADDR                            = 0X4D,
+          BNO055_SIC_MATRIX_5_MSB_ADDR                            = 0X4E,
+          BNO055_SIC_MATRIX_6_LSB_ADDR                            = 0X4F,
+          BNO055_SIC_MATRIX_6_MSB_ADDR                            = 0X50,
+          BNO055_SIC_MATRIX_7_LSB_ADDR                            = 0X51,
+          BNO055_SIC_MATRIX_7_MSB_ADDR                            = 0X52,
+          BNO055_SIC_MATRIX_8_LSB_ADDR                            = 0X53,
+          BNO055_SIC_MATRIX_8_MSB_ADDR                            = 0X54,
 
   /* Accelerometer Offset registers */
   ACCEL_OFFSET_X_LSB_ADDR                                 = 0X55,
-    ACCEL_OFFSET_X_MSB_ADDR                                 = 0X56,
-    ACCEL_OFFSET_Y_LSB_ADDR                                 = 0X57,
-    ACCEL_OFFSET_Y_MSB_ADDR                                 = 0X58,
-    ACCEL_OFFSET_Z_LSB_ADDR                                 = 0X59,
-    ACCEL_OFFSET_Z_MSB_ADDR                                 = 0X5A,
+          ACCEL_OFFSET_X_MSB_ADDR                                 = 0X56,
+          ACCEL_OFFSET_Y_LSB_ADDR                                 = 0X57,
+          ACCEL_OFFSET_Y_MSB_ADDR                                 = 0X58,
+          ACCEL_OFFSET_Z_LSB_ADDR                                 = 0X59,
+          ACCEL_OFFSET_Z_MSB_ADDR                                 = 0X5A,
 
   /* Magnetometer Offset registers */
   MAG_OFFSET_X_LSB_ADDR                                   = 0X5B,
-    MAG_OFFSET_X_MSB_ADDR                                   = 0X5C,
-    MAG_OFFSET_Y_LSB_ADDR                                   = 0X5D,
-    MAG_OFFSET_Y_MSB_ADDR                                   = 0X5E,
-    MAG_OFFSET_Z_LSB_ADDR                                   = 0X5F,
-    MAG_OFFSET_Z_MSB_ADDR                                   = 0X60,
+          MAG_OFFSET_X_MSB_ADDR                                   = 0X5C,
+          MAG_OFFSET_Y_LSB_ADDR                                   = 0X5D,
+          MAG_OFFSET_Y_MSB_ADDR                                   = 0X5E,
+          MAG_OFFSET_Z_LSB_ADDR                                   = 0X5F,
+          MAG_OFFSET_Z_MSB_ADDR                                   = 0X60,
 
   /* Gyroscope Offset register s*/
   GYRO_OFFSET_X_LSB_ADDR                                  = 0X61,
-    GYRO_OFFSET_X_MSB_ADDR                                  = 0X62,
-    GYRO_OFFSET_Y_LSB_ADDR                                  = 0X63,
-    GYRO_OFFSET_Y_MSB_ADDR                                  = 0X64,
-    GYRO_OFFSET_Z_LSB_ADDR                                  = 0X65,
-    GYRO_OFFSET_Z_MSB_ADDR                                  = 0X66,
+          GYRO_OFFSET_X_MSB_ADDR                                  = 0X62,
+          GYRO_OFFSET_Y_LSB_ADDR                                  = 0X63,
+          GYRO_OFFSET_Y_MSB_ADDR                                  = 0X64,
+          GYRO_OFFSET_Z_LSB_ADDR                                  = 0X65,
+          GYRO_OFFSET_Z_MSB_ADDR                                  = 0X66,
 
   /* Radius registers */
   ACCEL_RADIUS_LSB_ADDR                                   = 0X67,
-    ACCEL_RADIUS_MSB_ADDR                                   = 0X68,
-    MAG_RADIUS_LSB_ADDR                                     = 0X69,
-    MAG_RADIUS_MSB_ADDR                                     = 0X6A;
+          ACCEL_RADIUS_MSB_ADDR                                   = 0X68,
+          MAG_RADIUS_LSB_ADDR                                     = 0X69,
+          MAG_RADIUS_MSB_ADDR                                     = 0X6A;
   public static final int                         //From Adafruit_BNO055.h
-    POWER_MODE_NORMAL                                       = 0X00,
-    POWER_MODE_LOWPOWER                                     = 0X01,
-    POWER_MODE_SUSPEND                                      = 0X02;
+          POWER_MODE_NORMAL                                       = 0X00,
+          POWER_MODE_LOWPOWER                                     = 0X01,
+          POWER_MODE_SUSPEND                                      = 0X02;
   public static final int                         //From Adafruit_BNO055.h
       /* Operation mode settings*/
-    OPERATION_MODE_CONFIG                                   = 0X00,
-    OPERATION_MODE_ACCONLY                                  = 0X01,
-    OPERATION_MODE_MAGONLY                                  = 0X02,
-    OPERATION_MODE_GYRONLY                                  = 0X03,
-    OPERATION_MODE_ACCMAG                                   = 0X04,
-    OPERATION_MODE_ACCGYRO                                  = 0X05,
-    OPERATION_MODE_MAGGYRO                                  = 0X06,
-    OPERATION_MODE_AMG                                      = 0X07,
-    OPERATION_MODE_IMU                                      = 0X08, //Added to original C++ list
-    OPERATION_MODE_IMUPLUS                                  = 0X08,
-    OPERATION_MODE_COMPASS                                  = 0X09,
-    OPERATION_MODE_M4G                                      = 0X0A,
-    OPERATION_MODE_NDOF_FMC_OFF                             = 0X0B,
-    OPERATION_MODE_NDOF                                     = 0X0C;
+          OPERATION_MODE_CONFIG                                   = 0X00,
+          OPERATION_MODE_ACCONLY                                  = 0X01,
+          OPERATION_MODE_MAGONLY                                  = 0X02,
+          OPERATION_MODE_GYRONLY                                  = 0X03,
+          OPERATION_MODE_ACCMAG                                   = 0X04,
+          OPERATION_MODE_ACCGYRO                                  = 0X05,
+          OPERATION_MODE_MAGGYRO                                  = 0X06,
+          OPERATION_MODE_AMG                                      = 0X07,
+          OPERATION_MODE_IMU                                      = 0X08, //Added to original C++ list
+          OPERATION_MODE_IMUPLUS                                  = 0X08,
+          OPERATION_MODE_COMPASS                                  = 0X09,
+          OPERATION_MODE_M4G                                      = 0X0A,
+          OPERATION_MODE_NDOF_FMC_OFF                             = 0X0B,
+          OPERATION_MODE_NDOF                                     = 0X0C;
 
   private final int i2cBufferSize = 26; //Size of any extra buffers that will hold any incoming or
-                                        // outgoing cache data
+  // outgoing cache data
   private final I2cDevice i2cIMU; //The device class of the Adafruit/Bosch IMU
   //The I2cDevice class does not work properly in the 3 August 2015 release of the FTC SDK<=====***********
   private final DeviceInterfaceModule deviceInterface;//The Core Device Interface Module that the IMU
-                                                      //is plugged into
+  //is plugged into
   private final int configuredI2CPort;//The I2C port on the Core Device Interface Module that the IMU
-                                      //is plugged into
+  //is plugged into
   private final int baseI2Caddress; //The base I2C address used to address all of the IMU's registers
   private int operationalMode;//The operational mode to which the IMU will be set after its initial
-                              //reset.
+  //reset.
   private final byte[] i2cReadCache;//The interface will insert the bytes which have been read into
-                                    // this cache
+  // this cache
   private final byte[] i2cWriteCache; //This cache will hold the bytes which are to be written to
-                                      //the interface
+  //the interface
   private final Lock i2cReadCacheLock;//A lock on access to the IMU's I2C read cache
   private final Lock i2cWriteCacheLock; //A lock on access to the IMU's I2C write cache
   /* For IMU mode, the register addresses 0X1A thru 0X2D (20 bytes) should be read consecutively */
@@ -246,7 +246,7 @@ public class AdafruitIMU implements HardwareDevice, I2cController.I2cPortReadyCa
   private long readStartTime;
 
   private void snooze(long milliSecs){//Simple utility for sleeping (thereby releasing the CPU to
-                                      // threads other than this one)
+    // threads other than this one)
     try {
       Thread.sleep(milliSecs);
     } catch (InterruptedException e){}
@@ -271,10 +271,10 @@ public class AdafruitIMU implements HardwareDevice, I2cController.I2cPortReadyCa
     //i2cIMU = currentHWmap.i2cDevice.get(configuredIMUname); //Not recommended for the 8 Aug 15 release
     deviceInterface = currentHWmap.deviceInterfaceModule.get(configuredInterfaceName);
     Log.i("FtcRobotController", "Core Device Interface Module info: "
-           + deviceInterface.getConnectionInfo());
+            + deviceInterface.getConnectionInfo());
     configuredI2CPort = configuredPort;
     i2cIMU = new I2cDevice(deviceInterface, configuredI2CPort); //Identify the IMU with the port to
-            //which it is connected on the Modern Robotics Core Device Interface Module
+    //which it is connected on the Modern Robotics Core Device Interface Module
     baseI2Caddress = (int)baseAddress & 0XFF;
     operationalMode = (int)operMode & 0XFF;
     i2cReadCache = i2cIMU.getI2cReadCache();
@@ -299,49 +299,40 @@ public class AdafruitIMU implements HardwareDevice, I2cController.I2cPortReadyCa
      *    , and Section 3.10, p.47. Also, set the bit that commands self-test.
      * 3. OPR_MODE register = the user-selected operationalMode (passed in as operMode)
     */
-    Log.i("FtcRobotController", "Resetting IMU to its power-on state......");
+    Log.i("FtcRobotController", "Preparing to reset IMU to its power-on state......");
     //Set the register map PAGE_ID back to 0, to make the SYS_TRIGGER register visible
     outboundBytes[0] = 0x00;//Sets the PAGE_ID bit for page 0 (Table 4-2)
     if (i2cWriteImmediately(outboundBytes, 1, BNO055_PAGE_ID_ADDR)) {
       //Set the RST_SYS bit in the SYS_TRIGGER register, to make the IMU reset
 
-      //outboundBytes[0] = 0x61;//The "6" sets the RST_SYS and RST_INT bits, and clears the CLK_SEL bit
-      //, to enable the IMU's internal clock (Table 4-2, and p.70). In the lower 4 bits, a "1" sets
-      // the commanded Self Test bit, which causes self-test to run (p. 46)
+      outboundBytes[0] = (byte)0XE1;//The "E" sets the RST_SYS and RST_INT bits, and sets the CLK_SEL bit
+      //, to select the external IMU clock mounted on the Adafruit board (Table 4-2, and p.70). In
+      // the lower 4 bits, a "1" sets the commanded Self Test bit, which causes self-test to run (p. 46)
 
-      /*
-      * Houston, we have a problem! As of 11 September 2015, the FTC API and the firmware in the
-      * Modern Robotics Core Device Interface Module fail at any attempt to reset the IMU, or
-      * command it to do its self-test
-      */
-      //outboundBytes[0] = 0x00;//Temporarily, write a "NO-OP" into the SYS_TRIGGER register
-
-      outboundBytes[0] = (byte)0x80;//Temporarily, write only "External clock select" into the
-                              // SYS_TRIGGER register
-
+      Log.i("FtcRobotController", String.format("SYS_TRIGGER = 0X%02X. Resetting IMU........"
+              ,outboundBytes[0] ));
       if (i2cWriteImmediately(outboundBytes, 1, BNO055_SYS_TRIGGER_ADDR)) {
-        Log.i("FtcRobotController", "Resetting the IMU........");
         snooze(500);//Wait a decent interval until the IMU finishes its reset operations
         Log.i("FtcRobotController", "Now waiting for autocalibration............");
         calibrationStartTime = System.nanoTime();
         if (autoCalibrationOK(10)) {//Check auto calibration with a timeout (seconds) on the wait
-                                    //for the I2C port to become ready
+          //for the I2C port to become ready
           Log.i("FtcRobotController", "Auto calibration completed OK after "
-            + String.format("%3.3f", (double)((System.nanoTime() - calibrationStartTime) / 1000000000L))
-                              + " sec.");
+                  + String.format("%3.3f", (double)((System.nanoTime() - calibrationStartTime) / 1000000000L))
+                  + " sec.");
           //And finally, set the IMU's operational mode to the selected mode
           outboundBytes[0] = (byte)operationalMode;
           if (i2cWriteImmediately(outboundBytes, 1, BNO055_OPR_MODE_ADDR)) {
             Log.i("FtcRobotController", "IMU fully operational!");
           } else {
             throw new RobotCoreException("Operational mode setting interrupted or I2C bus" +
-                                           " \"stuck busy\".");
+                    " \"stuck busy\".");
           }
         } else {
           throw new RobotCoreException("Auto calibration interrupted or I2C bus \"stuck busy\", " +
-            "OR it timed out after "
-            + String.format("%3.3f", (double)((System.nanoTime() - calibrationStartTime) / 1000000000L))
-            + " sec.");
+                  "OR it timed out after "
+                  + String.format("%3.3f", (double)((System.nanoTime() - calibrationStartTime) / 1000000000L))
+                  + " sec.");
 
         }
       } else {
@@ -358,7 +349,7 @@ public class AdafruitIMU implements HardwareDevice, I2cController.I2cPortReadyCa
 
     try {
       while ((!i2cIMU.isI2cPortReady())
-               && (((rightNow = System.nanoTime()) - startTime) < timeOut)){
+              && (((rightNow = System.nanoTime()) - startTime) < timeOut)){
         Thread.sleep(250);//"Snooze" right here, until the port is ready (a good thing) OR n billion
         //nanoseconds pass with the port "stuck busy" (a VERY bad thing)
       }
@@ -388,13 +379,13 @@ public class AdafruitIMU implements HardwareDevice, I2cController.I2cPortReadyCa
   private boolean autoCalibrationOK(int timeOutSeconds){
     boolean readingEnabled = false, calibrationDone = false;
     long calibrationStart = System.nanoTime(), rightNow = System.nanoTime(),
-      loopStart = System.nanoTime();;
+            loopStart = System.nanoTime();;
 
     while ((System.nanoTime() - calibrationStart) <= 60000000000L) {//Set a 1-minute overall timeout
       try {
         loopStart = System.nanoTime();
         while ((!i2cIMU.isI2cPortReady())
-                 && (((rightNow = System.nanoTime()) - loopStart) < (timeOutSeconds * 1000000000L))) {
+                && (((rightNow = System.nanoTime()) - loopStart) < (timeOutSeconds * 1000000000L))) {
           Thread.sleep(250);//"Snooze" right here, until the port is ready (a good thing) OR n billion
           //nanoseconds pass with the port "stuck busy" (a VERY bad thing)
         }
@@ -404,14 +395,14 @@ public class AdafruitIMU implements HardwareDevice, I2cController.I2cPortReadyCa
       }
       if ((rightNow - loopStart) >= (timeOutSeconds * 1000000000L)) {
         Log.i("FtcRobotController", "IMU I2C port \"stuck busy\" for "
-          + (rightNow - loopStart) + " ns.");
+                + (rightNow - loopStart) + " ns.");
         return false;//Signals the "stuck busy" condition
       }
       if (!readingEnabled) {//Start a stream of reads of the calibration status byte
         //The device interface object must do this, because the i2c device object CAN'T do it, in the
         //8 August 2015 beta release of the FTC SDK
         deviceInterface.enableI2cReadMode(configuredI2CPort, baseI2Caddress,
-                                           BNO055_CALIB_STAT_ADDR, 2);
+                BNO055_CALIB_STAT_ADDR, 2);
         //deviceInterface.enableI2cReadMode(configuredI2CPort, baseI2Caddress,//FOR TESTING ONLY!
         //                                   BNO055_CHIP_ID_ADDR, 1);         //FOR TESTING ONLY!
         //deviceInterface.enableI2cReadMode(configuredI2CPort, baseI2Caddress,//FOR TESTING ONLY!
@@ -428,17 +419,17 @@ public class AdafruitIMU implements HardwareDevice, I2cController.I2cPortReadyCa
         try {
           i2cReadCacheLock.lock();
           if (((i2cReadCache[I2cController.I2C_BUFFER_START_ADDRESS + 1] & 0X0C) >= (byte)0X0C) &&
-            ((i2cReadCache[I2cController.I2C_BUFFER_START_ADDRESS] & 0XFF) >= (byte)0X00) //"NO-OP"
+                  ((i2cReadCache[I2cController.I2C_BUFFER_START_ADDRESS] & 0XFF) >= (byte)0X00) //"NO-OP"
             //(i2cReadCache[I2cController.I2C_BUFFER_START_ADDRESS] == (byte)BNO055_ID)//FOR TESTING ONLY!
             //(i2cReadCache[I2cController.I2C_BUFFER_START_ADDRESS] == (byte)0X00)//FOR TESTING ONLY!
-            ) {
+                  ) {
             //See IMU datasheet p.67. As an example, 0X30 checks only gyro calibration complete.
             //Also on that page: Self-Test byte value of 0X0C means MCU and gyro passed self-tests
             Log.i("FtcRobotController", "Autocalibration OK! Cal status byte = "
-              + String.format("0X%02X", i2cReadCache[I2cController.I2C_BUFFER_START_ADDRESS])
-              + ". Self Test byte = "
-              + String.format("0X%02X", i2cReadCache[I2cController.I2C_BUFFER_START_ADDRESS + 1])
-              + ".");
+                    + String.format("0X%02X", i2cReadCache[I2cController.I2C_BUFFER_START_ADDRESS])
+                    + ". Self Test byte = "
+                    + String.format("0X%02X", i2cReadCache[I2cController.I2C_BUFFER_START_ADDRESS + 1])
+                    + ".");
             calibrationDone = true;//Auto calibration finished successfully
           }
         } finally {
@@ -452,10 +443,10 @@ public class AdafruitIMU implements HardwareDevice, I2cController.I2cPortReadyCa
       }
     }
     Log.i("FtcRobotController", "Autocalibration timed out! Cal status byte = "
-      + String.format("0X%02X",i2cReadCache[I2cController.I2C_BUFFER_START_ADDRESS])
-      + ". Self Test byte = "
-      + String.format("0X%02X",i2cReadCache[I2cController.I2C_BUFFER_START_ADDRESS + 1])
-      + ".");
+            + String.format("0X%02X",i2cReadCache[I2cController.I2C_BUFFER_START_ADDRESS])
+            + ". Self Test byte = "
+            + String.format("0X%02X",i2cReadCache[I2cController.I2C_BUFFER_START_ADDRESS + 1])
+            + ".");
     return false;
   }
 
@@ -471,7 +462,7 @@ public class AdafruitIMU implements HardwareDevice, I2cController.I2cPortReadyCa
     //The device interface object must do this, because the i2c device object CAN'T do it, in the
     //8 August 2015 beta release of the FTC SDK
     deviceInterface.enableI2cReadMode(configuredI2CPort, baseI2Caddress, registerStartAddress
-                                       , numberOfRegisters);
+            , numberOfRegisters);
     maxReadInterval = 0.0;
     avgReadInterval = 0.0;
     totalI2Creads = 0L;
@@ -485,18 +476,19 @@ public class AdafruitIMU implements HardwareDevice, I2cController.I2cPortReadyCa
    * The IMU reports a 16-bit heading angle between 0 and 360 degrees, increasing with clockwise
    * turns. Ref: Table 3-7, p.26, Table 3-13, p.30, and Section 3.6.5.4, p.35
    * This is a fixed-point number in degrees * 16, i.e., 12 integer bits and 4 fractional bits
+   * When the IMU is rotated counterclockwise and the decreasing heading angles pass 0, the angle
+   * is sometimes reported as a negative number. A correction has been added to ensure that these
+   * negative angles "wrap around" to 359+ degrees.
   */
     int tempResult = 0;
     try {
       i2cReadCacheLock.lock();
-      //tempResult = (int)(i2cReadCache[BNO055_EULER_H_MSB_ADDR - readCacheOffset] << 8)
-      //               + (int)i2cReadCache[BNO055_EULER_H_LSB_ADDR - readCacheOffset];
       tempResult = (int)i2cReadCache[BNO055_EULER_H_MSB_ADDR - readCacheOffset] * 256
-                     + (int)i2cReadCache[BNO055_EULER_H_LSB_ADDR - readCacheOffset];
+              + (int)i2cReadCache[BNO055_EULER_H_LSB_ADDR - readCacheOffset];
     } finally {
       i2cReadCacheLock.unlock();
     }
-    return tempResult;
+    return (tempResult >= 0 ? tempResult : (360 + tempResult));
   }
 
   /*

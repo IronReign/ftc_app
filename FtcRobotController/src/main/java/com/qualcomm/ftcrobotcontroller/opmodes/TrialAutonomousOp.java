@@ -1,10 +1,13 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
+  import android.util.Log;
+
   import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+  import com.qualcomm.robotcore.exception.RobotCoreException;
   import com.qualcomm.robotcore.hardware.DcMotor;
   import com.qualcomm.robotcore.util.Range;
 
-  import newinventions.AdafruitIMU;
+  import com.ironreign.FTCcommunity.AdafruitIMU;
 
 /**
  * An example of an autonomous OpMode, showing a proposed skeleton for the design of such an OpMode.
@@ -206,7 +209,11 @@ public class TrialAutonomousOp extends OpMode {
     motorLeft = hardwareMap.dcMotor.get("motor_1");
     motorLeft.setDirection(DcMotor.Direction.REVERSE);
     motorHoist = hardwareMap.dcMotor.get("motor_3");
-    boschBNO055 = new AdafruitIMU(hardwareMap, "bno055","CDIM_2", 7, AdafruitIMU.BNO055_ADDRESS_B);
+    try {
+    boschBNO055 = new AdafruitIMU(hardwareMap, "bno055","CDIM_2", 5, (byte)(AdafruitIMU.BNO055_ADDRESS_A * 2),(byte)AdafruitIMU.OPERATION_MODE_IMU);
+    } catch (RobotCoreException e){
+      Log.i("FtcRobotController", "Exception: " + e.getMessage());
+    }
                                 //ADDRESS_B is the "standard" I2C bus address for the Bosch BNO055.
                                 //??Does this instantiation of an I2cDevice work??
     //Since the DcMotor class currently offers no way to reset DC motor encoders, the initial
@@ -214,7 +221,7 @@ public class TrialAutonomousOp extends OpMode {
     motorLeftEncoderOffset = motorLeft.getCurrentPosition();
     motorRightEncoderOffset = motorRight.getCurrentPosition();
     motorHoistEncoderOffset = motorHoist.getCurrentPosition();
-    boschBNO055.initIMU(AdafruitIMU.OPERATION_MODE_IMUPLUS);//Set up the IMU as needed for I2C reads
+   // boschBNO055.initIMU(AdafruitIMU.OPERATION_MODE_IMUPLUS);//Set up the IMU as needed for I2C reads
     // and writes. IMUPLUS is an appropriate operational mode for FTC competitions. (See the IMU
     // datasheet.)
     autoDriver.start(); //Get the "worker" threads working!

@@ -154,7 +154,8 @@ public class SynchIMUDemo extends SynchronousOpMode
         }
     String formatDegrees(double degrees)
         {
-        return String.format("%.2f", normalizeDegrees(degrees));
+        //return String.format("%.2f", normalizeDegrees(degrees));
+            return String.format("%.2f", degrees);
         }
     String formatRate(double cyclesPerSecond)
         {

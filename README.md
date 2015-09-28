@@ -13,7 +13,7 @@ Notable features of the Swerve Robotics FTC Library include:
     with which teams have been familiar with from previous seasons in RobotC, and which is more amenable
     to teaching to beginning programmers than the event-driven / loop() callback programming
     model native to the robot controller runtime. SynchronousOpMode is similar to [LinearOpMode](https://cdn.rawgit.com/ftctechnh/ftc_app/master/doc/javadoc/com/qualcomm/robotcore/eventloop/opmode/LinearOpMode.html)
-    but contains several enhancements and a few fixes. Most notable for those using the legacy
+    but contains several enhancements, improved robustness, and a few fixes. Most notable for those using the legacy
     NXT/HiTechnic motor controllers is the automatic handling of the tedious manual mode switching, multi-loop-cycle
     delay management, and loop-cycle operation compatibility rules which are otherwise necessary when
     when switching between reading and writing operations (getPosition() vs setPower(), for example)
@@ -37,12 +37,16 @@ Notable features of the Swerve Robotics FTC Library include:
     be using SynchronousOpMode to use I2cDeviceClient. However as some operations are lengthy, a
     worker thread is suggested in that case in order to avoid long-running operations on the loop() thread.
 *   A class that is built on I2cDeviceClient that provides a semantic interface to the **Bosch BNO055 absolute
-    position sensor**, allowing teams to make easy use of the [AdaFruit breakout board](http://www.adafruit.com/products/2472)
+    position sensor**, allowing teams to make easy use of the [AdaFruit inertial motion unit (IMU)](http://www.adafruit.com/products/2472)
     which incorporates that sensor module. Features of this sensor include a gyro that does rate
     integration in hardware to provide robust and accurate angular position indications, and a
     separation of the output of the accelerometer into gravity and linear-motion-induced components.
     The class builds on the latter to provide linear velocity and position measurements using integration
-    in software, which can be straightforwardly used for inertial dead reckoning for your robot.
+    in software. That said, the built-in accelerometer integration algorithm is quite naive. For a real
+    robot, you'll want to do some investigation and reading and provide a better one, which you can
+    specify in the initialization parameters for the IMU. Also, while the out-of-box sensor works
+    remarkably well, Bosch [describes](https://github.com/SwerveRobotics/ftc_app/raw/master/SwerveRoboticsLibrary/doc/reference/BST_BNO055_DS000_13.pdf)
+    a one-time calibration process (see Section 3.11) that will make it even better.
 *   An **alternate OpMode registration mechanism** (the old FtcOpModeRegister.register() still works too)
     that allows you to register your own OpModes simply by decorating them with @TeleOp or @Annotation annotations.
     This helps promote clean living and easier integration of library updates over time by avoiding
@@ -78,10 +82,9 @@ The fifteen second summary of how to use SynchronousOpMode is as follows:
 
 That's it!
 
-While this library is still undergoing development, it is quite stable, and our own teams
-are actively developing their competition code using it. It currently is synchronized to the 
-FTC headquarters beta release; when FTC HQ updates to a final release for the season, we will 
-synchronize with that as fast as we are able. 
+This library is pretty stable and nearing its initial official release. Our own teams
+are actively developing their competition code using it. It currently is synchronized to the
+release from FTC HQ that was published Sept 18, 2015.
 
 To use the library, we recommend forking or cloning our repository and working off of the 
 'master' branch. The Swerve Library repository *includes* the robot controller runtime

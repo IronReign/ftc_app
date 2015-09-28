@@ -55,8 +55,7 @@ public class LinearIrExample extends LinearOpMode {
     irSeeker = hardwareMap.irSeekerSensor.get("ir_seeker");
     motorLeft = hardwareMap.dcMotor.get("motor_1");
     motorRight = hardwareMap.dcMotor.get("motor_2");
-
-    irSeeker.setMode(IrSeekerSensor.Mode.MODE_1200HZ_AC);
+    irSeeker.setMode(IrSeekerSensor.Mode.MODE_1200HZ);
     motorLeft.setDirection(DcMotor.Direction.REVERSE);
 
     // wait for the start button to be pressed

@@ -29,8 +29,8 @@ public class SynchTeleOpModes extends SynchronousOpMode
     @Override protected void main() throws InterruptedException
         {
         // Initialize our hardware variables
-        this.motorLeft = this.hardwareMap.dcMotor.get("motorLeft");
-        this.motorRight = this.hardwareMap.dcMotor.get("motorRight");
+        this.motorLeft = this.hardwareMap.dcMotor.get("motorLeftBack");
+        this.motorRight = this.hardwareMap.dcMotor.get("motorRightBack");
         
         // Configure the knobs of the hardware according to how you've wired your
         // robot. Here, we assume that there are no encoders connected to the motors,

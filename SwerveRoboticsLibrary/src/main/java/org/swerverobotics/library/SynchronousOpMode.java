@@ -99,7 +99,7 @@ public abstract class SynchronousOpMode extends OpMode implements IThunkDispatch
     /**
      * Advanced: use experimental approaches to thunking hardware devices
      */
-    protected boolean useExperimentalThunking = false; 
+    protected boolean useExperimentalThunking = false;
 
     //----------------------------------------------------------------------------------------------
     // Key threading-related methods
@@ -226,6 +226,27 @@ public abstract class SynchronousOpMode extends OpMode implements IThunkDispatch
             // that's not what we're looking for. So instead, we just wait until loop() pings us
             // it the bottom of it's cycle, which may be a bit less than a whole loop(), but is
             // the reasonable compromise.
+            this.loopLock.wait();
+            }
+        }
+
+    /**
+     * Waits until the rest of the event loop code that runs on the loop() thread but outside
+     * of the actual body of the loop() method itself has had a chance to run at least once. In
+     * practice, up to two such 'hardware cycles' are sometimes used. Provided only for compatibility
+     * with LinearOpMode, as it is unnecessary here: {@link #idle()} is a better choice.
+     * @see #idle()
+     */
+    @Deprecated
+    public void waitOneFullHardwareCycle() throws InterruptedException
+        {
+        synchronized (this.loopLock)
+            {
+            this.loopLock.wait();
+            }
+        Thread.sleep(1);
+        synchronized (this.loopLock)
+            {
             this.loopLock.wait();
             }
         }
@@ -412,6 +433,7 @@ public abstract class SynchronousOpMode extends OpMode implements IThunkDispatch
 
     private volatile boolean                started;
     private volatile boolean                stopRequested;
+    private         ThunkingHardwareFactory hardwareFactory = null;
     private final   ActionQueueAndHistory   actionQueueAndHistory = new ActionQueueAndHistory();
     private         AtomicBoolean           gamePadCaptureStateChanged = new AtomicBoolean(false);
     private         boolean                 gamepadInputQueried = false;
@@ -646,18 +668,21 @@ public abstract class SynchronousOpMode extends OpMode implements IThunkDispatch
     // Note: the thread might not EVER have been started, so may not have any 
     // SynchronousThreadContext.
         {
-        // Notify the thread that we wish it to stop what it's doing, clean up, and return.
-        thread.interrupt();
-
-        // Wait a while until the thread is no longer alive. If he doesn't clear out
-        // in a reasonable amount of time, then just give up on him.
-        try
+        if (thread != null)
             {
-            thread.join(msWait);
-            }
-        catch (InterruptedException e)
-            { 
-            Util.handleCapturedInterrupt(e);
+            // Notify the thread that we wish it to stop what it's doing, clean up, and return.
+            thread.interrupt();
+
+            // Wait a while until the thread is no longer alive. If he doesn't clear out
+            // in a reasonable amount of time, then just give up on him.
+            try
+                {
+                thread.join(msWait);
+                }
+            catch (InterruptedException e)
+                {
+                Util.handleCapturedInterrupt(e);
+                }
             }
         }
 
@@ -723,46 +748,54 @@ public abstract class SynchronousOpMode extends OpMode implements IThunkDispatch
      */
     @Override public final void init()
         {
-        // Call the subclass hook in case they might want to do something interesting
-        this.preInitHook();
+        try {
+            // Call the subclass hook in case they might want to do something interesting
+            this.preInitHook();
 
-        // Replace the op mode's hardware map variable with one whose contained
-        // object implementations will thunk over to the loop thread as they need to.
-        this.unthunkedHardwareMap = super.hardwareMap;
-        this.hardwareMap = (new ThunkingHardwareFactory((IStopActionRegistrar)this, this.useExperimentalThunking)).createThunkedHardwareMap(this.unthunkedHardwareMap);
+            // Replace the op mode's hardware map variable with one whose contained
+            // object implementations will thunk over to the loop thread as they need to.
+            this.unthunkedHardwareMap = super.hardwareMap;
+            this.hardwareFactory      = new ThunkingHardwareFactory(this.unthunkedHardwareMap, (IStopActionRegistrar)this, this.useExperimentalThunking);
+            this.hardwareMap          = this.hardwareFactory.createThunkedHardwareMap();
 
-        // Similarly replace the telemetry variable
-        this.telemetry = new TelemetryDashboardAndLog(super.telemetry);
+            // Similarly replace the telemetry variable
+            this.telemetry = new TelemetryDashboardAndLog(super.telemetry);
 
-        // Remember who the loop thread is so that we know whom to communicate with from a 
-        // synchronous thread. Note: we ASSUME here that init() and loop() run on the same thread
-        loopThread = Thread.currentThread();
+            // Remember who the loop thread is so that we know whom to communicate with from a
+            // synchronous thread. Note: we ASSUME here that init() and loop() run on the same thread
+            loopThread = Thread.currentThread();
 
-        // Paranoia: clear any state that may just perhaps be lingering
-        this.clearSingletons();
-        this.actionQueueAndHistory.clear();
-        this.synchronousWorkerThreads.clear();
+            // Paranoia: clear any state that may just perhaps be lingering
+            this.clearSingletons();
+            this.actionQueueAndHistory.clear();
+            this.synchronousWorkerThreads.clear();
 
-        // We're being asked to start, not stop
-        this.started = false;
-        this.stopRequested = false;
-        this.loopCount.set(0);
-        this.exceptionThrownOnMainThread = null;
-        this.firstExceptionThrownOnASynchronousWorkerThread.set(null);
+            // We're being asked to start, not stop
+            this.started = false;
+            this.stopRequested = false;
+            this.loopCount.set(0);
+            this.exceptionThrownOnMainThread = null;
+            this.firstExceptionThrownOnASynchronousWorkerThread.set(null);
 
-        // Create the main thread and start it up and going!
-        this.mainThread = this.createSynchronousWorkerThread(new IInterruptableRunnable()
-            {
-            @Override public void run() throws InterruptedException
+            // Create the main thread and start it up and going!
+            this.mainThread = this.createSynchronousWorkerThread(new IInterruptableRunnable()
                 {
-                Log.d(LOGGING_TAG, String.format("starting OpMode {%s}", SynchronousOpMode.this.getClass().getSimpleName()));
-                SynchronousOpMode.this.main();
-                }
-            }, true);
-        this.mainThread.start();
+                @Override public void run() throws InterruptedException
+                    {
+                    Log.d(LOGGING_TAG, String.format("starting OpMode {%s}", SynchronousOpMode.this.getClass().getSimpleName()));
+                    SynchronousOpMode.this.main();
+                    }
+                }, true);
+            this.mainThread.start();
 
-        // Call the subclass hook in case they might want to do something interesting
-        this.postInitHook();
+            // Call the subclass hook in case they might want to do something interesting
+            this.postInitHook();
+            }
+        catch (Exception e)
+            {
+            Log.e(LOGGING_TAG, String.format("exception thrown in init(): %s", Util.getStackTrace(e)));
+            throw e;    // Rethrow so this exception gets displayed on phone displays
+            }
         }
 
     /**
@@ -938,6 +971,12 @@ public abstract class SynchronousOpMode extends OpMode implements IThunkDispatch
                 for (IAction action: this.actionsOnStop)
                     action.doAction();
                 this.actionsOnStop.clear();
+                }
+
+            if (this.hardwareFactory != null)
+                {
+                this.hardwareFactory.stop();
+                this.hardwareFactory = null;
                 }
 
             Log.d(LOGGING_TAG, String.format("...stopped"));

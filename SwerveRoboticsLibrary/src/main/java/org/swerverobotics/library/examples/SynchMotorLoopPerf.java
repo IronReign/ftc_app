@@ -31,12 +31,8 @@ public class SynchMotorLoopPerf extends SynchronousOpMode
     
     public @Override void main() throws InterruptedException
         {
-<<<<<<< HEAD
-        motor = hardwareMap.dcMotor.get("motorLeftBack");
-=======
         leftMotor  = hardwareMap.dcMotor.get("motorLeft");
         rightMotor = hardwareMap.dcMotor.get("motorRight");
->>>>>>> b743717dbec9fdb1573895c90aa726afc0da2db9
 
         waitForStart();
 

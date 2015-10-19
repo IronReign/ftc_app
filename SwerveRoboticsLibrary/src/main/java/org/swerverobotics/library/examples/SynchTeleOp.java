@@ -9,9 +9,10 @@ import org.swerverobotics.library.interfaces.*;
 /**
  * An example of a synchronous opmode that implements a simple drive-a-bot.
  */
-@TeleOp(name = "Simple TeleOp", group = "Swerve Examples")
-//@Disabled
-public class SynchTeleOp extends SynchronousOpMode {
+@TeleOp(name="TeleOp (sync)", group="Swerve Examples")
+@Disabled
+public class SynchTeleOp extends SynchronousOpMode
+    {
     // All hardware variables can only be initialized inside the main() function,
     // not here at their member variable declarations.
     DcMotor motorLeftBack = null;

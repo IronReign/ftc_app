@@ -34,7 +34,8 @@ public class Pose
 
     /**
      * Creates a Pose instance with 0 speed, to prevent muscle fatigue
-     * by excess typing demand on the software team members.
+     * by excess typing demand on the software team members. This is likely
+     * the one to use on init when speed is zero and starting position is known
      *
      * @param x     The position relative to the x axis of the robot
      * @param y     The position relative to the y axis of the robot

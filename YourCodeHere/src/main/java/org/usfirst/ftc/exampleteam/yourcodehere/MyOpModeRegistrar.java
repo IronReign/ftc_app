@@ -50,7 +50,6 @@ public class MyOpModeRegistrar
         manager.register(SynchTeleOp.class);
         manager.register(SynchTelemetryOp.class);
         manager.register(SynchIMUDemo.class);
-        manager.register("FTC HQ NxtTeleOp", NxtTeleOp.class);
 
         }
     }

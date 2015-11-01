@@ -25,22 +25,22 @@ public class SynchTeleOp extends SynchronousOpMode
         // Initialize our hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names you assigned during the robot configuration
         // step you did in the FTC Robot Controller app on the phone.
-        this.motorLeftBack = this.hardwareMap.dcMotor.get("motorLeftBack");
-        this.motorRightBack = this.hardwareMap.dcMotor.get("motorRightBack");
-        this.motorLeftFront = this.hardwareMap.dcMotor.get("motorLeftFront");
-        this.motorRightFront = this.hardwareMap.dcMotor.get("motorRightFront");
+        //this.motorLeftBack = this.hardwareMap.dcMotor.get("motorLeftBack");
+        //this.motorRightBack = this.hardwareMap.dcMotor.get("motorRightBack");
+        this.motorLeftFront = this.hardwareMap.dcMotor.get("motorLeft");
+        this.motorRightFront = this.hardwareMap.dcMotor.get("motorRight");
 
         // Configure the knobs of the hardware according to how you've wired your
         // robot. Here, we assume that there are no encoders connected to the motors,
         // so we inform the motor objects of that fact.
-        this.motorLeftBack.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        this.motorRightBack.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        this.motorLeftFront.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        this.motorRightFront.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        //this.motorLeftBack.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        //this.motorRightBack.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        this.motorLeftFront.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        this.motorRightFront.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
 
         // One of the two motors (here, the left) should be set to reversed direction
         // so that it can take the same power level values as the other motor.
-        this.motorRightBack.setDirection(DcMotor.Direction.REVERSE);
+        //this.motorRightBack.setDirection(DcMotor.Direction.REVERSE);
         this.motorRightFront.setDirection(DcMotor.Direction.REVERSE);
 
         // Configure the dashboard however we want it
@@ -102,8 +102,8 @@ public class SynchTeleOp extends SynchronousOpMode
         ///float powerRight = Range.clip(ctlLeft + ctlRight, -1f, 1f);
 
         // Tell the motors
-        this.motorLeftBack.setPower(ctlLeft);
-        this.motorRightBack.setPower(ctlRight);
+        //this.motorLeftBack.setPower(ctlLeft);
+        //this.motorRightBack.setPower(ctlRight);
         this.motorLeftFront.setPower(ctlLeft);
         this.motorRightFront.setPower(ctlRight);
     }
@@ -129,19 +129,19 @@ public class SynchTeleOp extends SynchronousOpMode
                         this.telemetry.item("left:", new IFunc<Object>() {
                             @Override
                             public Object value() {
-                                return format(motorLeftBack.getPower());
+                                return format(motorLeftFront.getPower());
                             }
                         }),
                         this.telemetry.item("right: ", new IFunc<Object>() {
                             @Override
                             public Object value() {
-                                return format(motorRightBack.getPower());
+                                return format(motorRightFront.getPower());
                             }
                         }),
                         this.telemetry.item("mode: ", new IFunc<Object>() {
                             @Override
                             public Object value() {
-                                return motorLeftBack.getChannelMode();
+                                return motorLeftFront.getChannelMode();
                             }
                         })
                 );

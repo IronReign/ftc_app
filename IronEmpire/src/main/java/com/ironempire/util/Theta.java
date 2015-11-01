@@ -20,7 +20,14 @@ public class Theta {
         conversion = convert;
     }
 
+    /**
+     *
+     * @param num
+     * @param convert
+     * @return
+     */
     public float converter(float num, boolean convert) {
+
         if (convert == true) {
             num = (float) ((num * Math.PI) / 180);
             firstNum = num;
@@ -33,14 +40,14 @@ public class Theta {
         } else {
             if (convert == false) {
 
-                if (num < -180) {
+                if (num <= -180) {
                     int amount = (int) (num / 360);
                     amount = amount * -1;
                     float deg4 = num + (360 * amount);
                     firstNum = deg4;
                     return deg4;
                 } else {
-                    if (num > 180) {
+                    if (num >= 180) {
                         int amount = (int) (num / 180);
                         float deg5 = num - (180 * amount);
                         firstNum = deg5;

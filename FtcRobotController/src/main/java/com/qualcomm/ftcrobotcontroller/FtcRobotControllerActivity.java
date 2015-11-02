@@ -409,6 +409,7 @@ public class FtcRobotControllerActivity extends Activity {
      *
      * @see <a href="http://developer.android.com/reference/android/app/Activity.html">Activity Life Cycle</a>
      */
+
     @Override protected void onDestroy()
         {
         // Do required superclass stuff

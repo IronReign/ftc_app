@@ -138,6 +138,16 @@ public class Theta {
      }
      */
 
-
+    /** Normalize the angle into the range [-180,180) */
+    double normalizeDegrees(double degrees)
+    {
+        while (degrees >= 180.0) degrees -= 360.0;
+        while (degrees < -180.0) degrees += 360.0;
+        return degrees;
+    }
+    double degreesFromRadians(double radians)
+    {
+        return radians * 180.0 / Math.PI;
+    }
 
 }

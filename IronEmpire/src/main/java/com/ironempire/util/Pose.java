@@ -219,9 +219,9 @@ public class Pose
         if (!initialized){
             //first time in - we assume that the robot has not started moving and that orientation values are set to the current absolute orientation
             //so first set of imu readings are effectively offsets
-            offsetHeading = poseHeading - imu.heading;
-            offsetPitch = posePitch - imu.pitch;
-            offsetRoll = poseRoll - imu.roll;
+            offsetHeading = diffAngle(poseHeading, imu.heading);
+            offsetPitch = diffAngle(posePitch, imu.pitch);
+            offsetRoll = diffAngle(poseRoll, imu.roll);
             initialized = true;
         }
 
@@ -237,8 +237,22 @@ public class Pose
         ticksRightPrev = ticksRight;
         ticksLeftPrev = ticksLeft;
 
-        poseX += displacement * Math.cos(poseHeading);
-        poseY += displacement * Math.sin(poseHeading);
+        double poseHeadingRad = Math.toRadians(poseHeading);
+
+        poseX += displacement * Math.cos(poseHeadingRad);
+        poseY += displacement * Math.sin(poseHeadingRad);
+    }
+
+    /**
+     * returns the minimum difference (in absolute terms) between two angles,
+     * preserves the sign of the difference
+     *
+     * @param angle1
+     * @param angle2
+     * @return
+     */
+    public double diffAngle(double angle1, double angle2){
+        return Math.abs(angle1 - angle2) < Math.abs(angle2-angle1) ? angle1 - angle2 : angle2-angle1;
     }
 
 }

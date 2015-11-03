@@ -5,11 +5,12 @@ import com.qualcomm.robotcore.hardware.*;
 import org.swerverobotics.library.*;
 import org.swerverobotics.library.interfaces.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.ironempire.util.*;
 
 /**
  * An example of a synchronous opmode that implements a simple drive-a-bot.
  */
-@TeleOp(name="6832 Square Dance (sync)", group="IronReign")
+@TeleOp(name="6832 Demo (sync)", group="IronReign")
 //@Disabled
 public class IronSquareDance extends SynchronousOpMode
     {
@@ -25,6 +26,9 @@ public class IronSquareDance extends SynchronousOpMode
         IBNO055IMU              imu;
         ElapsedTime             elapsed    = new ElapsedTime();
         IBNO055IMU.Parameters   parameters = new IBNO055IMU.Parameters();
+        Pose pose;
+
+
 
         // Here we have state we use for updating the dashboard. The first of these is important
         // to read only once per update, as its acquisition is expensive. The remainder, though,
@@ -70,6 +74,19 @@ public class IronSquareDance extends SynchronousOpMode
         // Enable reporting of position using the naive integrator
         imu.startAccelerationIntegration(new Position(), new Velocity());
 
+        //Set up robot pose
+        pose = new Pose(0,0,0,0);
+
+        //1120 ticks per rotation of Neverest 40 motor
+        //1.5 increase in speed from 24 tooth drive sprocket to 16 tooth driven
+        //~80 mm diameter to outside of tread on track sprocket * pi = 251 mm = .25 meter travel per motor turn
+        //1120 * 4 = 4480
+        //this estimated approach needs to be replaced with a calibrated and measured set of ticks per meter
+
+        pose.setTicksPerMeterLeft(4480);
+        pose.setTicksPerMeterRight(4480);
+
+
         // Configure the dashboard however we want it
         this.configureDashboard();
 
@@ -83,6 +100,8 @@ public class IronSquareDance extends SynchronousOpMode
                 // Do something with that! Here, we just drive.
                 this.doManualDrivingControl(this.gamepad1);
             }
+
+            pose.Update(imu.getAngularOrientation(), motorLeft.getCurrentPosition(), motorRight.getCurrentPosition());
 
             // Emit telemetry with the freshest possible values
             this.telemetry.update();
@@ -245,17 +264,17 @@ public class IronSquareDance extends SynchronousOpMode
         telemetry.addLine(
                 telemetry.item("heading: ", new IFunc<Object>() {
                     public Object value() {
-                        return formatAngle(angles.heading);
+                        return formatAngle(pose.getHeading());
                     }
                 }),
                 telemetry.item("roll: ", new IFunc<Object>() {
                     public Object value() {
-                        return formatAngle(angles.roll);
+                        return formatAngle(pose.getRoll());
                     }
                 }),
                 telemetry.item("pitch: ", new IFunc<Object>() {
                     public Object value() {
-                        return formatAngle(angles.pitch);
+                        return formatAngle(pose.getPitch());
                     }
                 }));
 
@@ -264,23 +283,39 @@ public class IronSquareDance extends SynchronousOpMode
                 {
                     public Object value()
                     {
-                        return formatPosition(position.x);
+                        return formatPosition(pose.getX());
                     }
                 }),
                 telemetry.item("y: ", new IFunc<Object>()
                 {
                     public Object value()
                     {
-                        return formatPosition(position.y);
+                        return formatPosition(pose.getY());
                     }
                 }),
-                telemetry.item("z: ", new IFunc<Object>()
+                telemetry.item("s: ", new IFunc<Object>()
                 {
                     public Object value()
                     {
-                        return formatPosition(position.z);
+                        return formatPosition(pose.getSpeed());
                     }
                 }));
+        telemetry.addLine(
+                telemetry.item("motorLeft: ", new IFunc<Object>()
+                {
+                    public Object value()
+                    {
+                        return motorLeft.getCurrentPosition();
+                    }
+                }),
+                telemetry.item("motorRight: ", new IFunc<Object>()
+                {
+                    public Object value()
+                    {
+                        return motorRight.getCurrentPosition();
+                    }
+                }));
+
     }
 
     // Handy functions for formatting data for the dashboard

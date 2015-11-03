@@ -225,12 +225,13 @@ public class Pose
             initialized = true;
         }
 
-        poseHeading = imu.heading - offsetHeading;
-        posePitch = imu.pitch - offsetPitch;
-        poseRoll = imu.roll - offsetRoll;
+        poseHeading = imu.heading + offsetHeading;
+        posePitch = imu.pitch + offsetPitch;
+        poseRoll = imu.roll + offsetRoll;
 
-        double displacement = (((ticksRight - ticksRightPrev)/ticksPerMeterRight) - ((ticksLeft - ticksLeftPrev)/ticksPerMeterLeft))/2;
-        poseSpeed = displacement / (currentTime - this.timeStamp)*1000000; //meters per second when ticks per meter is calibrated
+        double displacement = (((double)(ticksRight - ticksRightPrev)/ticksPerMeterRight) + ((double)(ticksLeft - ticksLeftPrev)/ticksPerMeterLeft))/2.0;
+
+        poseSpeed = displacement / (double)(currentTime - this.timeStamp)*1000000; //meters per second when ticks per meter is calibrated
 
         timeStamp = currentTime;
         ticksRightPrev = ticksRight;

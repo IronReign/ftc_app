@@ -219,9 +219,9 @@ public class Pose
         if (!initialized){
             //first time in - we assume that the robot has not started moving and that orientation values are set to the current absolute orientation
             //so first set of imu readings are effectively offsets
-            offsetHeading = diffAngle(poseHeading, imu.heading);
-            offsetPitch = diffAngle(posePitch, imu.pitch);
-            offsetRoll = diffAngle(poseRoll, imu.roll);
+            offsetHeading = -diffAngle(poseHeading, imu.heading);
+            offsetPitch = -diffAngle(posePitch, imu.pitch);
+            offsetRoll = -diffAngle(poseRoll, imu.roll);
             initialized = true;
         }
 

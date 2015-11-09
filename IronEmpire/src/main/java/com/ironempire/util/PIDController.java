@@ -289,7 +289,7 @@ public class PIDController {
         m_result = 0;
     }
 
-    public void getInput(double input){
+    public void setInput(double input){
         m_input = input;
     }
 

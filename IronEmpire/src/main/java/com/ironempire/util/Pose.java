@@ -35,6 +35,8 @@ public class Pose
     private long ticksPerMeterRight= 10000; //need actual measured value
     private long ticksLeftPrev;
     private long ticksRightPrev;
+    private long ticksLeftOffset; //provide a way to offset (effectively reset) the motor encoder readings
+    private long ticksRightOffset;
     private double wheelbase; //the width between the wheels
 
     /**
@@ -242,6 +244,33 @@ public class Pose
         poseX += displacement * Math.cos(poseHeadingRad);
         poseY += displacement * Math.sin(poseHeadingRad);
     }
+    public long getTicksLeftPrev()
+    {
+        return ticksLeftPrev;
+    }
+    public long getTicksRightPrev()
+    {
+        return ticksRightPrev;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public double getOdometer() {
+
+    return  (((double)(ticksRightPrev - ticksRightOffset)/ticksPerMeterRight) + ((double)(ticksLeftPrev - ticksLeftOffset)/ticksPerMeterLeft))/2.0;
+
+    }
+
+    /**
+     *
+      * @param distance
+     */
+    public void setOdometer(double distance){
+        ticksRightOffset = (long) (distance * ticksPerMeterRight);
+        ticksLeftOffset = (long) (distance * ticksPerMeterLeft);
+    }
 
     /**
      * returns the minimum difference (in absolute terms) between two angles,
@@ -253,6 +282,6 @@ public class Pose
      */
     public double diffAngle(double angle1, double angle2){
         return Math.abs(angle1 - angle2) < Math.abs(angle2-angle1) ? angle1 - angle2 : angle2-angle1;
-    }
+        }
 
-}
+        }

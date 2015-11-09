@@ -12,7 +12,7 @@ import com.ironempire.util.*;
  */
 @TeleOp(name="6832 Demo (sync)", group="IronReign")
 //@Disabled
-public class IronSquareDance extends SynchronousOpMode
+public class IronDemo extends SynchronousOpMode
     {
     // All hardware variables can only be initialized inside the main() function,
     // not here at their member variable declarations.
@@ -20,6 +20,7 @@ public class IronSquareDance extends SynchronousOpMode
     DcMotor motorRightBack = null;
     DcMotor motorLeft = null;
     DcMotor motorRight = null;
+    DcMotor motorBeater = null;
 
 
         // Our sensors, motors, and other devices go here, along with other long term state
@@ -48,6 +49,7 @@ public class IronSquareDance extends SynchronousOpMode
         //this.motorRightBack = this.hardwareMap.dcMotor.get("motorRightBack");
         this.motorLeft = this.hardwareMap.dcMotor.get("motorLeft");
         this.motorRight = this.hardwareMap.dcMotor.get("motorRight");
+        this.motorBeater = this.hardwareMap.dcMotor.get("motorBeater");
 
         // Configure the knobs of the hardware according to how you've wired your
         // robot. Here, we assume that there are no encoders connected to the motors,
@@ -56,6 +58,7 @@ public class IronSquareDance extends SynchronousOpMode
         //this.motorRightBack.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorLeft.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         this.motorRight.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        this.motorBeater.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
 
         // One of the two motors (here, the left) should be set to reversed direction
         // so that it can take the same power level values as the other motor.
@@ -120,6 +123,12 @@ public class IronSquareDance extends SynchronousOpMode
         // power levels range over the same amount
         float ctlLeft = pad.left_stick_y;
         float ctlRight = pad.right_stick_y;
+        if(pad.left_bumper){
+            this.motorBeater.setPower(1);
+        }
+        else{
+            this.motorBeater.setPower(0);
+        }
 
         // We're going to assume that the deadzone processing has been taken care of for us
         // already by the underlying system (that appears to be the intent). Were that not

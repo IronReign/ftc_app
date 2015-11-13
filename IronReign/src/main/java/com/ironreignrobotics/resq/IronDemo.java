@@ -21,6 +21,12 @@ public class IronDemo extends SynchronousOpMode
     DcMotor motorLeft = null;
     DcMotor motorRight = null;
     DcMotor motorBeater = null;
+    PIDController drivePID = new PIDController(0, 0, 0);
+    float ctlLeft;
+    float ctlRight;
+
+    public String[] State = {"TeleOp", "Auto", "GoStraight", "GoStraightIMU", "SquareDance"};
+    public int stateDex = 0;
 
 
         // Our sensors, motors, and other devices go here, along with other long term state
@@ -106,6 +112,33 @@ public class IronDemo extends SynchronousOpMode
 
             pose.Update(imu.getAngularOrientation(), motorLeft.getCurrentPosition(), motorRight.getCurrentPosition());
 
+            switch(stateDex)
+            {
+                case 0:
+                    this.motorLeft.setPower(ctlLeft);
+                    this.motorRight.setPower(ctlRight);
+                    break;
+                case 1:
+                    break;
+                case 2:
+                    motorLeft.setPower(-.8);
+                    motorRight.setPower(-.8);
+                    break;
+                case 3:
+                    drivePID.setPID(.3, 0, 0);
+                    drivePID.setSetpoint(0);
+                    drivePID.setInput(pose.diffAngle(drivePID.getSetpoint(), pose.getHeading()));
+                    motorLeft.setPower(drivePID.performPID());
+                    motorRight.setPower(0 - drivePID.performPID());
+                    break;
+                default:
+                    motorLeft.setPower(0);
+                    motorRight.setPower(0);
+                    break;
+
+            }
+
+
             // Emit telemetry with the freshest possible values
             this.telemetry.update();
 
@@ -121,13 +154,25 @@ public class IronDemo extends SynchronousOpMode
     void doManualDrivingControl(Gamepad pad) throws InterruptedException {
         // Remember that the gamepad sticks range from -1 to +1, and that the motor
         // power levels range over the same amount
-        float ctlLeft = pad.left_stick_y;
-        float ctlRight = pad.right_stick_y;
-        if(pad.left_bumper){
+        ctlLeft = pad.left_stick_y;
+        ctlRight = pad.right_stick_y;
+        if(pad.y){
             this.motorBeater.setPower(1);
         }
-        else{
+        else if(pad.a){
             this.motorBeater.setPower(0);
+        }
+        if(pad.right_bumper){
+            if(stateDex < 4)
+                stateDex++;
+            else
+                stateDex = 0;
+        }
+        if(pad.left_bumper){
+            if(stateDex > 0)
+                stateDex--;
+            else
+                stateDex = 4;
         }
 
         // We're going to assume that the deadzone processing has been taken care of for us
@@ -159,8 +204,7 @@ public class IronDemo extends SynchronousOpMode
         // Tell the motors
         //this.motorLeftBack.setPower(ctlLeft);
         //this.motorRightBack.setPower(ctlRight);
-        this.motorLeft.setPower(ctlLeft);
-        this.motorRight.setPower(ctlRight);
+
     }
 
     float xformDrivingPowerLevels(float level)

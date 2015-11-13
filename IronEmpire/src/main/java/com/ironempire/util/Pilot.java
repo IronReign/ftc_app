@@ -90,6 +90,7 @@ public class Pilot
         float powerRight = 0;
         while(ticks <= locate.getTicksPerMeterLeft() * targetDisplacement) {
 
+
             powerLeft = (float) drivePID.performPID();
             powerRight = 0 - (float) drivePID.performPID();
             ticks = locate.getTicksLeftPrev();

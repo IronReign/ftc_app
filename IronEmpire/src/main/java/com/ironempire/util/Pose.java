@@ -284,4 +284,4 @@ public class Pose
         return Math.abs(angle1 - angle2) < Math.abs(angle2-angle1) ? angle1 - angle2 : angle2-angle1;
         }
 
-        }
+}

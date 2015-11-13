@@ -125,11 +125,16 @@ public class IronDemo extends SynchronousOpMode
                     motorRight.setPower(-.8);
                     break;
                 case 3:
-                    drivePID.setPID(.3, 0, 0);
+
+                    drivePID.setPID(.01, 0, 0);
                     drivePID.setSetpoint(0);
-                    drivePID.setInput(pose.diffAngle(drivePID.getSetpoint(), pose.getHeading()));
-                    motorLeft.setPower(drivePID.performPID());
-                    motorRight.setPower(0 - drivePID.performPID());
+                    drivePID.enable();
+                    //drivePID.setInput(pose.diffAngle(drivePID.getSetpoint(), pose.getHeading()));
+                    drivePID.setInputRange(0,360);
+                    drivePID.setContinuous();
+                    drivePID.setInput(pose.getHeading());
+                    motorLeft.setPower(-drivePID.performPID());
+                    motorRight.setPower(drivePID.performPID());
                     break;
                 default:
                     motorLeft.setPower(0);
@@ -262,7 +267,7 @@ public class IronDemo extends SynchronousOpMode
                         this.telemetry.item("mode: ", new IFunc<Object>() {
                             @Override
                             public Object value() {
-                                return motorLeft.getChannelMode();
+                                return motorLeft.getMode();
                             }
                         })
                 );

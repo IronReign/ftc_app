@@ -24,9 +24,11 @@ public class IronDemo extends SynchronousOpMode
     PIDController drivePID = new PIDController(0, 0, 0);
     float ctlLeft;
     float ctlRight;
-
+    double baseSpeed = 0;
+        double baseHeading = 0;
     public String[] State = {"TeleOp", "Auto", "GoStraight", "GoStraightIMU", "SquareDance"};
     public int stateDex = 0;
+    public int autoDex = 0;
 
 
         // Our sensors, motors, and other devices go here, along with other long term state
@@ -62,9 +64,9 @@ public class IronDemo extends SynchronousOpMode
         // so we inform the motor objects of that fact.
         //this.motorLeftBack.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         //this.motorRightBack.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        this.motorLeft.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        this.motorRight.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        this.motorBeater.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        this.motorLeft.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        this.motorRight.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        this.motorBeater.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
 
         // One of the two motors (here, the left) should be set to reversed direction
         // so that it can take the same power level values as the other motor.
@@ -119,22 +121,64 @@ public class IronDemo extends SynchronousOpMode
                     this.motorRight.setPower(ctlRight);
                     break;
                 case 1:
+
                     break;
                 case 2:
-                    motorLeft.setPower(-.8);
-                    motorRight.setPower(-.8);
+
                     break;
                 case 3:
 
-                    drivePID.setPID(.01, 0, 0);
-                    drivePID.setSetpoint(0);
-                    drivePID.enable();
-                    //drivePID.setInput(pose.diffAngle(drivePID.getSetpoint(), pose.getHeading()));
-                    drivePID.setInputRange(0,360);
-                    drivePID.setContinuous();
-                    drivePID.setInput(pose.getHeading());
-                    motorLeft.setPower(-drivePID.performPID());
-                    motorRight.setPower(drivePID.performPID());
+                    switch(autoDex)
+                    {
+                        case 0:
+                            drivePID.setPID(.01, 0, 0);
+                            drivePID.setSetpoint(0);
+                            drivePID.enable();
+                            //drivePID.setInput(pose.diffAngle(drivePID.getSetpoint(), pose.getHeading()));
+                            drivePID.setInputRange(0, 360);
+                            drivePID.setContinuous();
+                            drivePID.setInput(pose.getHeading());
+                            drivePID.setInput(pose.getHeading());
+                            motorLeft.setPower(.5 - drivePID.performPID());
+                            motorRight.setPower(.5 + drivePID.performPID());
+                            if(pose.getOdometer() == 0.5) {
+                                motorLeft.setPower(0);
+                                motorRight.setPower(0);
+                                pose.setOdometer(0);
+                                autoDex++;
+                            }
+                            break;
+                        case 1:
+                            drivePID.disable();
+                            motorLeft.setPower(1);
+                            if(pose.getHeading() >= 45)
+                            {
+                                motorLeft.setPower(0);
+                                pose.setOdometer(0);
+                                autoDex++;
+                            }
+                            break;
+                        case 2:
+                            drivePID.enable();
+                            //drivePID.setInput(pose.diffAngle(drivePID.getSetpoint(), pose.getHeading()));
+                            drivePID.setInputRange(0, 360);
+                            drivePID.setContinuous();
+                            drivePID.setInput(pose.getHeading());
+                            drivePID.setInput(pose.getHeading());
+                            motorLeft.setPower(.5 - drivePID.performPID());
+                            motorRight.setPower(.5 + drivePID.performPID());
+                            if(pose.getOdometer() == 2.5) {
+                                motorLeft.setPower(0);
+                                motorRight.setPower(0);
+                                pose.setOdometer(0);
+                                autoDex++;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    boolean caseSwitch = false;
+
                     break;
                 default:
                     motorLeft.setPower(0);
@@ -164,14 +208,17 @@ public class IronDemo extends SynchronousOpMode
         if(pad.y){
             this.motorBeater.setPower(1);
         }
-        else if(pad.a){
+        if(pad.a){
             this.motorBeater.setPower(0);
         }
-        if(pad.right_bumper){
-            if(stateDex < 4)
+        if(pad.b){
+            this.motorBeater.setPower(-1);}
+        if(pad.right_bumper){   //Add code preventing bumpers changing state if "halt" is true (halt is made true when state
+            if(stateDex < 4)    //changes and made false when some other button is pressed)
                 stateDex++;
             else
                 stateDex = 0;
+
         }
         if(pad.left_bumper){
             if(stateDex > 0)

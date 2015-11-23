@@ -109,6 +109,7 @@ public class IronDemo extends SynchronousOpMode
             if (this.updateGamepads()) {
                 // There is (likely) new gamepad input available.
                 // Do something with that! Here, we just drive.
+
                 this.doManualDrivingControl(this.gamepad1);
             }
 
@@ -127,7 +128,7 @@ public class IronDemo extends SynchronousOpMode
 
                     break;
                 case 3:
-
+//autonomous
                     switch(autoDex)
                     {
                         case 0:
@@ -141,7 +142,7 @@ public class IronDemo extends SynchronousOpMode
                             drivePID.setInput(pose.getHeading());
                             motorLeft.setPower(.5 - drivePID.performPID());
                             motorRight.setPower(.5 + drivePID.performPID());
-                            if(pose.getOdometer() == 0.5) {
+                            if(pose.getOdometer() == 0.1) {
                                 motorLeft.setPower(0);
                                 motorRight.setPower(0);
                                 pose.setOdometer(0);
@@ -174,11 +175,22 @@ public class IronDemo extends SynchronousOpMode
                                 autoDex++;
                             }
                             break;
+
+                        /*case 3:
+                            drivePID.disable();
+                            motorLeft.setPower(0.5);
+                            motorRight.setPower(0);
+                            if(pose.getHeading()>45 || pose.getHeading()<45){
+                                pose.setPoseHeading(45);
+                                autoDex++;
+                            }
+                        case 4:*/
+
+
                         default:
                             break;
                     }
                     boolean caseSwitch = false;
-
                     break;
                 default:
                     motorLeft.setPower(0);
@@ -457,7 +469,6 @@ public class IronDemo extends SynchronousOpMode
         // Utility
         //----------------------------------------------------------------------------------------------
 
-        /** Normalize the angle into the range [-180,180) */
         double normalizeDegrees(double degrees)
         {
             while (degrees >= 180.0) degrees -= 360.0;
@@ -500,5 +511,7 @@ public class IronDemo extends SynchronousOpMode
 
             return result.toString();
         }
+
+
 
     }

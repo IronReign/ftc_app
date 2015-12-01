@@ -31,8 +31,8 @@ public class Pose
     private double offsetHeading;
     private double offsetPitch;
     private double offsetRoll;
-    private long ticksPerMeterLeft = 10000; //arbitrary initial value so we don't get a divide by zero
-    private long ticksPerMeterRight= 10000; //need actual measured value
+    private long ticksPerMeterLeft = 20000; //arbitrary initial value so we don't get a divide by zero
+    private long ticksPerMeterRight= 20000; //need actual measured value
     private long ticksLeftPrev;
     private long ticksRightPrev;
     private long ticksLeftOffset; //provide a way to offset (effectively reset) the motor encoder readings

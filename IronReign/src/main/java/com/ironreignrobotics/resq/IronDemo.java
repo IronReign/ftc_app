@@ -16,19 +16,23 @@ public class IronDemo extends SynchronousOpMode
     {
     // All hardware variables can only be initialized inside the main() function,
     // not here at their member variable declarations.
-    DcMotor motorLeftBack = null;
-    DcMotor motorRightBack = null;
+    //DcMotor motorLeftBack = null;
+    //DcMotor motorRightBack = null;
     DcMotor motorLeft = null;
     DcMotor motorRight = null;
     DcMotor motorBeater = null;
     PIDController drivePID = new PIDController(0, 0, 0);
+    private double KpDrive = .01;
+    private double KiDrive = .0005;
+    private double KdDrive = 0;
+    private double driveIMUBasePower = .5;
     float ctlLeft;
     float ctlRight;
     double baseSpeed = 0;
         double baseHeading = 0;
     public String[] State = {"TeleOp", "Auto", "GoStraight", "GoStraightIMU", "SquareDance"};
-    public int stateDex = 0;
-    public int autoDex = 0;
+    public int stateDex = 1;
+    public int autoDex = 2;
 
 
         // Our sensors, motors, and other devices go here, along with other long term state
@@ -71,7 +75,7 @@ public class IronDemo extends SynchronousOpMode
         // One of the two motors (here, the left) should be set to reversed direction
         // so that it can take the same power level values as the other motor.
         //this.motorRightBack.setDirection(DcMotor.Direction.REVERSE);
-        this.motorRight.setDirection(DcMotor.Direction.REVERSE);
+        this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
 
         // We are expecting the IMU to be attached to an I2C port on  a core device interface
         // module and named "imu". Retrieve that raw I2cDevice and then wrap it in an object that
@@ -125,6 +129,7 @@ public class IronDemo extends SynchronousOpMode
 
                     break;
                 case 2:
+                    MoveIMU(KpDrive, KiDrive, KdDrive, 0, 0, drivePID);
 
                     break;
                 case 3:
@@ -132,17 +137,8 @@ public class IronDemo extends SynchronousOpMode
                     switch(autoDex)
                     {
                         case 0:
-                            drivePID.setPID(.01, 0, 0);
-                            drivePID.setSetpoint(0);
-                            drivePID.enable();
-                            //drivePID.setInput(pose.diffAngle(drivePID.getSetpoint(), pose.getHeading()));
-                            drivePID.setInputRange(0, 360);
-                            drivePID.setContinuous();
-                            drivePID.setInput(pose.getHeading());
-                            drivePID.setInput(pose.getHeading());
-                            motorLeft.setPower(.5 - drivePID.performPID());
-                            motorRight.setPower(.5 + drivePID.performPID());
-                            if(pose.getOdometer() == 0.1) {
+                            MoveIMU(KpDrive, KiDrive, KdDrive, driveIMUBasePower, 0, drivePID);
+                            if(pose.getOdometer() >= 0.1) {
                                 motorLeft.setPower(0);
                                 motorRight.setPower(0);
                                 pose.setOdometer(0);
@@ -150,8 +146,7 @@ public class IronDemo extends SynchronousOpMode
                             }
                             break;
                         case 1:
-                            drivePID.disable();
-                            motorLeft.setPower(1);
+                            MoveIMU(KpDrive, 0, KdDrive, 0, 45, drivePID);
                             if(pose.getHeading() >= 45)
                             {
                                 motorLeft.setPower(0);
@@ -160,15 +155,9 @@ public class IronDemo extends SynchronousOpMode
                             }
                             break;
                         case 2:
-                            drivePID.enable();
-                            //drivePID.setInput(pose.diffAngle(drivePID.getSetpoint(), pose.getHeading()));
-                            drivePID.setInputRange(0, 360);
-                            drivePID.setContinuous();
-                            drivePID.setInput(pose.getHeading());
-                            drivePID.setInput(pose.getHeading());
-                            motorLeft.setPower(.5 - drivePID.performPID());
-                            motorRight.setPower(.5 + drivePID.performPID());
-                            if(pose.getOdometer() == 2.5) {
+                            MoveIMU(KpDrive, KiDrive, KdDrive, driveIMUBasePower, 0, drivePID);
+                            if (pose.getOdometer() >= 2.6)
+                            {
                                 motorLeft.setPower(0);
                                 motorRight.setPower(0);
                                 pose.setOdometer(0);
@@ -176,16 +165,13 @@ public class IronDemo extends SynchronousOpMode
                             }
                             break;
 
-                        /*case 3:
-                            drivePID.disable();
-                            motorLeft.setPower(0.5);
+                        case 3:
+                            motorLeft.setPower(0);
                             motorRight.setPower(0);
-                            if(pose.getHeading()>45 || pose.getHeading()<45){
-                                pose.setPoseHeading(45);
-                                autoDex++;
-                            }
-                        case 4:*/
-
+                            break;
+/*
+                        //case 4:
+*/
 
                         default:
                             break;
@@ -215,8 +201,8 @@ public class IronDemo extends SynchronousOpMode
     void doManualDrivingControl(Gamepad pad) throws InterruptedException {
         // Remember that the gamepad sticks range from -1 to +1, and that the motor
         // power levels range over the same amount
-        ctlLeft = pad.left_stick_y;
-        ctlRight = pad.right_stick_y;
+        ctlLeft = -pad.left_stick_y;
+        ctlRight = -pad.right_stick_y;
         if(pad.y){
             this.motorBeater.setPower(1);
         }
@@ -410,11 +396,11 @@ public class IronDemo extends SynchronousOpMode
                         return formatPosition(pose.getY());
                     }
                 }),
-                telemetry.item("s: ", new IFunc<Object>()
+                telemetry.item("odo: ", new IFunc<Object>()
                 {
                     public Object value()
                     {
-                        return formatPosition(pose.getSpeed());
+                        return formatPosition(pose.getOdometer());
                     }
                 }));
         telemetry.addLine(
@@ -469,6 +455,18 @@ public class IronDemo extends SynchronousOpMode
         // Utility
         //----------------------------------------------------------------------------------------------
 
+        void MoveIMU(double Kp, double Ki, double Kd, double pwr, int angle, PIDController PID)
+        {
+            PID.setPID(Kp, Ki, Kd);
+            PID.setSetpoint(angle);
+            PID.enable();
+            //drivePID.setInput(pose.diffAngle(drivePID.getSetpoint(), pose.getHeading()));
+            PID.setInputRange(0,360);
+            PID.setContinuous();
+            PID.setInput(pose.getHeading());
+            motorLeft.setPower(pwr + PID.performPID());
+            motorRight.setPower(pwr - PID.performPID());
+        }
         double normalizeDegrees(double degrees)
         {
             while (degrees >= 180.0) degrees -= 360.0;

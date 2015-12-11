@@ -21,9 +21,14 @@ public class IronDemo extends SynchronousOpMode
     DcMotor motorLeft = null;
     DcMotor motorRight = null;
     DcMotor motorBeater = null;
+        Servo servoCatcher = null;
+
+
     PIDController drivePID = new PIDController(0, 0, 0);
-    private double KpDrive = .01;
-    private double KiDrive = .0005;
+    //NOTE: on isRed, 1 is for blue side and -1 is for red side
+    private int isRed = 1;
+    private double KpDrive = .03;
+    private double KiDrive = 0;
     private double KdDrive = 0;
     private double driveIMUBasePower = .5;
     float ctlLeft;
@@ -137,7 +142,7 @@ public class IronDemo extends SynchronousOpMode
                     switch(autoDex)
                     {
                         case 0:
-                            MoveIMU(KpDrive, KiDrive, KdDrive, driveIMUBasePower, 0, drivePID);
+                            MoveIMU(KpDrive, KiDrive, KdDrive, driveIMUBasePower, 45 * isRed, drivePID);
                             if(pose.getOdometer() >= 0.1) {
                                 motorLeft.setPower(0);
                                 motorRight.setPower(0);
@@ -146,7 +151,7 @@ public class IronDemo extends SynchronousOpMode
                             }
                             break;
                         case 1:
-                            MoveIMU(KpDrive, 0, KdDrive, 0, 45, drivePID);
+                            MoveIMU(KpDrive, 0, KdDrive, 0, 0, drivePID);
                             if(pose.getHeading() >= 45)
                             {
                                 motorLeft.setPower(0);
@@ -194,7 +199,7 @@ public class IronDemo extends SynchronousOpMode
         }
     }
 
-    /**
+    /**+
      * Implement a simple two-motor driving logic using the left and right
      * right joysticks on the indicated game pad.
      */
@@ -223,6 +228,15 @@ public class IronDemo extends SynchronousOpMode
                 stateDex--;
             else
                 stateDex = 4;
+        }
+
+        if(pad.dpad_down)
+        {
+            servoCatcher.setPosition(1);
+        }
+        if(pad.dpad_up)
+        {
+            servoCatcher.setPosition(0);
         }
 
         // We're going to assume that the deadzone processing has been taken care of for us

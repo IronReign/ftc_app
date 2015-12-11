@@ -255,7 +255,7 @@ public class Pose
 
     /**
      *
-     * @return
+     * @returns odometer value
      */
     public double getOdometer() {
 

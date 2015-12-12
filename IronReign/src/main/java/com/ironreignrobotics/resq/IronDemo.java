@@ -21,23 +21,24 @@ public class IronDemo extends SynchronousOpMode
     DcMotor motorLeft = null;
     DcMotor motorRight = null;
     DcMotor motorBeater = null;
-        Servo servoCatcher = null;
+    Servo servoCatcher = null;
 
 
     PIDController drivePID = new PIDController(0, 0, 0);
     //NOTE: on isRed, 1 is for blue side and -1 is for red side
     private int isRed = 1;
-    private double KpDrive = .03;
+    private double KpDrive = .1;
     private double KiDrive = 0;
     private double KdDrive = 0;
     private double driveIMUBasePower = .5;
     float ctlLeft;
     float ctlRight;
+    int direction = 1;
     double baseSpeed = 0;
         double baseHeading = 0;
     public String[] State = {"TeleOp", "Auto", "GoStraight", "GoStraightIMU", "SquareDance"};
-    public int stateDex = 1;
-    public int autoDex = 2;
+    public int stateDex = 0;
+    public int autoDex = 0;
 
 
         // Our sensors, motors, and other devices go here, along with other long term state
@@ -67,6 +68,7 @@ public class IronDemo extends SynchronousOpMode
         this.motorLeft = this.hardwareMap.dcMotor.get("motorLeft");
         this.motorRight = this.hardwareMap.dcMotor.get("motorRight");
         this.motorBeater = this.hardwareMap.dcMotor.get("motorBeater");
+        this.servoCatcher = this.hardwareMap.servo.get("servoCatcher");
 
         // Configure the knobs of the hardware according to how you've wired your
         // robot. Here, we assume that there are no encoders connected to the motors,
@@ -127,23 +129,15 @@ public class IronDemo extends SynchronousOpMode
             switch(stateDex)
             {
                 case 0:
-                    this.motorLeft.setPower(ctlLeft);
-                    this.motorRight.setPower(ctlRight);
+                    this.motorLeft.setPower(ctlLeft * direction);
+                    this.motorRight.setPower(ctlRight* direction);
                     break;
-                case 1:
-
-                    break;
-                case 2:
-                    MoveIMU(KpDrive, KiDrive, KdDrive, 0, 0, drivePID);
-
-                    break;
-                case 3:
-//autonomous
+                case 1: //autonomous
                     switch(autoDex)
                     {
                         case 0:
-                            MoveIMU(KpDrive, KiDrive, KdDrive, driveIMUBasePower, 45 * isRed, drivePID);
-                            if(pose.getOdometer() >= 0.1) {
+                            MoveIMU(KpDrive, KiDrive, KdDrive, -1*driveIMUBasePower, 0 * isRed, drivePID);
+                            if(pose.getOdometer() <= -0.1) {
                                 motorLeft.setPower(0);
                                 motorRight.setPower(0);
                                 pose.setOdometer(0);
@@ -152,16 +146,17 @@ public class IronDemo extends SynchronousOpMode
                             break;
                         case 1:
                             MoveIMU(KpDrive, 0, KdDrive, 0, 0, drivePID);
-                            if(pose.getHeading() >= 45)
+                            if(pose.getHeading() <= -45)
                             {
+                                servoCatcher.setPosition(.64);
                                 motorLeft.setPower(0);
                                 pose.setOdometer(0);
                                 autoDex++;
                             }
                             break;
                         case 2:
-                            MoveIMU(KpDrive, KiDrive, KdDrive, driveIMUBasePower, 0, drivePID);
-                            if (pose.getOdometer() >= 2.6)
+                            MoveIMU(KpDrive, KiDrive, KdDrive, -1*driveIMUBasePower, 0, drivePID);
+                            if (pose.getOdometer() <= -2.6)
                             {
                                 motorLeft.setPower(0);
                                 motorRight.setPower(0);
@@ -181,7 +176,11 @@ public class IronDemo extends SynchronousOpMode
                         default:
                             break;
                     }
-                    boolean caseSwitch = false;
+                    break;
+                case 2:
+                    MoveIMU(KpDrive, KiDrive, KdDrive, 0, 0, drivePID);
+                    break;
+                case 3:
                     break;
                 default:
                     motorLeft.setPower(0);
@@ -216,7 +215,9 @@ public class IronDemo extends SynchronousOpMode
         }
         if(pad.b){
             this.motorBeater.setPower(-1);}
-        if(pad.right_bumper){   //Add code preventing bumpers changing state if "halt" is true (halt is made true when state
+        if(pad.x){direction *= -1;}
+        if(pad.right_bumper){
+            autoDex = 0;        //Add code preventing bumpers changing state if "halt" is true (halt is made true when state
             if(stateDex < 4)    //changes and made false when some other button is pressed)
                 stateDex++;
             else
@@ -224,6 +225,7 @@ public class IronDemo extends SynchronousOpMode
 
         }
         if(pad.left_bumper){
+            autoDex = 0;
             if(stateDex > 0)
                 stateDex--;
             else
@@ -232,12 +234,15 @@ public class IronDemo extends SynchronousOpMode
 
         if(pad.dpad_down)
         {
-            servoCatcher.setPosition(1);
+            servoCatcher.setPosition(0.43);
         }
-        if(pad.dpad_up)
-        {
-            servoCatcher.setPosition(0);
+        if(pad.dpad_up) {
+            servoCatcher.setPosition(.84);
         }
+            if (pad.dpad_left) {
+                servoCatcher.setPosition(.64);
+            }
+
 
         // We're going to assume that the deadzone processing has been taken care of for us
         // already by the underlying system (that appears to be the intent). Were that not

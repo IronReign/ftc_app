@@ -18,9 +18,11 @@ public class IronDemo extends SynchronousOpMode
     // not here at their member variable declarations.
     //DcMotor motorLeftBack = null;
     //DcMotor motorRightBack = null;
+
     DcMotor motorLeft = null;
     DcMotor motorRight = null;
     DcMotor motorBeater = null;
+        DcMotor motorChurros = null;
     Servo servoCatcher = null;
 
 
@@ -37,7 +39,7 @@ public class IronDemo extends SynchronousOpMode
     double baseSpeed = 0;
         double baseHeading = 0;
     public String[] State = {"TeleOp", "Auto", "GoStraight", "GoStraightIMU", "SquareDance"};
-    public int stateDex = 0;
+    public int stateDex = 2 ;
     public int autoDex = 0;
 
 
@@ -69,6 +71,7 @@ public class IronDemo extends SynchronousOpMode
         this.motorRight = this.hardwareMap.dcMotor.get("motorRight");
         this.motorBeater = this.hardwareMap.dcMotor.get("motorBeater");
         this.servoCatcher = this.hardwareMap.servo.get("servoCatcher");
+        //this.motorChurros = this.hardwareMap.dcMotor.get("motorChurros");
 
         // Configure the knobs of the hardware according to how you've wired your
         // robot. Here, we assume that there are no encoders connected to the motors,
@@ -78,6 +81,7 @@ public class IronDemo extends SynchronousOpMode
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
         this.motorBeater.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+       // this.motorChurros.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
 
         // One of the two motors (here, the left) should be set to reversed direction
         // so that it can take the same power level values as the other motor.
@@ -128,9 +132,17 @@ public class IronDemo extends SynchronousOpMode
 
             switch(stateDex)
             {
-                case 0:
-                    this.motorLeft.setPower(ctlLeft * direction);
-                    this.motorRight.setPower(ctlRight* direction);
+                case 0:  //tele-op driving
+                    if(ctlLeft * ctlRight < 0)
+                    {
+                        this.motorLeft.setPower(ctlLeft);
+                        this.motorRight.setPower(ctlRight);
+                    }
+                    else
+                    {
+                        this.motorLeft.setPower(ctlLeft * direction);
+                        this.motorRight.setPower(ctlRight * direction);
+                    }
                     break;
                 case 1: //autonomous
                     switch(autoDex)
@@ -178,9 +190,10 @@ public class IronDemo extends SynchronousOpMode
                     }
                     break;
                 case 2:
-                    MoveIMU(KpDrive, KiDrive, KdDrive, 0, 0, drivePID);
+                    MoveIMU(KpDrive, 0, KdDrive, 0, 0, drivePID);
                     break;
                 case 3:
+                    MoveIMU(KpDrive, 0, KdDrive, 0, 45, drivePID);
                     break;
                 default:
                     motorLeft.setPower(0);
@@ -232,16 +245,18 @@ public class IronDemo extends SynchronousOpMode
                 stateDex = 4;
         }
 
-        if(pad.dpad_down)
+        if(pad.dpad_down)//1753 micros
         {
-            servoCatcher.setPosition(0.43);
+            servoCatcher.setPosition(.68);
         }
-        if(pad.dpad_up) {
-            servoCatcher.setPosition(.84);
+        if(pad.dpad_up)
+        {
+            servoCatcher.setPosition(.33); //1244
         }
-            if (pad.dpad_left) {
-                servoCatcher.setPosition(.64);
-            }
+        if (pad.dpad_left)
+        {
+            servoCatcher.setPosition(.51); //1517
+        }
 
 
         // We're going to assume that the deadzone processing has been taken care of for us

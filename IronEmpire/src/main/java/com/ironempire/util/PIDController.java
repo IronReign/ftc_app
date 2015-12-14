@@ -50,8 +50,8 @@ public class PIDController {
     private double m_setpoint = 0.0;
     private double m_error = 0.0;
     private double m_result = 0.0;
-    private long m_prevTime;
-    private long m_deltaTime;
+    private long m_prevTime; //time of previous calculate() in nanoseconds from the current epoch
+    private double m_deltaTime; // time between calls to calculate() in fractional seconds
 
     /**
      * Allocate a PID object with the given constants for P, I, D
@@ -98,15 +98,18 @@ public class PIDController {
                 }
             }
 
+            //time since last iteration
+            m_deltaTime=(System.nanoTime()-m_prevTime)/1E9;
+
             /* Integrate the errors as long as the upcoming integrator does
                not exceed the minimum and maximum output thresholds */
-            if (((m_totalError + m_error) * m_I < m_maximumOutput) &&
-                    ((m_totalError + m_error) * m_I > m_minimumOutput)) {
+            if (((m_totalError + m_error) * m_deltaTime * m_I < m_maximumOutput) &&
+                    ((m_totalError + m_error) * m_deltaTime * m_I > m_minimumOutput)) {
                 m_totalError += m_error;
             }
 
             // Perform the primary PID calculation
-            m_result = (m_P * m_error + m_I * m_totalError + m_D * (m_error - m_prevError));
+            m_result = (m_P * m_error + m_I * m_totalError * m_deltaTime + m_D * (m_error - m_prevError) * m_deltaTime);
 
             // Set the current error to the previous error for the next cycle
             m_prevError = m_error;
@@ -269,6 +272,8 @@ public class PIDController {
      * Begin running the PIDController
      */
     public void enable() {
+
+        m_prevTime=System.nanoTime();
         m_enabled = true;
     }
 
@@ -276,6 +281,7 @@ public class PIDController {
      * Stop running the PIDController, this sets the output to zero before stopping.
      */
     public void disable() {
+
         m_enabled = false;
     }
 
@@ -287,6 +293,7 @@ public class PIDController {
         m_prevError = 0;
         m_totalError = 0;
         m_result = 0;
+        m_prevTime=System.nanoTime();
     }
 
     public void setInput(double input){

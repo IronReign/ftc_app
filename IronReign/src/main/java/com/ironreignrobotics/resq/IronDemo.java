@@ -3,6 +3,7 @@ package com.ironreignrobotics.resq;
 import com.qualcomm.robotcore.hardware.*;
 
 import org.swerverobotics.library.*;
+import org.swerverobotics.library.SwerveUtil;
 import org.swerverobotics.library.interfaces.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.ironempire.util.*;
@@ -29,6 +30,7 @@ public class IronDemo extends SynchronousOpMode
     PIDController drivePID = new PIDController(0, 0, 0);
     //NOTE: on isRed, 1 is for blue side and -1 is for red side
     private int isRed = 1;
+    private boolean active = false;
     private double KpDrive = .1;
     private double KiDrive = 0;
     private double KdDrive = 0;
@@ -125,81 +127,90 @@ public class IronDemo extends SynchronousOpMode
                 // There is (likely) new gamepad input available.
                 // Do something with that! Here, we just drive.
 
-                this.doManualDrivingControl(this.gamepad1);
+                this.dexSwitch(this.gamepad1);
             }
 
             pose.Update(imu.getAngularOrientation(), motorLeft.getCurrentPosition(), motorRight.getCurrentPosition());
+            if(active) {
+                switch (stateDex) {
+                    case 0:  //tele-op driving
 
-            switch(stateDex)
-            {
-                case 0:  //tele-op driving
-                    if(ctlLeft * ctlRight < 0)
-                    {
-                        this.motorLeft.setPower(ctlLeft);
-                        this.motorRight.setPower(ctlRight);
-                    }
-                    else
-                    {
-                        this.motorLeft.setPower(ctlLeft * direction);
-                        this.motorRight.setPower(ctlRight * direction);
-                    }
-                    break;
-                case 1: //autonomous
-                    switch(autoDex)
-                    {
-                        case 0:
-                            MoveIMU(KpDrive, KiDrive, KdDrive, -1*driveIMUBasePower, 0 * isRed, drivePID);
-                            if(pose.getOdometer() <= -0.1) {
+
+                        this.doManualDrivingControl(this.gamepad1);
+
+                        if(ctlLeft * ctlRight < 0)
+                        {
+                            this.motorLeft.setPower(ctlLeft);
+                            this.motorRight.setPower(ctlRight);
+                        }
+                        else
+                        {
+                            this.motorLeft.setPower(ctlLeft * direction);
+                            this.motorRight.setPower(ctlRight * direction);
+                        }
+                        break;
+
+                    case 1: //autonomous
+                        switch (autoDex) {
+                            case 0:
+                                MoveIMU(KpDrive, KiDrive, KdDrive, -1 * driveIMUBasePower, 0 * isRed, drivePID);
+                                if (pose.getOdometer() <= -0.1) {
+                                    motorLeft.setPower(0);
+                                    motorRight.setPower(0);
+                                    pose.setOdometer(0);
+                                    autoDex++;
+                                }
+                                break;
+                            case 1:
+                                MoveIMU(KpDrive, 0, KdDrive, 0, 0, drivePID);
+                                if (pose.getHeading() <= -45) {
+                                    servoCatcher.setPosition(.64);
+                                    motorLeft.setPower(0);
+                                    pose.setOdometer(0);
+                                    autoDex++;
+                                }
+                                break;
+                            case 2:
+                                MoveIMU(KpDrive, KiDrive, KdDrive, -1 * driveIMUBasePower, 0, drivePID);
+                                if (pose.getOdometer() <= -2.6) {
+                                    motorLeft.setPower(0);
+                                    motorRight.setPower(0);
+                                    pose.setOdometer(0);
+                                    autoDex++;
+                                }
+                                break;
+
+                            case 3:
                                 motorLeft.setPower(0);
                                 motorRight.setPower(0);
-                                pose.setOdometer(0);
-                                autoDex++;
-                            }
-                            break;
-                        case 1:
-                            MoveIMU(KpDrive, 0, KdDrive, 0, 0, drivePID);
-                            if(pose.getHeading() <= -45)
-                            {
-                                servoCatcher.setPosition(.64);
-                                motorLeft.setPower(0);
-                                pose.setOdometer(0);
-                                autoDex++;
-                            }
-                            break;
-                        case 2:
-                            MoveIMU(KpDrive, KiDrive, KdDrive, -1*driveIMUBasePower, 0, drivePID);
-                            if (pose.getOdometer() <= -2.6)
-                            {
-                                motorLeft.setPower(0);
-                                motorRight.setPower(0);
-                                pose.setOdometer(0);
-                                autoDex++;
-                            }
-                            break;
-
-                        case 3:
-                            motorLeft.setPower(0);
-                            motorRight.setPower(0);
-                            break;
+                                break;
 /*
                         //case 4:
 */
 
-                        default:
-                            break;
-                    }
-                    break;
-                case 2:
-                    MoveIMU(KpDrive, 0, KdDrive, 0, 0, drivePID);
-                    break;
-                case 3:
-                    MoveIMU(KpDrive, 0, KdDrive, 0, 45, drivePID);
-                    break;
-                default:
-                    motorLeft.setPower(0);
-                    motorRight.setPower(0);
-                    break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case 2:
+                        MoveIMU(KpDrive, 0, KdDrive, 0, 0, drivePID);
+                        break;
+                    case 3:
+                        MoveIMU(KpDrive, 0, KdDrive, 0, 45, drivePID);
+                        break;
+                    default:
+                        motorLeft.setPower(0);
+                        motorRight.setPower(0);
+                        break;
 
+                }
+            }
+            else
+            {
+                motorLeft.setPower(0);
+                motorRight.setPower(0);
+                motorBeater.setPower(0);
+                //motorChurros.setPower(0);
             }
 
 
@@ -220,30 +231,8 @@ public class IronDemo extends SynchronousOpMode
         // power levels range over the same amount
         ctlLeft = -pad.left_stick_y;
         ctlRight = -pad.right_stick_y;
-        if(pad.y){
-            this.motorBeater.setPower(1);
-        }
-        if(pad.a){
-            this.motorBeater.setPower(0);
-        }
-        if(pad.b){
-            this.motorBeater.setPower(-1);}
-        if(pad.x){direction *= -1;}
-        if(pad.right_bumper){
-            autoDex = 0;        //Add code preventing bumpers changing state if "halt" is true (halt is made true when state
-            if(stateDex < 4)    //changes and made false when some other button is pressed)
-                stateDex++;
-            else
-                stateDex = 0;
 
-        }
-        if(pad.left_bumper){
-            autoDex = 0;
-            if(stateDex > 0)
-                stateDex--;
-            else
-                stateDex = 4;
-        }
+
 
         if(pad.dpad_down)//1753 micros
         {
@@ -290,6 +279,30 @@ public class IronDemo extends SynchronousOpMode
         //this.motorRightBack.setPower(ctlRight);
 
     }
+        void dexSwitch(Gamepad pad){
+            if(pad.start)
+            {
+                active = !active;
+            }
+            else if(pad.right_bumper){
+                autoDex = 0;        //Add code preventing bumpers changing state if "halt" is true (halt is made true when state
+                if(stateDex < 4)    //changes and made false when some other button is pressed)
+                    stateDex++;
+                else
+                    stateDex = 0;
+                active = false;
+
+            }
+            else if(pad.left_bumper) {
+                autoDex = 0;
+                if (stateDex > 0)
+                    stateDex--;
+                else
+                    stateDex = 4;
+                active = false;
+            }
+
+        }
 
     float xformDrivingPowerLevels(float level)
     // A useful thing to do in some robots is to map the power levels so that
@@ -328,8 +341,17 @@ public class IronDemo extends SynchronousOpMode
             ms         = elapsed.time() * 1000.0;
         }
         });
-
         this.telemetry.addLine
+                (
+                        this.telemetry.item("state:", new IFunc<Object>() {
+                            @Override
+                            public Object value() {
+                                return format(stateDex);
+                            }
+                        })
+
+                );
+        telemetry.addLine
                 (
                         this.telemetry.item("left:", new IFunc<Object>() {
                             @Override

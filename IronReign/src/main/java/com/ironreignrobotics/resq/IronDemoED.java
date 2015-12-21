@@ -10,10 +10,8 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.exception.RobotCoreException;
 
 import org.swerverobotics.library.ClassFactory;
-import org.swerverobotics.library.SynchronousOpMode;
 import org.swerverobotics.library.interfaces.EulerAngles;
 import org.swerverobotics.library.interfaces.IBNO055IMU;
 import org.swerverobotics.library.interfaces.IFunc;
@@ -49,6 +47,7 @@ public class IronDemoED extends OpMode
     private double KiDrive = 0;
     private double KdDrive = 0;
     private double driveIMUBasePower = .5;
+    private boolean active = false;
     float ctlLeft;
     float ctlRight;
     int direction = 1;
@@ -169,86 +168,83 @@ public class IronDemoED extends OpMode
         @Override
         public void loop() {
 
+            this.dexSwitch(gamepad1);
 
             pose.Update(imu.getAngularOrientation(), motorLeft.getCurrentPosition(), motorRight.getCurrentPosition());
 
-            switch(stateDex)
-            {
-                case 0:  //tele-op driving
-                    try {this.doManualDrivingControl(gamepad1);}
-                    catch  (InterruptedException e) {
-                        Log.i("FtcRobotController", "Interrupted Exception: " + e.getMessage());
+            if(active) {
+                switch (stateDex) {
+                    case 0:  //tele-op driving
+                        try {
+                            this.doManualDrivingControl(gamepad1);
+                        } catch (InterruptedException e) {
+                            Log.i("FtcRobotController", "Interrupted Exception: " + e.getMessage());
 
-                    }
+                        }
 
 
-                    if(ctlLeft * ctlRight < 0)
-                    {
-                        this.motorLeft.setPower(ctlLeft);
-                        this.motorRight.setPower(ctlRight);
-                    }
-                    else
-                    {
-                        this.motorLeft.setPower(ctlLeft * direction);
-                        this.motorRight.setPower(ctlRight * direction);
-                    }
-                    break;
-                case 1: //autonomous
-                    switch(autoDex)
-                    {
-                        case 0:
-                            MoveIMU(KpDrive, KiDrive, KdDrive, -1*driveIMUBasePower, 0 * isRed, drivePID);
-                            if(pose.getOdometer() <= -0.1) {
+                        break;
+                    case 1: //autonomous
+                        switch (autoDex) {
+                            case 0:
+                                MoveIMU(KpDrive, KiDrive, KdDrive, -1 * driveIMUBasePower, 0 * isRed, drivePID);
+                                if (pose.getOdometer() <= -0.1) {
+                                    motorLeft.setPower(0);
+                                    motorRight.setPower(0);
+                                    pose.setOdometer(0);
+                                    autoDex++;
+                                }
+                                break;
+                            case 1:
+                                MoveIMU(KpDrive, 0, KdDrive, 0, 0, drivePID);
+                                if (pose.getHeading() <= -45) {
+                                    servoCatcher.setPosition(.64);
+                                    motorLeft.setPower(0);
+                                    pose.setOdometer(0);
+                                    autoDex++;
+                                }
+                                break;
+                            case 2:
+                                MoveIMU(KpDrive, KiDrive, KdDrive, -1 * driveIMUBasePower, 0, drivePID);
+                                if (pose.getOdometer() <= -2.6) {
+                                    motorLeft.setPower(0);
+                                    motorRight.setPower(0);
+                                    pose.setOdometer(0);
+                                    autoDex++;
+                                }
+                                break;
+
+                            case 3:
                                 motorLeft.setPower(0);
                                 motorRight.setPower(0);
-                                pose.setOdometer(0);
-                                autoDex++;
-                            }
-                            break;
-                        case 1:
-                            MoveIMU(KpDrive, 0, KdDrive, 0, 0, drivePID);
-                            if(pose.getHeading() <= -45)
-                            {
-                                servoCatcher.setPosition(.64);
-                                motorLeft.setPower(0);
-                                pose.setOdometer(0);
-                                autoDex++;
-                            }
-                            break;
-                        case 2:
-                            MoveIMU(KpDrive, KiDrive, KdDrive, -1*driveIMUBasePower, 0, drivePID);
-                            if (pose.getOdometer() <= -2.6)
-                            {
-                                motorLeft.setPower(0);
-                                motorRight.setPower(0);
-                                pose.setOdometer(0);
-                                autoDex++;
-                            }
-                            break;
-
-                        case 3:
-                            motorLeft.setPower(0);
-                            motorRight.setPower(0);
-                            break;
+                                break;
 /*
                         //case 4:
 */
 
-                        default:
-                            break;
-                    }
-                    break;
-                case 2:
-                    MoveIMU(KpDrive, 0, KdDrive, 0, 0, drivePID);
-                    break;
-                case 3:
-                    MoveIMU(KpDrive, 0, KdDrive, 0, 45, drivePID);
-                    break;
-                default:
-                    motorLeft.setPower(0);
-                    motorRight.setPower(0);
-                    break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case 2:
+                        MoveIMU(KpDrive, 0, KdDrive, 0, 0, drivePID);
+                        break;
+                    case 3:
+                        MoveIMU(KpDrive, 0, KdDrive, 0, 45, drivePID);
+                        break;
+                    default:
+                        motorLeft.setPower(0);
+                        motorRight.setPower(0);
+                        break;
 
+                }
+            }
+            else
+            {
+                motorLeft.setPower(0);
+                motorRight.setPower(0);
+                motorBeater.setPower(0);
+                motorChurros.setPower(0);
             }
 
 
@@ -279,30 +275,17 @@ public class IronDemoED extends OpMode
         // power levels range over the same amount
         ctlLeft = -pad.left_stick_y;
         ctlRight = -pad.right_stick_y;
-        if(pad.y){
-            this.motorBeater.setPower(1);
+        if(ctlLeft * ctlRight < 0)
+        {
+            this.motorLeft.setPower(ctlLeft);
+            this.motorRight.setPower(ctlRight);
         }
-        if(pad.a){
-            this.motorBeater.setPower(0);
+        else
+        {
+            this.motorLeft.setPower(ctlLeft * direction);
+            this.motorRight.setPower(ctlRight * direction);
         }
-        if(pad.b){
-            this.motorBeater.setPower(-1);}
-        if(pad.x){direction *= -1;}
-        if(pad.right_bumper){
-            autoDex = 0;        //Add code preventing bumpers changing state if "halt" is true (halt is made true when state
-            if(stateDex < 4)    //changes and made false when some other button is pressed)
-                stateDex++;
-            else
-                stateDex = 0;
 
-        }
-        if(pad.left_bumper){
-            autoDex = 0;
-            if(stateDex > 0)
-                stateDex--;
-            else
-                stateDex = 4;
-        }
 
         if(pad.dpad_down)//1753 micros
         {
@@ -363,6 +346,30 @@ public class IronDemoED extends OpMode
         float oneToTen = zeroToOne * 9 + 1;
         return (float) (Math.log10(oneToTen) * Math.signum(level));
     }
+    void dexSwitch(Gamepad pad){
+        if(pad.start)
+        {
+            active = !active;
+        }
+        else if(pad.right_bumper){
+            autoDex = 0;        //Add code preventing bumpers changing state if "halt" is true (halt is made true when state
+            if(stateDex < 4)    //changes and made false when some other button is pressed)
+                stateDex++;
+            else
+                stateDex = 0;
+            active = false;
+
+        }
+        else if(pad.left_bumper) {
+            autoDex = 0;
+            if (stateDex > 0)
+                stateDex--;
+            else
+                stateDex = 4;
+            active = false;
+        }
+
+    }
 
     void configureDashboard() {
         // Configure the dashboard.
@@ -389,6 +396,16 @@ public class IronDemoED extends OpMode
         }
         });
 
+        this.telemetry.addLine
+                (
+                        this.telemetry.item("state:", new IFunc<Object>() {
+                                    @Override
+                                    public Object value() {
+                                        return format(stateDex);
+                                    }
+                                })
+
+                );
         this.telemetry.addLine
                 (
                         this.telemetry.item("left:", new IFunc<Object>() {

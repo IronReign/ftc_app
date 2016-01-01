@@ -306,7 +306,7 @@ public class AdafruitIMU implements HardwareDevice, I2cController.I2cPortReadyCa
       //Set the RST_SYS bit in the SYS_TRIGGER register, to make the IMU reset
 
       outboundBytes[0] = (byte)0XE1;//The "E" sets the RST_SYS and RST_INT bits, and sets the CLK_SEL bit
-      //, to select the external IMU clock mounted on the Adafruit board (Table 4-2, and p.70). In
+      //, to select  the external IMU clock mounted on the Adafruit board (Table 4-2, and p.70). In
       // the lower 4 bits, a "1" sets the commanded Self Test bit, which causes self-test to run (p. 46)
 
       Log.i("FtcRobotController", String.format("SYS_TRIGGER = 0X%02X. Resetting IMU........"

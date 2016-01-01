@@ -125,9 +125,9 @@ public class IronDemoED extends OpMode
             // so we inform the motor objects of that fact.
             //this.motorLeftBack.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
             //this.motorRightBack.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-            this.motorLeft.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-            this.motorRight.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-            this.motorBeater.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+            this.motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            this.motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            this.motorBeater.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
             // this.motorChurros.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
 
             // One of the two motors (here, the left) should be set to reversed direction
@@ -196,7 +196,7 @@ public class IronDemoED extends OpMode
                                 }
                                 break;
                             case 1:
-                                MoveIMU(KpDrive, 0, KdDrive, 0, 0, drivePID);
+                                MoveIMU(KpDrive, 0, KdDrive, 0, -45, drivePID);
                                 if (pose.getHeading() <= -45) {
                                     servoCatcher.setPosition(.64);
                                     motorLeft.setPower(0);
@@ -444,7 +444,7 @@ public class IronDemoED extends OpMode
                 }));
 
         telemetry.addLine(
-                telemetry.item("loop rate: ", new IFunc<Object>()
+                telemetry.item("loop rate (ms): ", new IFunc<Object>()
                 {
                     public Object value()
                     {

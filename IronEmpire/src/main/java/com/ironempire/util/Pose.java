@@ -268,8 +268,8 @@ public class Pose
       * @param distance
      */
     public void setOdometer(double distance){
-        ticksRightOffset = (long) (distance * ticksPerMeterRight);
-        ticksLeftOffset = (long) (distance * ticksPerMeterLeft);
+        ticksRightOffset = ticksRightPrev + (long) (distance * ticksPerMeterRight);
+        ticksLeftOffset = ticksLeftPrev + (long) (distance * ticksPerMeterLeft);
     }
 
     /**

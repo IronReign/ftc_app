@@ -23,25 +23,27 @@ public class IronDemo extends SynchronousOpMode
     DcMotor motorLeft = null;
     DcMotor motorRight = null;
     DcMotor motorBeater = null;
-        DcMotor motorChurros = null;
+    volatile DcMotor motorChurros = null;
     Servo servoCatcher = null;
+    public Climber climber;
+    //public Thread churroClimber;
 
 
     PIDController drivePID = new PIDController(0, 0, 0);
     //NOTE: on isRed, 1 is for blue side and -1 is for red side
     private int isRed = 1;
     private boolean active = false;
-    private double KpDrive = .1;
+    private double KpDrive = .03;
     private double KiDrive = 0;
-    private double KdDrive = 0;
+    private double KdDrive = -0.01;
     private double driveIMUBasePower = .5;
     float ctlLeft;
     float ctlRight;
     int direction = 1;
     double baseSpeed = 0;
-        double baseHeading = 0;
+    double baseHeading = 0;
     public String[] State = {"TeleOp", "Auto", "GoStraight", "GoStraightIMU", "SquareDance"};
-    public int stateDex = 2 ;
+    public int stateDex = 0 ;
     public int autoDex = 0;
 
 
@@ -73,22 +75,29 @@ public class IronDemo extends SynchronousOpMode
         this.motorRight = this.hardwareMap.dcMotor.get("motorRight");
         this.motorBeater = this.hardwareMap.dcMotor.get("motorBeater");
         this.servoCatcher = this.hardwareMap.servo.get("servoCatcher");
-        //this.motorChurros = this.hardwareMap.dcMotor.get("motorChurros");
+        this.motorChurros = this.hardwareMap.dcMotor.get("motorChurros");
 
         // Configure the knobs of the hardware according to how you've wired your
         // robot. Here, we assume that there are no encoders connected to the motors,
         // so we inform the motor objects of that fact.
         //this.motorLeftBack.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         //this.motorRightBack.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        this.motorLeft.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        this.motorRight.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        this.motorBeater.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-       // this.motorChurros.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        this.motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        this.motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        this.motorBeater.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        this.motorChurros.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
 
         // One of the two motors (here, the left) should be set to reversed direction
         // so that it can take the same power level values as the other motor.
         //this.motorRightBack.setDirection(DcMotor.Direction.REVERSE);
         this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
+        climber = new Climber(motorChurros);
+        //churroClimber = new Thread(climber);
+        //churroClimber.start();
+
+
+        // retract churro grapples
+        //this.motorChurros.setPower(-0.1);
 
         // We are expecting the IMU to be attached to an I2C port on  a core device interface
         // module and named "imu". Retrieve that raw I2cDevice and then wrap it in an object that
@@ -100,7 +109,7 @@ public class IronDemo extends SynchronousOpMode
         imu = ClassFactory.createAdaFruitBNO055IMU(hardwareMap.i2cDevice.get("imu"), parameters);
 
         // Enable reporting of position using the naive integrator
-        imu.startAccelerationIntegration(new Position(), new Velocity());
+        //imu.startAccelerationIntegration(new Position(), new Velocity());
 
         //Set up robot pose
         pose = new Pose(0,0,0,0);
@@ -111,8 +120,8 @@ public class IronDemo extends SynchronousOpMode
         //1120 * 4 = 4480
         //this estimated approach needs to be replaced with a calibrated and measured set of ticks per meter
 
-        pose.setTicksPerMeterLeft(4480);
-        pose.setTicksPerMeterRight(4480);
+        pose.setTicksPerMeterLeft(2940);
+        pose.setTicksPerMeterRight(2940);
 
 
         // Configure the dashboard however we want it
@@ -120,6 +129,8 @@ public class IronDemo extends SynchronousOpMode
 
         // Wait until we've been given the ok to go
         this.waitForStart();
+
+
 
         // Enter a loop processing all the input we receive
         while (this.opModeIsActive()) {
@@ -132,6 +143,7 @@ public class IronDemo extends SynchronousOpMode
 
             pose.Update(imu.getAngularOrientation(), motorLeft.getCurrentPosition(), motorRight.getCurrentPosition());
             if(active) {
+                climber.run();
                 switch (stateDex) {
                     case 0:  //tele-op driving
 
@@ -162,7 +174,7 @@ public class IronDemo extends SynchronousOpMode
                                 }
                                 break;
                             case 1:
-                                MoveIMU(KpDrive, 0, KdDrive, 0, 0, drivePID);
+                                MoveIMU(KpDrive, 0, KdDrive, 0, -45, drivePID);
                                 if (pose.getHeading() <= -45) {
                                     servoCatcher.setPosition(.64);
                                     motorLeft.setPower(0);
@@ -172,7 +184,7 @@ public class IronDemo extends SynchronousOpMode
                                 break;
                             case 2:
                                 MoveIMU(KpDrive, KiDrive, KdDrive, -1 * driveIMUBasePower, 0, drivePID);
-                                if (pose.getOdometer() <= -2.6) {
+                                if (pose.getOdometer() >= -2.6) {
                                     motorLeft.setPower(0);
                                     motorRight.setPower(0);
                                     pose.setOdometer(0);
@@ -193,7 +205,14 @@ public class IronDemo extends SynchronousOpMode
                         }
                         break;
                     case 2:
-                        MoveIMU(KpDrive, 0, KdDrive, 0, 0, drivePID);
+                        MoveIMU(KpDrive, 0, KdDrive, .5, 0, drivePID);
+                        if(pose.getOdometer() >= .5)
+                        {
+                            motorLeft.setPower(0);
+                            motorRight.setPower(0);
+                            pose.setOdometer(0);
+                            active = false;
+                        }
                         break;
                     case 3:
                         MoveIMU(KpDrive, 0, KdDrive, 0, 45, drivePID);
@@ -210,7 +229,8 @@ public class IronDemo extends SynchronousOpMode
                 motorLeft.setPower(0);
                 motorRight.setPower(0);
                 motorBeater.setPower(0);
-                //motorChurros.setPower(0);
+                pose.setOdometer(0);
+                motorChurros.setPower(0);
             }
 
 
@@ -246,6 +266,33 @@ public class IronDemo extends SynchronousOpMode
         {
             servoCatcher.setPosition(.51); //1517
         }
+        if(pad.y)
+        {
+            motorBeater.setPower(1);
+        }
+        if(pad.a)
+        {
+            motorBeater.setPower(0);
+        }
+        if(pad.b)
+        {
+            motorBeater.setPower(-1);
+        }
+        if(pad.left_trigger>0.5)
+        {
+            motorChurros.setTargetPosition(0);
+            motorChurros.setPower(-.5);
+        }
+        if(pad.right_trigger>0.5) {
+            motorChurros.setTargetPosition(-750);
+            motorChurros.setPower(-.5);
+        }
+        if(pad.x)
+        {
+            climber.stroke();
+        }
+
+
 
 
         // We're going to assume that the deadzone processing has been taken care of for us

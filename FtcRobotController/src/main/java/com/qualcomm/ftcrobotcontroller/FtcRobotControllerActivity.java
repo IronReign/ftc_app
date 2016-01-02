@@ -50,6 +50,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -78,15 +79,54 @@ import java.io.Serializable;
 import org.swerverobotics.library.SynchronousOpMode;
 import org.swerverobotics.library.internal.*;
 
-public class FtcRobotControllerActivity extends Activity {
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+import java.lang.Math;
 
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
+import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
+import org.opencv.android.CameraBridgeViewBase;
+import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Moments;
+
+
+public class FtcRobotControllerActivity extends Activity implements View.OnTouchListener, CvCameraViewListener2{
+  private static final String  TAG              = "IronReignFTC::Activity";
   private static final int REQUEST_CONFIG_WIFI_CHANNEL = 1;
   private static final boolean USE_DEVICE_EMULATION = false;
   private static final int NUM_GAMEPADS = 2;
 
   public static final String CONFIGURE_FILENAME = "CONFIGURE_FILENAME";
 
+  static private int screenWidth;
+  static private int screenHeight;
+  static volatile public int blobx; //current x value of the centroid (center of mass) of the largest tracked blob contour
+  static volatile public int bloby; //current y value of the centroid of the largest tracked blob
+  static private double maxContour = 0;
+  static private double minContour = 1000; //smallest contour area that we will pay attention to
+  static private double targetContour = -1; //what is the size of the maximum contour just after it is selected by touch? - serves as the target size (distance to maintain from the object)
+  private boolean              mIsColorSelected = false;
+  private Mat                  mRgba;
+  private Scalar               mBlobColorRgba;
+  private Scalar               mBlobColorHsv;
+  private ColorBlobDetector    mDetector;
+  private Mat                  mSpectrum;
+  private Size                 SPECTRUM_SIZE;
+  private Scalar               CONTOUR_COLOR;
   protected SharedPreferences preferences;
+  private CameraBridgeViewBase mOpenCvCameraView;
 
   protected UpdateUI.Callback callback;
   protected Context context;
@@ -104,7 +144,7 @@ public class FtcRobotControllerActivity extends Activity {
 
   protected SwerveUpdateUIHook updateUI;
   protected Dimmer dimmer;
-  protected LinearLayout entireScreenLayout;
+  protected FrameLayout entireScreenLayout;
 
   protected FtcRobotControllerService controllerService;
 
@@ -118,6 +158,24 @@ public class FtcRobotControllerActivity extends Activity {
 
   }
 
+  private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
+    @Override
+    public void onManagerConnected(int status) {
+      switch (status) {
+        case LoaderCallbackInterface.SUCCESS:
+        {
+          Log.i(TAG, "OpenCV loaded successfully");
+          mOpenCvCameraView.enableView();
+          mOpenCvCameraView.setOnTouchListener(FtcRobotControllerActivity.this);
+        } break;
+        default:
+        {
+          super.onManagerConnected(status);
+        } break;
+      }
+    }
+  };
+
   protected ServiceConnection connection = new ServiceConnection() {
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
@@ -130,6 +188,7 @@ public class FtcRobotControllerActivity extends Activity {
       controllerService = null;
     }
   };
+
 
   @Override
   protected void onNewIntent(Intent intent) {
@@ -146,9 +205,12 @@ public class FtcRobotControllerActivity extends Activity {
 
     setContentView(R.layout.activity_ftc_controller);
 
+    mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.color_blob_detection_activity_surface_view);
+    mOpenCvCameraView.setCvCameraViewListener(this);
+
     utility = new Utility(this);
     context = this;
-    entireScreenLayout = (LinearLayout) findViewById(R.id.entire_screen);
+    entireScreenLayout = (FrameLayout) findViewById(R.id.entire_screen);
     buttonMenu = (ImageButton) findViewById(R.id.menu_buttons);
     buttonMenu.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -197,25 +259,37 @@ public class FtcRobotControllerActivity extends Activity {
     utility.updateHeader(Utility.NO_FILE, R.string.pref_hardware_config_filename, R.id.active_filename, R.id.included_header);
 
     callback.wifiDirectUpdate(WifiDirectAssistant.Event.DISCONNECTED);
-
+/*
     entireScreenLayout.setOnTouchListener(new View.OnTouchListener() {
       @Override
       public boolean onTouch(View v, MotionEvent event) {
         dimmer.handleDimTimer();
+        CameraTouch(v, event); //pass through to opencv handling
         return false;
       }
-    });
+    });*/
 
   }
 
   @Override
   protected void onResume() {
+
     super.onResume();
+    if (!OpenCVLoader.initDebug()) {
+      Log.d(TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
+      OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_11, this, mLoaderCallback);
+    } else {
+      Log.d(TAG, "OpenCV library found inside package. Using it!");
+      mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+    }
   }
 
   @Override
   public void onPause() {
+
     super.onPause();
+    if (mOpenCvCameraView != null)
+      mOpenCvCameraView.disableView();
   }
 
   @Override
@@ -414,12 +488,137 @@ public class FtcRobotControllerActivity extends Activity {
         {
         // Do required superclass stuff
         super.onDestroy();
-
+          if (mOpenCvCameraView != null)
+            mOpenCvCameraView.disableView();
         // Commit suicide
         Log.i(SynchronousOpMode.LOGGING_TAG, "FtcRobotControllerActivity committing process suicide");
         int pid = android.os.Process.myPid();
         android.os.Process.killProcess(pid);
         }
+
+  public void onCameraViewStarted(int width, int height) {
+    mRgba = new Mat(height, width, CvType.CV_8UC4);
+    mDetector = new ColorBlobDetector();
+    mSpectrum = new Mat();
+    mBlobColorRgba = new Scalar(255);
+    mBlobColorHsv = new Scalar(255);
+    SPECTRUM_SIZE = new Size(200, 64);
+    CONTOUR_COLOR = new Scalar(0,255,0,255);
+    screenHeight=height;
+    screenWidth=width;
+  }
+
+  public void onCameraViewStopped() {
+    mRgba.release();
+  }
+
+  public boolean onTouch(View v, MotionEvent event) {
+    int cols = mRgba.cols();
+    int rows = mRgba.rows();
+
+    int xOffset = (mOpenCvCameraView.getWidth() - cols) / 2;
+    int yOffset = (mOpenCvCameraView.getHeight() - rows) / 2;
+
+    int x = (int)event.getX() - xOffset;
+    int y = (int)event.getY() - yOffset;
+
+    dimmer.handleDimTimer();
+
+    Log.i(TAG, "Touch image coordinates: (" + x + ", " + y + ")");
+
+    if ((x < 0) || (y < 0) || (x > cols) || (y > rows)) return false;
+
+    Rect touchedRect = new Rect();
+
+    touchedRect.x = (x>4) ? x-4 : 0;
+    touchedRect.y = (y>4) ? y-4 : 0;
+
+    touchedRect.width = (x+4 < cols) ? x + 4 - touchedRect.x : cols - touchedRect.x;
+    touchedRect.height = (y+4 < rows) ? y + 4 - touchedRect.y : rows - touchedRect.y;
+
+    Mat touchedRegionRgba = mRgba.submat(touchedRect);
+
+    Mat touchedRegionHsv = new Mat();
+    Imgproc.cvtColor(touchedRegionRgba, touchedRegionHsv, Imgproc.COLOR_RGB2HSV_FULL);
+
+    // Calculate average color of touched region
+    mBlobColorHsv = Core.sumElems(touchedRegionHsv);
+    int pointCount = touchedRect.width*touchedRect.height;
+    for (int i = 0; i < mBlobColorHsv.val.length; i++)
+      mBlobColorHsv.val[i] /= pointCount;
+
+    mBlobColorRgba = converScalarHsv2Rgba(mBlobColorHsv);
+
+    Log.i(TAG, "Touched rgba color: (" + mBlobColorRgba.val[0] + ", " + mBlobColorRgba.val[1] +
+            ", " + mBlobColorRgba.val[2] + ", " + mBlobColorRgba.val[3] + ")");
+
+    mDetector.setHsvColor(mBlobColorHsv);
+
+    Imgproc.resize(mDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);
+
+    mIsColorSelected = true;
+    targetContour = -1; //reset target contour so we get a fresh target size on each touch event
+
+    touchedRegionRgba.release();
+    touchedRegionHsv.release();
+
+    return false;
+
+  }
+  public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
+    mRgba = inputFrame.rgba();
+
+    if (mIsColorSelected) {
+      mDetector.process(mRgba);
+      List<MatOfPoint> contours = mDetector.getContours();
+      Log.e(TAG, "Contours count: " + contours.size());
+      Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR, 3);
+
+      //get the centroid (center of mass) and area for each contour
+
+      List<Moments> mu = new ArrayList<Moments>(contours.size());
+      maxContour=0;
+      for (int i = 0; i < contours.size(); i++) {
+        mu.add(i, Imgproc.moments(contours.get(i), false));
+        Moments p = mu.get(i);
+        int x = (int) (p.get_m10() / p.get_m00());
+        int y = (int) (p.get_m01() / p.get_m00());
+        //Core.circle(mRgba, new Point(x, y), 4, new Scalar(255,49,0,255));
+        Core.circle(mRgba, new Point(x, y), 5, CONTOUR_COLOR, -1);
+        double area = Imgproc.contourArea(contours.get(i));
+        if (area > maxContour)
+        {
+          maxContour=area;
+          blobx=x;
+          bloby=y;
+        }
+      }
+
+      if (targetContour == -1 && maxContour > 0 )
+      {
+        targetContour = maxContour; //new target size, thus distance to object
+      }
+
+
+
+
+      Mat colorLabel = mRgba.submat(4, 68, 4, 68);
+      colorLabel.setTo(mBlobColorRgba);
+
+      Mat spectrumLabel = mRgba.submat(4, 4 + mSpectrum.rows(), 70, 70 + mSpectrum.cols());
+      mSpectrum.copyTo(spectrumLabel);
+    }
+
+    return mRgba;
+  }
+
+  private Scalar converScalarHsv2Rgba(Scalar hsvColor) {
+    Mat pointMatRgba = new Mat();
+    Mat pointMatHsv = new Mat(1, 1, CvType.CV_8UC3, hsvColor);
+    Imgproc.cvtColor(pointMatHsv, pointMatRgba, Imgproc.COLOR_HSV2RGB_FULL, 4);
+
+    return new Scalar(pointMatRgba.get(0, 0));
+  }
 
 
     //==============================================================================================

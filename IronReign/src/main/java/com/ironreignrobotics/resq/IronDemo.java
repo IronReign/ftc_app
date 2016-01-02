@@ -1,20 +1,21 @@
 package com.ironreignrobotics.resq;
 
+import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
 import com.qualcomm.robotcore.hardware.*;
 
 import org.swerverobotics.library.*;
 import org.swerverobotics.library.SwerveUtil;
 import org.swerverobotics.library.interfaces.*;
+
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.ironempire.util.*;
 
 /**
  * An example of a synchronous opmode that implements a simple drive-a-bot.
  */
-@TeleOp(name="6832 Demo (sync)", group="IronReign")
+@TeleOp(name = "6832 Demo (sync)", group = "IronReign")
 //@Disabled
-public class IronDemo extends SynchronousOpMode
-    {
+public class IronDemo extends SynchronousOpMode {
     // All hardware variables can only be initialized inside the main() function,
     // not here at their member variable declarations.
     //DcMotor motorLeftBack = null;
@@ -43,28 +44,29 @@ public class IronDemo extends SynchronousOpMode
     double baseSpeed = 0;
     double baseHeading = 0;
     public String[] State = {"TeleOp", "Auto", "GoStraight", "GoStraightIMU", "SquareDance"};
-    public int stateDex = 0 ;
+    public int stateDex = 0;
     public int autoDex = 0;
 
 
-        // Our sensors, motors, and other devices go here, along with other long term state
-        IBNO055IMU              imu;
-        ElapsedTime             elapsed    = new ElapsedTime();
-        IBNO055IMU.Parameters   parameters = new IBNO055IMU.Parameters();
-        Pose pose;
+    // Our sensors, motors, and other devices go here, along with other long term state
+    IBNO055IMU imu;
+    ElapsedTime elapsed = new ElapsedTime();
+    IBNO055IMU.Parameters parameters = new IBNO055IMU.Parameters();
+    Pose pose;
 
 
+    // Here we have state we use for updating the dashboard. The first of these is important
+    // to read only once per update, as its acquisition is expensive. The remainder, though,
+    // could probably be read once per item, at only a small loss in display accuracy.
+    EulerAngles angles;
+    Position position;
+    int loopCycles;
+    int i2cCycles;
+    double ms;
 
-        // Here we have state we use for updating the dashboard. The first of these is important
-        // to read only once per update, as its acquisition is expensive. The remainder, though,
-        // could probably be read once per item, at only a small loss in display accuracy.
-        EulerAngles angles;
-        Position position;
-        int                     loopCycles;
-        int                     i2cCycles;
-        double                  ms;
+    int x = FtcRobotControllerActivity.blobx;
 
-    @Override
+
     protected void main() throws InterruptedException {
         // Initialize our hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names you assigned during the robot configuration
@@ -102,17 +104,17 @@ public class IronDemo extends SynchronousOpMode
         // We are expecting the IMU to be attached to an I2C port on  a core device interface
         // module and named "imu". Retrieve that raw I2cDevice and then wrap it in an object that
         // semantically understands this particular kind of sensor.
-        parameters.angleunit      = IBNO055IMU.ANGLEUNIT.DEGREES;
-        parameters.accelunit      = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
+        parameters.angleunit = IBNO055IMU.ANGLEUNIT.DEGREES;
+        parameters.accelunit = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
         parameters.loggingEnabled = false;
-        parameters.loggingTag     = "BNO055";
+        parameters.loggingTag = "BNO055";
         imu = ClassFactory.createAdaFruitBNO055IMU(hardwareMap.i2cDevice.get("imu"), parameters);
 
         // Enable reporting of position using the naive integrator
         //imu.startAccelerationIntegration(new Position(), new Velocity());
 
         //Set up robot pose
-        pose = new Pose(0,0,0,0);
+        pose = new Pose(0, 0, 0, 0);
 
         //1120 ticks per rotation of Neverest 40 motor
         //1.5 increase in speed from 24 tooth drive sprocket to 16 tooth driven
@@ -131,7 +133,6 @@ public class IronDemo extends SynchronousOpMode
         this.waitForStart();
 
 
-
         // Enter a loop processing all the input we receive
         while (this.opModeIsActive()) {
             if (this.updateGamepads()) {
@@ -142,7 +143,7 @@ public class IronDemo extends SynchronousOpMode
             }
 
             pose.Update(imu.getAngularOrientation(), motorLeft.getCurrentPosition(), motorRight.getCurrentPosition());
-            if(active) {
+            if (active) {
                 climber.run();
                 switch (stateDex) {
                     case 0:  //tele-op driving
@@ -150,13 +151,10 @@ public class IronDemo extends SynchronousOpMode
 
                         this.doManualDrivingControl(this.gamepad1);
 
-                        if(ctlLeft * ctlRight < 0)
-                        {
+                        if (ctlLeft * ctlRight < 0) {
                             this.motorLeft.setPower(ctlLeft);
                             this.motorRight.setPower(ctlRight);
-                        }
-                        else
-                        {
+                        } else {
                             this.motorLeft.setPower(ctlLeft * direction);
                             this.motorRight.setPower(ctlRight * direction);
                         }
@@ -206,8 +204,7 @@ public class IronDemo extends SynchronousOpMode
                         break;
                     case 2:
                         MoveIMU(KpDrive, 0, KdDrive, .5, 0, drivePID);
-                        if(pose.getOdometer() >= .5)
-                        {
+                        if (pose.getOdometer() >= .5) {
                             motorLeft.setPower(0);
                             motorRight.setPower(0);
                             pose.setOdometer(0);
@@ -223,9 +220,7 @@ public class IronDemo extends SynchronousOpMode
                         break;
 
                 }
-            }
-            else
-            {
+            } else {
                 motorLeft.setPower(0);
                 motorRight.setPower(0);
                 motorBeater.setPower(0);
@@ -242,7 +237,8 @@ public class IronDemo extends SynchronousOpMode
         }
     }
 
-    /**+
+    /**
+     * +
      * Implement a simple two-motor driving logic using the left and right
      * right joysticks on the indicated game pad.
      */
@@ -253,46 +249,36 @@ public class IronDemo extends SynchronousOpMode
         ctlRight = -pad.right_stick_y;
 
 
-
-        if(pad.dpad_down)//1753 micros
+        if (pad.dpad_down)//1753 micros
         {
             servoCatcher.setPosition(.68);
         }
-        if(pad.dpad_up)
-        {
+        if (pad.dpad_up) {
             servoCatcher.setPosition(.33); //1244
         }
-        if (pad.dpad_left)
-        {
+        if (pad.dpad_left) {
             servoCatcher.setPosition(.51); //1517
         }
-        if(pad.y)
-        {
+        if (pad.y) {
             motorBeater.setPower(1);
         }
-        if(pad.a)
-        {
+        if (pad.a) {
             motorBeater.setPower(0);
         }
-        if(pad.b)
-        {
+        if (pad.b) {
             motorBeater.setPower(-1);
         }
-        if(pad.left_trigger>0.5)
-        {
+        if (pad.left_trigger > 0.5) {
             motorChurros.setTargetPosition(0);
             motorChurros.setPower(-.5);
         }
-        if(pad.right_trigger>0.5) {
+        if (pad.right_trigger > 0.5) {
             motorChurros.setTargetPosition(-750);
             motorChurros.setPower(-.5);
         }
-        if(pad.x)
-        {
+        if (pad.x) {
             climber.stroke();
         }
-
-
 
 
         // We're going to assume that the deadzone processing has been taken care of for us
@@ -301,7 +287,7 @@ public class IronDemo extends SynchronousOpMode
         // within the deadzone.
 
         // Map the power and steering to have more oomph at low values (optional)
-      //  ctlLeft = this.xformDrivingPowerLevels(ctlLeft);
+        //  ctlLeft = this.xformDrivingPowerLevels(ctlLeft);
         //ctlRight = this.xformDrivingPowerLevels(ctlRight);
 
         // Dampen power to avoid clipping so we can still effectively steer even
@@ -318,7 +304,7 @@ public class IronDemo extends SynchronousOpMode
 
         // Figure out how much power to send to each motor. Be sure
         // not to ask for too much, or the motor will throw an exception.
-      //  float powerLeft = Range.clip(ctlLeft - ctlRight, -1f, 1f);
+        //  float powerLeft = Range.clip(ctlLeft - ctlRight, -1f, 1f);
         ///float powerRight = Range.clip(ctlLeft + ctlRight, -1f, 1f);
 
         // Tell the motors
@@ -326,30 +312,28 @@ public class IronDemo extends SynchronousOpMode
         //this.motorRightBack.setPower(ctlRight);
 
     }
-        void dexSwitch(Gamepad pad){
-            if(pad.start)
-            {
-                active = !active;
-            }
-            else if(pad.right_bumper){
-                autoDex = 0;        //Add code preventing bumpers changing state if "halt" is true (halt is made true when state
-                if(stateDex < 4)    //changes and made false when some other button is pressed)
-                    stateDex++;
-                else
-                    stateDex = 0;
-                active = false;
 
-            }
-            else if(pad.left_bumper) {
-                autoDex = 0;
-                if (stateDex > 0)
-                    stateDex--;
-                else
-                    stateDex = 4;
-                active = false;
-            }
+    void dexSwitch(Gamepad pad) {
+        if (pad.start) {
+            active = !active;
+        } else if (pad.right_bumper) {
+            autoDex = 0;        //Add code preventing bumpers changing state if "halt" is true (halt is made true when state
+            if (stateDex < 4)    //changes and made false when some other button is pressed)
+                stateDex++;
+            else
+                stateDex = 0;
+            active = false;
 
+        } else if (pad.left_bumper) {
+            autoDex = 0;
+            if (stateDex > 0)
+                stateDex--;
+            else
+                stateDex = 4;
+            active = false;
         }
+
+    }
 
     float xformDrivingPowerLevels(float level)
     // A useful thing to do in some robots is to map the power levels so that
@@ -373,20 +357,21 @@ public class IronDemo extends SynchronousOpMode
 
         // At the beginning of each telemetry update, grab a bunch of data
         // from the IMU that we will then display in separate lines.
-        telemetry.addAction(new Runnable() { @Override public void run()
-        {
-            // Acquiring the angles is relatively expensive; we don't want
-            // to do that in each of the three items that need that info, as that's
-            // three times the necessary expense.
-            angles     = imu.getAngularOrientation();
-            position   = imu.getPosition();
+        telemetry.addAction(new Runnable() {
+            @Override
+            public void run() {
+                // Acquiring the angles is relatively expensive; we don't want
+                // to do that in each of the three items that need that info, as that's
+                // three times the necessary expense.
+                angles = imu.getAngularOrientation();
+                position = imu.getPosition();
 
-            // The rest of this is pretty cheap to acquire, but we may as well do it
-            // all while we're gathering the above.
-            loopCycles = getLoopCount();
-            i2cCycles  = ((II2cDeviceClientUser) imu).getI2cDeviceClient().getI2cCycleCount();
-            ms         = elapsed.time() * 1000.0;
-        }
+                // The rest of this is pretty cheap to acquire, but we may as well do it
+                // all while we're gathering the above.
+                loopCycles = getLoopCount();
+                i2cCycles = ((II2cDeviceClientUser) imu).getI2cDeviceClient().getI2cCycleCount();
+                ms = elapsed.time() * 1000.0;
+            }
         });
         this.telemetry.addLine
                 (
@@ -420,49 +405,37 @@ public class IronDemo extends SynchronousOpMode
                         })
                 );
         telemetry.addLine(
-                telemetry.item("loop count: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("loop count: ", new IFunc<Object>() {
+                    public Object value() {
                         return loopCycles;
                     }
                 }),
-                telemetry.item("i2c cycle count: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("i2c cycle count: ", new IFunc<Object>() {
+                    public Object value() {
                         return i2cCycles;
                     }
                 }));
 
         telemetry.addLine(
-                telemetry.item("loop rate: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("loop rate: ", new IFunc<Object>() {
+                    public Object value() {
                         return formatRate(ms / loopCycles);
                     }
                 }),
-                telemetry.item("i2c cycle rate: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("i2c cycle rate: ", new IFunc<Object>() {
+                    public Object value() {
                         return formatRate(ms / i2cCycles);
                     }
                 }));
 
         telemetry.addLine(
-                telemetry.item("status: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("status: ", new IFunc<Object>() {
+                    public Object value() {
                         return decodeStatus(imu.getSystemStatus());
                     }
                 }),
-                telemetry.item("calib: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("calib: ", new IFunc<Object>() {
+                    public Object value() {
                         return decodeCalibration(imu.read8(IBNO055IMU.REGISTER.CALIB_STAT));
                     }
                 }));
@@ -485,39 +458,29 @@ public class IronDemo extends SynchronousOpMode
                 }));
 
         telemetry.addLine(
-                telemetry.item("x: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("x: ", new IFunc<Object>() {
+                    public Object value() {
                         return formatPosition(pose.getX());
                     }
                 }),
-                telemetry.item("y: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("y: ", new IFunc<Object>() {
+                    public Object value() {
                         return formatPosition(pose.getY());
                     }
                 }),
-                telemetry.item("odo: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("odo: ", new IFunc<Object>() {
+                    public Object value() {
                         return formatPosition(pose.getOdometer());
                     }
                 }));
         telemetry.addLine(
-                telemetry.item("motorLeft: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("motorLeft: ", new IFunc<Object>() {
+                    public Object value() {
                         return motorLeft.getCurrentPosition();
                     }
                 }),
-                telemetry.item("motorRight: ", new IFunc<Object>()
-                {
-                    public Object value()
-                    {
+                telemetry.item("motorRight: ", new IFunc<Object>() {
+                    public Object value() {
                         return motorRight.getCurrentPosition();
                     }
                 }));
@@ -529,90 +492,95 @@ public class IronDemo extends SynchronousOpMode
         return String.format("%.1f", d);
     }
 
-        String formatAngle(double angle)
-        {
-            return parameters.angleunit==IBNO055IMU.ANGLEUNIT.DEGREES ? formatDegrees(angle) : formatRadians(angle);
-        }
-        String formatRadians(double radians)
-        {
-            return formatDegrees(degreesFromRadians(radians));
-        }
-        String formatDegrees(double degrees)
-        {
-
-            //return String.format("%.1f", normalizeDegrees(degrees));
-            return String.format("%.1f", degrees);
-        }
-        String formatRate(double cyclesPerSecond)
-        {
-            return String.format("%.2f", cyclesPerSecond);
-        }
-        String formatPosition(double coordinate)
-        {
-            String unit = parameters.accelunit== IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC
-                    ? "m" : "??";
-            return String.format("%.2f%s", coordinate, unit);
-        }
-
-        //----------------------------------------------------------------------------------------------
-        // Utility
-        //----------------------------------------------------------------------------------------------
-
-        void MoveIMU(double Kp, double Ki, double Kd, double pwr, int angle, PIDController PID)
-        {
-            PID.setPID(Kp, Ki, Kd);
-            PID.setSetpoint(angle);
-            PID.enable();
-            //drivePID.setInput(pose.diffAngle(drivePID.getSetpoint(), pose.getHeading()));
-            PID.setInputRange(0,360);
-            PID.setContinuous();
-            PID.setInput(pose.getHeading());
-            motorLeft.setPower(pwr + PID.performPID());
-            motorRight.setPower(pwr - PID.performPID());
-        }
-        double normalizeDegrees(double degrees)
-        {
-            while (degrees >= 180.0) degrees -= 360.0;
-            while (degrees < -180.0) degrees += 360.0;
-            return degrees;
-        }
-        double degreesFromRadians(double radians)
-        {
-            return radians * 180.0 / Math.PI;
-        }
-
-        /** Turn a system status into something that's reasonable to show in telemetry */
-        String decodeStatus(int status)
-        {
-            switch (status)
-            {
-                case 0: return "idle";
-                case 1: return "syserr";
-                case 2: return "periph";
-                case 3: return "sysinit";
-                case 4: return "selftest";
-                case 5: return "fusion";
-                case 6: return "running";
-            }
-            return "unk";
-        }
-
-        /** Turn a calibration code into something that is reasonable to show in telemetry */
-        String decodeCalibration(int status)
-        {
-            StringBuilder result = new StringBuilder();
-
-            result.append(String.format("s%d", (status >> 2) & 0x03));  // SYS calibration status
-            result.append(" ");
-            result.append(String.format("g%d", (status >> 2) & 0x03));  // GYR calibration status
-            result.append(" ");
-            result.append(String.format("a%d", (status >> 2) & 0x03));  // ACC calibration status
-            result.append(" ");
-            result.append(String.format("m%d", (status >> 0) & 0x03));  // MAG calibration status
-
-            return result.toString();
-        }
-
-
-
+    String formatAngle(double angle) {
+        return parameters.angleunit == IBNO055IMU.ANGLEUNIT.DEGREES ? formatDegrees(angle) : formatRadians(angle);
     }
+
+    String formatRadians(double radians) {
+        return formatDegrees(degreesFromRadians(radians));
+    }
+
+    String formatDegrees(double degrees) {
+
+        //return String.format("%.1f", normalizeDegrees(degrees));
+        return String.format("%.1f", degrees);
+    }
+
+    String formatRate(double cyclesPerSecond) {
+        return String.format("%.2f", cyclesPerSecond);
+    }
+
+    String formatPosition(double coordinate) {
+        String unit = parameters.accelunit == IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC
+                ? "m" : "??";
+        return String.format("%.2f%s", coordinate, unit);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // Utility
+    //----------------------------------------------------------------------------------------------
+
+    void MoveIMU(double Kp, double Ki, double Kd, double pwr, int angle, PIDController PID) {
+        PID.setPID(Kp, Ki, Kd);
+        PID.setSetpoint(angle);
+        PID.enable();
+        //drivePID.setInput(pose.diffAngle(drivePID.getSetpoint(), pose.getHeading()));
+        PID.setInputRange(0, 360);
+        PID.setContinuous();
+        PID.setInput(pose.getHeading());
+        motorLeft.setPower(pwr + PID.performPID());
+        motorRight.setPower(pwr - PID.performPID());
+    }
+
+    double normalizeDegrees(double degrees) {
+        while (degrees >= 180.0) degrees -= 360.0;
+        while (degrees < -180.0) degrees += 360.0;
+        return degrees;
+    }
+
+    double degreesFromRadians(double radians) {
+        return radians * 180.0 / Math.PI;
+    }
+
+    /**
+     * Turn a system status into something that's reasonable to show in telemetry
+     */
+    String decodeStatus(int status) {
+        switch (status) {
+            case 0:
+                return "idle";
+            case 1:
+                return "syserr";
+            case 2:
+                return "periph";
+            case 3:
+                return "sysinit";
+            case 4:
+                return "selftest";
+            case 5:
+                return "fusion";
+            case 6:
+                return "running";
+        }
+        return "unk";
+    }
+
+    /**
+     * Turn a calibration code into something that is reasonable to show in telemetry
+     */
+    String decodeCalibration(int status) {
+        StringBuilder result = new StringBuilder();
+
+        result.append(String.format("s%d", (status >> 2) & 0x03));  // SYS calibration status
+        result.append(" ");
+        result.append(String.format("g%d", (status >> 2) & 0x03));  // GYR calibration status
+        result.append(" ");
+        result.append(String.format("a%d", (status >> 2) & 0x03));  // ACC calibration status
+        result.append(" ");
+        result.append(String.format("m%d", (status >> 0) & 0x03));  // MAG calibration status
+
+        return result.toString();
+    }
+
+
+}

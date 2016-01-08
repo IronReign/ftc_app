@@ -34,9 +34,9 @@ public class IronDemo extends SynchronousOpMode {
     //NOTE: on isRed, 1 is for blue side and -1 is for red side
     private int isRed = 1;
     private boolean active = false;
-    private double KpDrive = .03;
+    private double KpDrive = .01;
     private double KiDrive = 0;
-    private double KdDrive = -0.01;
+    private double KdDrive = -0.05;
     private double driveIMUBasePower = .5;
     float ctlLeft;
     float ctlRight;
@@ -66,7 +66,33 @@ public class IronDemo extends SynchronousOpMode {
 
     int x = FtcRobotControllerActivity.blobx;
 
+    private double ErrorPixToDeg(int blobx){
+        int ViewWidth = 800;
+        int ScreenCenterPix;
+        int ErrorPix;
+        int PixPerDegrees;
+        double errorDegrees;
 
+        /*
+ScreenCenterPix=ViewWidth/2
+ErrorPix = -(blobx - ScreenCenterPix)
+PixPerDegree = ViewWidth/FOV
+ErrorDegrees = ErrorPix/PixPerDegree
+If ErrorDegrees<0 then
+ //ErrorDegress = 360 - ErrorDegrees
+ErrorDegress = 360 + ErrorDegrees
+Publish ErrorDegrees
+
+         */
+        ScreenCenterPix = ViewWidth/2;
+        ErrorPix = ScreenCenterPix - blobx;
+        PixPerDegrees = ViewWidth / 65; //FOV maybe accurate?
+        errorDegrees = ErrorPix/PixPerDegrees;
+        if (errorDegrees < 0) {
+            errorDegrees += 360;
+        }
+        return errorDegrees;
+    }
     protected void main() throws InterruptedException {
         // Initialize our hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names you assigned during the robot configuration
@@ -214,6 +240,11 @@ public class IronDemo extends SynchronousOpMode {
                     case 3:
                         MoveIMU(KpDrive, 0, KdDrive, 0, 45, drivePID);
                         break;
+                    case 4: //color tracking
+                        this.doManualDrivingControl(this.gamepad1);
+                        MoveRobot(KpDrive, 0, KdDrive, 0, ErrorPixToDeg(x), 0, drivePID);
+
+                        break;
                     default:
                         motorLeft.setPower(0);
                         motorRight.setPower(0);
@@ -273,11 +304,19 @@ public class IronDemo extends SynchronousOpMode {
             motorChurros.setPower(-.5);
         }
         if (pad.right_trigger > 0.5) {
-            motorChurros.setTargetPosition(-750);
+            motorChurros.setTargetPosition(-1550);
             motorChurros.setPower(-.5);
         }
         if (pad.x) {
             climber.stroke();
+        }
+        if (pad.left_stick_button)
+        {
+            KpDrive -= .0025;
+        }
+        if (pad.right_stick_button)
+        {
+            KpDrive += .0025;
         }
 
 
@@ -371,6 +410,7 @@ public class IronDemo extends SynchronousOpMode {
                 loopCycles = getLoopCount();
                 i2cCycles = ((II2cDeviceClientUser) imu).getI2cDeviceClient().getI2cCycleCount();
                 ms = elapsed.time() * 1000.0;
+                x = FtcRobotControllerActivity.blobx;
             }
         });
         this.telemetry.addLine
@@ -380,6 +420,12 @@ public class IronDemo extends SynchronousOpMode {
                             public Object value() {
                                 return format(stateDex);
                             }
+                        }),
+                        this.telemetry.item("Kp:", new IFunc<Object>() {
+                            @Override
+                            public Object value() {
+                                 return formatPosition(KpDrive);
+                              }
                         })
 
                 );
@@ -484,8 +530,14 @@ public class IronDemo extends SynchronousOpMode {
                         return motorRight.getCurrentPosition();
                     }
                 }));
-
+        telemetry.addLine(
+                telemetry.item("blobx: ", new IFunc<Object>() {
+                    public Object value() {
+                        return x;
+                    }
+                }));
     }
+
 
     // Handy functions for formatting data for the dashboard
     String format(double d) {
@@ -513,23 +565,28 @@ public class IronDemo extends SynchronousOpMode {
     String formatPosition(double coordinate) {
         String unit = parameters.accelunit == IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC
                 ? "m" : "??";
-        return String.format("%.2f%s", coordinate, unit);
+        return String.format("%.3f%s", coordinate, unit);
     }
 
     //----------------------------------------------------------------------------------------------
     // Utility
     //----------------------------------------------------------------------------------------------
 
-    void MoveIMU(double Kp, double Ki, double Kd, double pwr, int angle, PIDController PID) {
+    void MoveRobot(double Kp, double Ki, double Kd, double pwr, double currentAngle, int targetAngle, PIDController PID) {
         PID.setPID(Kp, Ki, Kd);
-        PID.setSetpoint(angle);
+        PID.setSetpoint(targetAngle);
         PID.enable();
         //drivePID.setInput(pose.diffAngle(drivePID.getSetpoint(), pose.getHeading()));
         PID.setInputRange(0, 360);
         PID.setContinuous();
-        PID.setInput(pose.getHeading());
+        //PID.setInput(pose.getHeading());
+        PID.setInput(currentAngle);
         motorLeft.setPower(pwr + PID.performPID());
         motorRight.setPower(pwr - PID.performPID());
+    }
+
+    void MoveIMU(double Kp, double Ki, double Kd, double pwr, int angle, PIDController PID) {
+        MoveRobot(KpDrive, 0, KdDrive, .5, pose.getHeading(), 0, drivePID);
     }
 
     double normalizeDegrees(double degrees) {

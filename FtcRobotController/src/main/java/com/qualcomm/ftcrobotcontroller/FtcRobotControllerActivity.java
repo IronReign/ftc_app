@@ -114,17 +114,17 @@ public class FtcRobotControllerActivity extends Activity implements View.OnTouch
   static private int screenHeight;
   static volatile public int blobx; //current x value of the centroid (center of mass) of the largest tracked blob contour
   static volatile public int bloby; //current y value of the centroid of the largest tracked blob
-  static private double maxContour = 0;
+  static volatile public double maxContour = 0;
   static private double minContour = 1000; //smallest contour area that we will pay attention to
-  static private double targetContour = -1; //what is the size of the maximum contour just after it is selected by touch? - serves as the target size (distance to maintain from the object)
-  private boolean              mIsColorSelected = false;
-  private Mat                  mRgba;
-  private Scalar               mBlobColorRgba;
-  private Scalar               mBlobColorHsv;
-  private ColorBlobDetector    mDetector;
-  private Mat                  mSpectrum;
-  private Size                 SPECTRUM_SIZE;
-  private Scalar               CONTOUR_COLOR;
+  static volatile public double targetContour = -1; //what is the size of the maximum contour just after it is selected by touch? - serves as the target size (distance to maintain from the object)
+  private boolean               mIsColorSelected = false;
+  private Mat                   mRgba;
+  private Scalar                mBlobColorRgba;
+  static volatile public Scalar mBlobColorHsv;
+  private ColorBlobDetector     mDetector;
+  private Mat                   mSpectrum;
+  private Size                  SPECTRUM_SIZE;
+  private Scalar                CONTOUR_COLOR;
   protected SharedPreferences preferences;
   private CameraBridgeViewBase mOpenCvCameraView;
 
@@ -260,7 +260,7 @@ public class FtcRobotControllerActivity extends Activity implements View.OnTouch
 
     callback.wifiDirectUpdate(WifiDirectAssistant.Event.DISCONNECTED);
 /*
-    entireScreenLayout.setOnTouchListener(new View.OnTouchListener() {
+    entireScreenLayout.set Listener(new View.OnTouchListener() {
       @Override
       public boolean onTouch(View v, MotionEvent event) {
         dimmer.handleDimTimer();
@@ -703,7 +703,7 @@ public class FtcRobotControllerActivity extends Activity implements View.OnTouch
         FtcRobotControllerService  controllerService;
 
         //------------------------------------------------------------------------------------------
-        // Construction
+         // Construction
         //------------------------------------------------------------------------------------------
 
         SwerveUpdateUIHook(FtcRobotControllerActivity activity, Dimmer dimmer)

@@ -4,7 +4,6 @@ import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
 import com.qualcomm.robotcore.hardware.*;
 
 import org.swerverobotics.library.*;
-import org.swerverobotics.library.SwerveUtil;
 import org.swerverobotics.library.interfaces.*;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -34,18 +33,19 @@ public class IronDemo extends SynchronousOpMode {
     //NOTE: on isRed, 1 is for blue side and -1 is for red side
     private int isRed = 1;
     private boolean active = false;
-    private double KpDrive = .01;
+    private double KpDrive = .0145;
     private double KiDrive = 0;
     private double KdDrive = -0.05;
     private double driveIMUBasePower = .5;
+    private double motorPower = 0;
     float ctlLeft;
     float ctlRight;
     int direction = 1;
     double baseSpeed = 0;
     double baseHeading = 0;
     public String[] State = {"TeleOp", "Auto", "GoStraight", "GoStraightIMU", "SquareDance"};
-    public int stateDex = 0;
-    public int autoDex = 0;
+    public int demoMode = 0;
+    public int autoMode = 0;
 
 
     // Our sensors, motors, and other devices go here, along with other long term state
@@ -171,7 +171,7 @@ Publish ErrorDegrees
             pose.Update(imu.getAngularOrientation(), motorLeft.getCurrentPosition(), motorRight.getCurrentPosition());
             if (active) {
                 climber.run();
-                switch (stateDex) {
+                switch (demoMode) {
                     case 0:  //tele-op driving
 
 
@@ -187,14 +187,14 @@ Publish ErrorDegrees
                         break;
 
                     case 1: //autonomous
-                        switch (autoDex) {
+                        switch (autoMode) {
                             case 0:
                                 MoveIMU(KpDrive, KiDrive, KdDrive, -1 * driveIMUBasePower, 0 * isRed, drivePID);
                                 if (pose.getOdometer() <= -0.1) {
                                     motorLeft.setPower(0);
                                     motorRight.setPower(0);
                                     pose.setOdometer(0);
-                                    autoDex++;
+                                    autoMode++;
                                 }
                                 break;
                             case 1:
@@ -203,7 +203,7 @@ Publish ErrorDegrees
                                     servoCatcher.setPosition(.64);
                                     motorLeft.setPower(0);
                                     pose.setOdometer(0);
-                                    autoDex++;
+                                    autoMode++;
                                 }
                                 break;
                             case 2:
@@ -212,7 +212,7 @@ Publish ErrorDegrees
                                     motorLeft.setPower(0);
                                     motorRight.setPower(0);
                                     pose.setOdometer(0);
-                                    autoDex++;
+                                    autoMode++;
                                 }
                                 break;
 
@@ -244,6 +244,21 @@ Publish ErrorDegrees
                         this.doManualDrivingControl(this.gamepad1);
                         MoveRobot(KpDrive, 0, KdDrive, 0, ErrorPixToDeg(x), 0, drivePID);
 
+                        break;
+                    case 5:
+                        if (gamepad1.dpad_left)
+                        {
+                            KpDrive -= .001;
+                        }
+                        if (gamepad1.dpad_right) {
+                            KpDrive += .001;
+                        }
+                        if(gamepad1.b) {
+                            MoveArgos(KpDrive, 0, KdDrive, ErrorPixToDeg(x), 0, drivePID);
+                        }
+                        else {
+                            MoveRobot(KpDrive, 0, KdDrive, 0, ErrorPixToDeg(x), 0, drivePID);
+                        }
                         break;
                     default:
                         motorLeft.setPower(0);
@@ -299,25 +314,26 @@ Publish ErrorDegrees
         if (pad.b) {
             motorBeater.setPower(-1);
         }
-        if (pad.left_trigger > 0.5) {
+        /*(if (pad.left_trigger > 0.5) {
             motorChurros.setTargetPosition(0);
             motorChurros.setPower(-.5);
         }
         if (pad.right_trigger > 0.5) {
             motorChurros.setTargetPosition(-1550);
             motorChurros.setPower(-.5);
-        }
+        }*/
         if (pad.x) {
             climber.stroke();
         }
-        if (pad.left_stick_button)
+        /*
+        if (pad.left_trigger > 0.6)
         {
-            KpDrive -= .0025;
+            KpDrive -= .001;
         }
-        if (pad.right_stick_button)
+        if (pad.right_trigger > 0.6)
         {
-            KpDrive += .0025;
-        }
+            KpDrive += .001;
+        }*/
 
 
         // We're going to assume that the deadzone processing has been taken care of for us
@@ -356,19 +372,19 @@ Publish ErrorDegrees
         if (pad.start) {
             active = !active;
         } else if (pad.right_bumper) {
-            autoDex = 0;        //Add code preventing bumpers changing state if "halt" is true (halt is made true when state
-            if (stateDex < 4)    //changes and made false when some other button is pressed)
-                stateDex++;
+            autoMode = 0;        //Add code preventing bumpers changing state if "halt" is true (halt is made true when state
+            if (demoMode < 5)    //changes and made false when some other button is pressed)
+                demoMode++;
             else
-                stateDex = 0;
+                demoMode = 0;
             active = false;
 
         } else if (pad.left_bumper) {
-            autoDex = 0;
-            if (stateDex > 0)
-                stateDex--;
+            autoMode = 0;
+            if (demoMode > 0)
+                demoMode--;
             else
-                stateDex = 4;
+                demoMode = 5;
             active = false;
         }
 
@@ -418,7 +434,7 @@ Publish ErrorDegrees
                         this.telemetry.item("state:", new IFunc<Object>() {
                             @Override
                             public Object value() {
-                                return format(stateDex);
+                                return format(demoMode);
                             }
                         }),
                         this.telemetry.item("Kp:", new IFunc<Object>() {
@@ -426,6 +442,12 @@ Publish ErrorDegrees
                             public Object value() {
                                  return formatPosition(KpDrive);
                               }
+                        }),
+                        this.telemetry.item("Hue:", new IFunc<Object>() {
+                            @Override
+                            public Object value() {
+                                return format(FtcRobotControllerActivity.mBlobColorHsv.val[0]);
+                            }
                         })
 
                 );
@@ -460,7 +482,14 @@ Publish ErrorDegrees
                     public Object value() {
                         return i2cCycles;
                     }
-                }));
+                }),
+                telemetry.item("ArgosPower:", new IFunc<Object>() {
+                    @Override
+                    public Object value() {
+                        return formatPosition(motorPower);
+                    }
+                })
+        );
 
         telemetry.addLine(
                 telemetry.item("loop rate: ", new IFunc<Object>() {
@@ -583,6 +612,31 @@ Publish ErrorDegrees
         PID.setInput(currentAngle);
         motorLeft.setPower(pwr + PID.performPID());
         motorRight.setPower(pwr - PID.performPID());
+    }
+    void MoveArgos(double Kp, double Ki, double Kd, double currentAngle, int targetAngle, PIDController PID){
+
+//        PID.setPID(Kp, Ki, Kd);
+//        PID.setSetpoint(targetAngle);
+//        PID.enable();
+//        //drivePID.setInput(pose.diffAngle(drivePID.getSetpoint(), pose.getHeading()));
+//        PID.setInputRange(0, 360);
+//        PID.setContinuous();
+//        //PID.setInput(pose.getHeading());
+//        PID.setInput(currentAngle);
+
+        if((FtcRobotControllerActivity.maxContour >0) && (FtcRobotControllerActivity.targetContour > 0))
+        {
+            motorPower = Math.sqrt(FtcRobotControllerActivity.targetContour) - Math.sqrt(FtcRobotControllerActivity.maxContour);
+
+            motorPower /= -3.5;
+            motorPower /= 100;
+        }
+//        if(motorPower > .5)
+//            motorPower = .5;
+//        if(motorPower < -.5)
+//            motorPower = -.5;
+        MoveRobot(KpDrive, 0, KdDrive, motorPower, ErrorPixToDeg(x), 0, drivePID);
+
     }
 
     void MoveIMU(double Kp, double Ki, double Kd, double pwr, int angle, PIDController PID) {

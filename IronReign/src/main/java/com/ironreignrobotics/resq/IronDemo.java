@@ -23,9 +23,12 @@ public class IronDemo extends SynchronousOpMode {
     DcMotor motorLeft = null;
     DcMotor motorRight = null;
     DcMotor motorBeater = null;
-    volatile DcMotor motorChurros = null;
+    DcMotor cliffHanger1 = null;
+    DcMotor cliffHanger2 = null;
+//    volatile DcMotor motorChurros = null;
     Servo servoCatcher = null;
-    public Climber climber;
+//    public Climber climber;
+
     //public Thread churroClimber;
 
 
@@ -38,6 +41,7 @@ public class IronDemo extends SynchronousOpMode {
     private double KdDrive = -0.05;
     private double driveIMUBasePower = .5;
     private double motorPower = 0;
+    private double climberPower = 0;
     float ctlLeft;
     float ctlRight;
     int direction = 1;
@@ -103,7 +107,9 @@ Publish ErrorDegrees
         this.motorRight = this.hardwareMap.dcMotor.get("motorRight");
         this.motorBeater = this.hardwareMap.dcMotor.get("motorBeater");
         this.servoCatcher = this.hardwareMap.servo.get("servoCatcher");
-        this.motorChurros = this.hardwareMap.dcMotor.get("motorChurros");
+//        this.motorChurros = this.hardwareMap.dcMotor.get("motorChurros");
+        this.cliffHanger1 = this.hardwareMap.dcMotor.get("motorCliffHanger1");
+        this.cliffHanger2 = this.hardwareMap.dcMotor.get("motorCliffHanger2");
 
         // Configure the knobs of the hardware according to how you've wired your
         // robot. Here, we assume that there are no encoders connected to the motors,
@@ -113,13 +119,17 @@ Publish ErrorDegrees
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorBeater.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        this.motorChurros.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+//        this.motorChurros.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        this.cliffHanger1.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        this.cliffHanger2.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+
 
         // One of the two motors (here, the left) should be set to reversed direction
         // so that it can take the same power level values as the other motor.
         //this.motorRightBack.setDirection(DcMotor.Direction.REVERSE);
         this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
-        climber = new Climber(motorChurros);
+        this.cliffHanger2.setDirection(DcMotor.Direction.REVERSE);
+//        climber = new Climber(motorChurros);
         //churroClimber = new Thread(climber);
         //churroClimber.start();
 
@@ -170,7 +180,7 @@ Publish ErrorDegrees
 
             pose.Update(imu.getAngularOrientation(), motorLeft.getCurrentPosition(), motorRight.getCurrentPosition());
             if (active) {
-                climber.run();
+//                climber.run();
                 switch (demoMode) {
                     case 0:  //tele-op driving
 
@@ -184,6 +194,8 @@ Publish ErrorDegrees
                             this.motorLeft.setPower(ctlLeft * direction);
                             this.motorRight.setPower(ctlRight * direction);
                         }
+                        this.cliffHanger1.setPower(climberPower);
+                        this.cliffHanger2.setPower(climberPower);
                         break;
 
                     case 1: //autonomous
@@ -271,7 +283,7 @@ Publish ErrorDegrees
                 motorRight.setPower(0);
                 motorBeater.setPower(0);
                 pose.setOdometer(0);
-                motorChurros.setPower(0);
+//                motorChurros.setPower(0);
             }
 
 
@@ -323,8 +335,22 @@ Publish ErrorDegrees
             motorChurros.setPower(-.5);
         }*/
         if (pad.x) {
-            climber.stroke();
+//            climber.stroke();
         }
+
+        if(pad.right_trigger >.6)
+        {
+            climberPower = pad.right_trigger;
+        }
+        else if(pad.left_trigger >.6)
+        {
+            climberPower = -pad.left_trigger;
+        }
+        else
+        {
+            climberPower = 0;
+        }
+
         /*
         if (pad.left_trigger > 0.6)
         {

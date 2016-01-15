@@ -9,6 +9,8 @@ import org.swerverobotics.library.interfaces.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.ironempire.util.*;
 
+
+
 /**
  * An example of a synchronous opmode that implements a simple drive-a-bot.
  */
@@ -27,6 +29,7 @@ public class IronDemo extends SynchronousOpMode {
     DcMotor cliffHanger2 = null;
 //    volatile DcMotor motorChurros = null;
     Servo servoCatcher = null;
+    Servo servoClimber = null;
 //    public Climber climber;
 
     //public Thread churroClimber;
@@ -49,8 +52,16 @@ public class IronDemo extends SynchronousOpMode {
     double baseHeading = 0;
     public String[] State = {"TeleOp", "Auto", "GoStraight", "GoStraightIMU", "SquareDance"};
     public int demoMode = 0;
-    public int autoMode = 0;
+    public int autoStage = 0;
+    private boolean climberScheme = false;
+    private boolean climberEngaged = false;
+    private boolean climberUp = false;
+    private int climberHz = 1830;
 
+    private final static int cliffEngage = 1637;
+    private final static int cliffClear = 1577;
+    private final static int churroEngage = 1850;
+    private final static int churroClear = 1830;
 
     // Our sensors, motors, and other devices go here, along with other long term state
     IBNO055IMU imu;
@@ -107,6 +118,7 @@ Publish ErrorDegrees
         this.motorRight = this.hardwareMap.dcMotor.get("motorRight");
         this.motorBeater = this.hardwareMap.dcMotor.get("motorBeater");
         this.servoCatcher = this.hardwareMap.servo.get("servoCatcher");
+        this.servoClimber = this.hardwareMap.servo.get("servoCliff");
 //        this.motorChurros = this.hardwareMap.dcMotor.get("motorChurros");
         this.cliffHanger1 = this.hardwareMap.dcMotor.get("motorCliffHanger1");
         this.cliffHanger2 = this.hardwareMap.dcMotor.get("motorCliffHanger2");
@@ -196,49 +208,11 @@ Publish ErrorDegrees
                         }
                         this.cliffHanger1.setPower(climberPower);
                         this.cliffHanger2.setPower(climberPower);
+
                         break;
 
                     case 1: //autonomous
-                        switch (autoMode) {
-                            case 0:
-                                MoveIMU(KpDrive, KiDrive, KdDrive, -1 * driveIMUBasePower, 0 * isRed, drivePID);
-                                if (pose.getOdometer() <= -0.1) {
-                                    motorLeft.setPower(0);
-                                    motorRight.setPower(0);
-                                    pose.setOdometer(0);
-                                    autoMode++;
-                                }
-                                break;
-                            case 1:
-                                MoveIMU(KpDrive, 0, KdDrive, 0, -45, drivePID);
-                                if (pose.getHeading() <= -45) {
-                                    servoCatcher.setPosition(.64);
-                                    motorLeft.setPower(0);
-                                    pose.setOdometer(0);
-                                    autoMode++;
-                                }
-                                break;
-                            case 2:
-                                MoveIMU(KpDrive, KiDrive, KdDrive, -1 * driveIMUBasePower, 0, drivePID);
-                                if (pose.getOdometer() >= -2.6) {
-                                    motorLeft.setPower(0);
-                                    motorRight.setPower(0);
-                                    pose.setOdometer(0);
-                                    autoMode++;
-                                }
-                                break;
-
-                            case 3:
-                                motorLeft.setPower(0);
-                                motorRight.setPower(0);
-                                break;
-/*
-                        //case 4:
-*/
-
-                            default:
-                                break;
-                        }
+                        Autonomous();
                         break;
                     case 2:
                         MoveIMU(KpDrive, 0, KdDrive, .5, 0, drivePID);
@@ -306,50 +280,67 @@ Publish ErrorDegrees
         ctlLeft = -pad.left_stick_y;
         ctlRight = -pad.right_stick_y;
 
-
-        if (pad.dpad_down)//1753 micros
-        {
-            servoCatcher.setPosition(.68);
-        }
-        if (pad.dpad_up) {
-            servoCatcher.setPosition(.33); //1244
-        }
-        if (pad.dpad_left) {
-            servoCatcher.setPosition(.51); //1517
-        }
-        if (pad.y) {
-            motorBeater.setPower(1);
-        }
-        if (pad.a) {
-            motorBeater.setPower(0);
-        }
-        if (pad.b) {
-            motorBeater.setPower(-1);
-        }
-        /*(if (pad.left_trigger > 0.5) {
-            motorChurros.setTargetPosition(0);
-            motorChurros.setPower(-.5);
-        }
-        if (pad.right_trigger > 0.5) {
-            motorChurros.setTargetPosition(-1550);
-            motorChurros.setPower(-.5);
-        }*/
         if (pad.x) {
 //            climber.stroke();
-        }
+            climberScheme = !climberScheme;
 
-        if(pad.right_trigger >.6)
-        {
-            climberPower = pad.right_trigger;
         }
-        else if(pad.left_trigger >.6)
+        if(climberScheme)
         {
-            climberPower = -pad.left_trigger;
+            if(pad.right_trigger >.6)
+            {
+                climberPower = pad.right_trigger;
+            }
+            else if(pad.left_trigger >.6)
+            {
+                climberPower = -pad.left_trigger;
+            }
+            else
+            {
+                climberPower = 0;
+            }
+            if(pad.y)
+            {
+                climberUp = !climberUp;
+            }
+            if(pad.b)
+            {
+                climberEngaged = !climberEngaged;
+            }
+
         }
-        else
-        {
-            climberPower = 0;
+        else {
+            if (pad.dpad_down)//1753 micros
+            {
+                servoCatcher.setPosition(.68);
+            }
+            if (pad.dpad_up) {
+                servoCatcher.setPosition(.33); //1244
+            }
+            if (pad.dpad_left) {
+                servoCatcher.setPosition(.51); //1517
+            }
+            if (pad.y) {
+                motorBeater.setPower(1);
+            }
+            if (pad.a) {
+                motorBeater.setPower(0);
+            }
+            if (pad.b) {
+                motorBeater.setPower(-1);
+            }
+            /*(if (pad.left_trigger > 0.5) {
+                motorChurros.setTargetPosition(0);
+                motorChurros.setPower(-.5);
+            }
+            if (pad.right_trigger > 0.5) {
+                motorChurros.setTargetPosition(-1550);
+                motorChurros.setPower(-.5);
+            }*/
         }
+        servoClimber.setPosition(ClimberAngle(climberUp, climberEngaged));
+
+
 
         /*
         if (pad.left_trigger > 0.6)
@@ -398,7 +389,7 @@ Publish ErrorDegrees
         if (pad.start) {
             active = !active;
         } else if (pad.right_bumper) {
-            autoMode = 0;        //Add code preventing bumpers changing state if "halt" is true (halt is made true when state
+            autoStage = 0;        //Add code preventing bumpers changing state if "halt" is true (halt is made true when state
             if (demoMode < 5)    //changes and made false when some other button is pressed)
                 demoMode++;
             else
@@ -406,7 +397,7 @@ Publish ErrorDegrees
             active = false;
 
         } else if (pad.left_bumper) {
-            autoMode = 0;
+            autoStage = 0;
             if (demoMode > 0)
                 demoMode--;
             else
@@ -627,6 +618,65 @@ Publish ErrorDegrees
     // Utility
     //----------------------------------------------------------------------------------------------
 
+    void Autonomous(){
+        switch (autoStage) {
+            case 0:   //Drive away from the wall to deploy beater bar
+                MoveIMU(KpDrive, KiDrive, KdDrive, -1 * driveIMUBasePower, 0 * isRed, drivePID);
+                if (pose.getOdometer() <= -0.1) {
+                    motorLeft.setPower(0);
+                    motorRight.setPower(0);
+                    pose.setOdometer(0);
+                    autoStage++;
+                }
+                break;
+            case 1:
+//                MoveIMU(KpDrive, 0, KdDrive, 0, -45, drivePID);   //
+//                if (pose.getHeading() <= -45) {
+//                    servoCatcher.setPosition(.64);
+//                    motorLeft.setPower(0);
+//                    pose.setOdometer(0);
+                    autoStage++;
+//                }
+                break;
+            case 2:   //Drive to the beacon
+                MoveIMU(KpDrive, KiDrive, KdDrive, -1 * driveIMUBasePower, 0, drivePID);
+                if (pose.getOdometer() >= -2.6) {
+                    motorLeft.setPower(0);
+                    motorRight.setPower(0);
+                    pose.setOdometer(0);
+                    autoStage++;
+                }
+                break;
+
+            case 3:   //rough turn to beacon
+                autoStage++;
+                break;
+
+            case 4:   //Precise turn to beacon - color blob assisted
+                autoStage++;
+                break;
+
+            case 5:   //Beacon approach - color blob assisted
+                autoStage++;
+                break;
+
+            case 6:   //Poosh botan
+                autoStage++;
+                break;
+
+            case 7:   //drop climbers
+                autoStage++;
+                break;
+
+            case 8:   //retreat
+                autoStage++;
+                break;
+            default:
+                motorLeft.setPower(0);
+                motorRight.setPower(0);
+                break;
+        }
+    }
     void MoveRobot(double Kp, double Ki, double Kd, double pwr, double currentAngle, int targetAngle, PIDController PID) {
         PID.setPID(Kp, Ki, Kd);
         PID.setSetpoint(targetAngle);
@@ -667,6 +717,31 @@ Publish ErrorDegrees
 
     void MoveIMU(double Kp, double Ki, double Kd, double pwr, int angle, PIDController PID) {
         MoveRobot(KpDrive, 0, KdDrive, .5, pose.getHeading(), 0, drivePID);
+    }
+
+    double ClimberAngle (boolean up, boolean engage){
+        int pulse = 0;
+        if(up){
+            if(engage)
+                pulse = cliffEngage;
+
+            else
+                pulse = cliffClear;
+
+        }
+        else{
+            if(engage)
+                pulse = churroEngage;
+
+            else
+                pulse = churroClear;
+
+        }
+        return ServoNormalize(pulse); //convert mr servo controller pulse width to double on 0 - 1 scale
+    }
+    double ServoNormalize(int pulse){
+        double normalized = (double)pulse;
+        return (normalized - 750.0) / 1500.0; //convert mr servo controller pulse width to double on 0 - 1 scale
     }
 
     double normalizeDegrees(double degrees) {

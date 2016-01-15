@@ -56,7 +56,7 @@ public class IronDemo extends SynchronousOpMode {
     private boolean climberScheme = false;
     private boolean climberEngaged = false;
     private boolean climberUp = false;
-    private int climberHz = 1830;
+    private long autoPushButtonTimerStart = -1;
 
     private final static int cliffEngage = 1637;
     private final static int cliffClear = 1577;
@@ -252,11 +252,14 @@ Publish ErrorDegrees
                         break;
 
                 }
-            } else {
+            }
+            else {
                 motorLeft.setPower(0);
                 motorRight.setPower(0);
                 motorBeater.setPower(0);
                 pose.setOdometer(0);
+                cliffHanger1.setPower(0);
+                cliffHanger2.setPower(0);
 //                motorChurros.setPower(0);
             }
 
@@ -620,16 +623,17 @@ Publish ErrorDegrees
 
     void Autonomous(){
         switch (autoStage) {
-            case 0:   //Drive away from the wall to deploy beater bar
+            case 0:   //Drive away from the wall to deploy beater bar ; angle = 0
                 MoveIMU(KpDrive, KiDrive, KdDrive, -1 * driveIMUBasePower, 0 * isRed, drivePID);
                 if (pose.getOdometer() <= -0.1) {
+                    servoCatcher.setPosition(.64);  //TODO: test with servo tester and normalize (for greater accuracy)
                     motorLeft.setPower(0);
                     motorRight.setPower(0);
                     pose.setOdometer(0);
                     autoStage++;
                 }
                 break;
-            case 1:
+            case 1:   //commented out
 //                MoveIMU(KpDrive, 0, KdDrive, 0, -45, drivePID);   //
 //                if (pose.getHeading() <= -45) {
 //                    servoCatcher.setPosition(.64);
@@ -638,7 +642,7 @@ Publish ErrorDegrees
                     autoStage++;
 //                }
                 break;
-            case 2:   //Drive to the beacon
+            case 2:   //Drive to the beacon; angle = 0
                 MoveIMU(KpDrive, KiDrive, KdDrive, -1 * driveIMUBasePower, 0, drivePID);
                 if (pose.getOdometer() >= -2.6) {
                     motorLeft.setPower(0);
@@ -648,20 +652,44 @@ Publish ErrorDegrees
                 }
                 break;
 
-            case 3:   //rough turn to beacon
-                autoStage++;
+            case 3:   //rough turn to beacon; angle = 0 to 45(blu) or -45(red)
+                MoveIMU(KpDrive, 0, KdDrive, 0, -45, drivePID);   //
+                if (pose.getHeading() <= -45) {
+                    motorLeft.setPower(0);
+                    pose.setOdometer(0);
+                    autoStage++;
+                }
                 break;
 
-            case 4:   //Precise turn to beacon - color blob assisted
-                autoStage++;
+            case 4:   //Precise turn to beacon - color blob assisted; angle = 45(?)
+                MoveRobot(KpDrive, 0, KdDrive, 0, ErrorPixToDeg(x), 0, drivePID);
+                if((ErrorPixToDeg(x) < 1) || (ErrorPixToDeg(x) > 359)) {
+                    motorLeft.setPower(0);
+                    motorRight.setPower(0);
+                    pose.setOdometer(0);
+                    autoStage++;
+                }
                 break;
 
-            case 5:   //Beacon approach - color blob assisted
-                autoStage++;
+            case 5:   //Beacon approach - color blob assisted; angle = 45(?)
+                MoveRobot(KpDrive, 0, KdDrive, .35, ErrorPixToDeg(x), 0, drivePID);
+                if(pose.getOdometer() >= .25) {
+                    motorLeft.setPower(0);
+                    motorRight.setPower(0);
+                    pose.setOdometer(0);
+                    autoPushButtonTimerStart = System.nanoTime();
+                    autoStage++;
+                }
                 break;
 
-            case 6:   //Poosh botan
-                autoStage++;
+            case 6:   //Push the button
+                cliffHanger1.setPower(.15);
+                cliffHanger2.setPower(.15);
+                if(System.nanoTime() - autoPushButtonTimerStart > 2500000){
+                    cliffHanger1.setPower(-.15);
+                    cliffHanger2.setPower(-.15);
+                    autoStage++;
+                }
                 break;
 
             case 7:   //drop climbers
@@ -669,6 +697,8 @@ Publish ErrorDegrees
                 break;
 
             case 8:   //retreat
+//                cliffHanger1.setPower(0);
+//                cliffHanger2.setPower(0);
                 autoStage++;
                 break;
             default:

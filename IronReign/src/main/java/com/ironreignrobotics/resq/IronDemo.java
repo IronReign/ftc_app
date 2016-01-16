@@ -28,7 +28,7 @@ public class IronDemo extends SynchronousOpMode {
     DcMotor cliffHanger1 = null;
     DcMotor cliffHanger2 = null;
 //    volatile DcMotor motorChurros = null;
-    Servo servoCatcher = null;
+    Servo servoPlow = null;
     Servo servoClimber = null;
 //    public Climber climber;
 
@@ -109,6 +109,7 @@ Publish ErrorDegrees
         return errorDegrees;
     }
     protected void main() throws InterruptedException {
+
         // Initialize our hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names you assigned during the robot configuration
         // step you did in the FTC Robot Controller app on the phone.
@@ -117,7 +118,7 @@ Publish ErrorDegrees
         this.motorLeft = this.hardwareMap.dcMotor.get("motorLeft");
         this.motorRight = this.hardwareMap.dcMotor.get("motorRight");
         this.motorBeater = this.hardwareMap.dcMotor.get("motorBeater");
-        this.servoCatcher = this.hardwareMap.servo.get("servoCatcher");
+        this.servoPlow = this.hardwareMap.servo.get("servoCatcher");
         this.servoClimber = this.hardwareMap.servo.get("servoCliff");
 //        this.motorChurros = this.hardwareMap.dcMotor.get("motorChurros");
         this.cliffHanger1 = this.hardwareMap.dcMotor.get("motorCliffHanger1");
@@ -172,6 +173,7 @@ Publish ErrorDegrees
 
         pose.setTicksPerMeterLeft(2940);
         pose.setTicksPerMeterRight(2940);
+        pose.setOdometer(0);
 
 
         // Configure the dashboard however we want it
@@ -315,13 +317,13 @@ Publish ErrorDegrees
         else {
             if (pad.dpad_down)//1753 micros
             {
-                servoCatcher.setPosition(.68);
+                servoPlow.setPosition(ServoNormalize(1753));
             }
             if (pad.dpad_up) {
-                servoCatcher.setPosition(.33); //1244
+                servoPlow.setPosition(ServoNormalize(1244)); //1244
             }
             if (pad.dpad_left) {
-                servoCatcher.setPosition(.51); //1517
+                servoPlow.setPosition(ServoNormalize(1517)); //1517
             }
             if (pad.y) {
                 motorBeater.setPower(1);
@@ -457,11 +459,34 @@ Publish ErrorDegrees
                                 return format(demoMode);
                             }
                         }),
+                        this.telemetry.item("a_stage:", new IFunc<Object>() {
+                            @Override
+                            public Object value() {
+                                return format(autoStage);
+                            }
+                        }),
                         this.telemetry.item("Kp:", new IFunc<Object>() {
                             @Override
                             public Object value() {
-                                 return formatPosition(KpDrive);
-                              }
+                                return formatPosition(KpDrive);
+                            }
+                        })
+
+                );
+        this.telemetry.addLine //color blob detector stuff
+                (
+
+                        this.telemetry.item("BlobErr:", new IFunc<Object>() {
+                            @Override
+                            public Object value() {
+                                return format(ErrorPixToDeg(x));
+                            }
+                        }),
+                        this.telemetry.item("BlobSize:", new IFunc<Object>() {
+                            @Override
+                            public Object value() {
+                                return format(Math.sqrt(FtcRobotControllerActivity.maxContour));
+                            }
                         }),
                         this.telemetry.item("Hue:", new IFunc<Object>() {
                             @Override
@@ -539,6 +564,11 @@ Publish ErrorDegrees
                 telemetry.item("heading: ", new IFunc<Object>() {
                     public Object value() {
                         return formatAngle(pose.getHeading());
+                    }
+                }),
+                telemetry.item("imu: ", new IFunc<Object>() {
+                    public Object value() {
+                        return formatAngle(imu.getAngularOrientation().heading);
                     }
                 }),
                 telemetry.item("roll: ", new IFunc<Object>() {
@@ -626,7 +656,7 @@ Publish ErrorDegrees
             case 0:   //Drive away from the wall to deploy beater bar ; angle = 0
                 MoveIMU(KpDrive, KiDrive, KdDrive, -1 * driveIMUBasePower, 0 * isRed, drivePID);
                 if (pose.getOdometer() <= -0.1) {
-                    servoCatcher.setPosition(.64);  //TODO: test with servo tester and normalize (for greater accuracy)
+                    servoPlow.setPosition(.64);  //TODO: test with servo tester and normalize (for greater accuracy)
                     motorLeft.setPower(0);
                     motorRight.setPower(0);
                     pose.setOdometer(0);
@@ -636,7 +666,7 @@ Publish ErrorDegrees
             case 1:   //commented out
 //                MoveIMU(KpDrive, 0, KdDrive, 0, -45, drivePID);   //
 //                if (pose.getHeading() <= -45) {
-//                    servoCatcher.setPosition(.64);
+//                    servoPlow.setPosition(.64);
 //                    motorLeft.setPower(0);
 //                    pose.setOdometer(0);
                     autoStage++;
@@ -644,7 +674,7 @@ Publish ErrorDegrees
                 break;
             case 2:   //Drive to the beacon; angle = 0
                 MoveIMU(KpDrive, KiDrive, KdDrive, -1 * driveIMUBasePower, 0, drivePID);
-                if (pose.getOdometer() >= -2.6) {
+                if (pose.getOdometer() <= -2.6) {
                     motorLeft.setPower(0);
                     motorRight.setPower(0);
                     pose.setOdometer(0);
@@ -672,7 +702,7 @@ Publish ErrorDegrees
                 break;
 
             case 5:   //Beacon approach - color blob assisted; angle = 45(?)
-                MoveRobot(KpDrive, 0, KdDrive, .35, ErrorPixToDeg(x), 0, drivePID);
+                MoveRobot(KpDrive, 0, KdDrive, -.35, ErrorPixToDeg(x), 0, drivePID);
                 if(pose.getOdometer() >= .25) {
                     motorLeft.setPower(0);
                     motorRight.setPower(0);
@@ -746,7 +776,7 @@ Publish ErrorDegrees
     }
 
     void MoveIMU(double Kp, double Ki, double Kd, double pwr, int angle, PIDController PID) {
-        MoveRobot(KpDrive, 0, KdDrive, .5, pose.getHeading(), 0, drivePID);
+        MoveRobot(Kp, Ki, Kd, pwr, pose.getHeading(), angle, drivePID);
     }
 
     double ClimberAngle (boolean up, boolean engage){

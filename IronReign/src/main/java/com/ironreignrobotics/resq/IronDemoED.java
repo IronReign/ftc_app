@@ -117,7 +117,7 @@ public class IronDemoED extends OpMode
             this.motorLeft = this.hardwareMap.dcMotor.get("motorLeft");
             this.motorRight = this.hardwareMap.dcMotor.get("motorRight");
             this.motorBeater = this.hardwareMap.dcMotor.get("motorBeater");
-            this.servoCatcher = this.hardwareMap.servo.get("servoCatcher");
+            this.servoCatcher = this.hardwareMap.servo.get("servoPlow");
             //this.motorChurros = this.hardwareMap.dcMotor.get("motorChurros");
 
             // Configure the knobs of the hardware according to how you've wired your

@@ -1,0 +1,595 @@
+fd26e62 - Craniumski, 31 minutes ago : Added part of autonomous
+9423433 - Craniumski, 2 hours ago : Cliff hanger
+21d3083 - Craniumski, 2 days ago : cliffhanger test code
+0cb7fd4 - Craniumski, 4 days ago : Added Argos Mode
+8ab058d - Craniumski, 7 days ago : Tune churro climber and clean out un-needed opencv binaries
+7c88b15 - Craniumski, 13 days ago : Color Blob Detection - OpenCV
+80014ed - Craniumski, 13 days ago : Churro climber control + Spooky space
+1d0948b - Craniumski, 4 weeks ago : Better control of modes in Demo, compilable event driven version of Demo
+7b8e608 - Craniumski, 4 weeks ago : Event Driven version of Demo
+7cb3880 - Craniumski, 5 weeks ago : Drive control fixes
+47fab7a - Iron Reign, 5 weeks ago : scrimmage 2 changes - servo cow catcher, reverse directions
+3a14634 - Iron Reign, 5 weeks ago : comment
+1ef5d10 - Craniumski, 5 weeks ago : autonomous - add alliance awareness
+b96839d - Craniumski, 6 weeks ago : autonomous updates and some PID tuning
+05a73b3 - Craniumski, 7 weeks ago : autonomous - initial trial
+fafd689 - Iron Reign, 9 weeks ago : beginning of autonomous code
+9efeec2 - Craniumski, 9 weeks ago : switch to continuous mode and enable pid
+283cff7 - Craniumski, 9 weeks ago : added state machine
+a4c93f4 - Craniumski, 9 weeks ago : Added a Demo OpMode for Imperial
+68e5375 - Craniumski, 10 weeks ago : Add Pilot, PIDController and control beater bar in Demo
+9f24189 - Craniumski, 10 weeks ago : Merge branch 'master' of https://github.com/SwerveRobotics/ftc_app
+69ce563 - RobertAtkinson, 10 weeks ago : comments
+ce5fb19 - RobertAtkinson, 10 weeks ago : update readme
+522dffc - RobertAtkinson, 10 weeks ago : mentor sandbox -> master
+34f2c37 - RobertAtkinson, 10 weeks ago : update javadoc
+bfb8a0e - RobertAtkinson, 10 weeks ago : work towards new color sensor implementation (not yet used).
+deb2bf2 - RobertAtkinson, 10 weeks ago : comment
+4e7acee - Craniumski, 2 months ago : PID
+ac03060 - Iron Reign, 2 months ago : correct offset sign
+919d9ee - RobertAtkinson, 2 months ago : add ColorSensorOnI2cDeviceClient, but don't yet use
+348a95a - RobertAtkinson, 2 months ago : comments
+d34c0e5 - RobertAtkinson, 2 months ago : adjust for setChannelMode API change
+060b699 - RobertAtkinson, 2 months ago : integrate from FTC HQ release 15.11.04.001
+5ea8a8b - FTC Engineer, 2 months ago : Release 15.11.04.001.
+f7d2a55 - Iron Reign, 2 months ago : fix pose calculations for location
+ea5b9ff - Craniumski, 2 months ago : use pose in demo activity
+aeb8c40 - Iron Reign, 2 months ago : Update calculations in pose
+7f84aa8 - Craniumski, 2 months ago : stuff
+c9ec52b - Craniumski, 2 months ago : begin square dance for testing imu
+3b60e1a - Craniumski, 2 months ago : IronReign Module
+2acae1f - Craniumski, 2 months ago : Merge branch 'master' of https://github.com/SwerveRobotics/ftc_app
+7f81f80 - Craniumski, 2 months ago : add and subtract angles
+66275db - Craniumski, 2 months ago : Merge branch 'master' of https://github.com/IronReign/ftc_app
+40e68db - Craniumski, 2 months ago : Unified motors
+bfa065b - Iron Reign, 3 months ago : Revert "Submodules!"
+493d6bc - Iron Reign, 3 months ago : Revert "Updated IronEmpire"
+769c56f - Iron Reign, 3 months ago : Updated IronEmpire
+21f1be5 - Eliot Partridge, 3 months ago : Submodules!
+59225e8 - Iron Reign, 3 months ago : add pitch and roll to pose
+ff8ae19 - RobertAtkinson, 3 months ago : Merge branch 'master' of https://github.com/SwerveRobotics/ftc_app.git
+4551493 - RobertAtkinson, 3 months ago : mentorsandbox -> master
+391a1d4 - RobertAtkinson, 3 months ago : auto-kill controller process on 'Exit'
+59bb946 - RobertAtkinson, 3 months ago : javadoc
+8001c2a - RobertAtkinson, 3 months ago : add readTimestamped() variant
+3e501d2 - RobertAtkinson, 3 months ago : comments
+2d6723f - RobertAtkinson, 3 months ago : comments; readme; xml tidy
+fb17753 - Robert Atkinson, 3 months ago : comments
+60cdafc - Robert Atkinson, 3 months ago : stopMotors() and floatMotors() now wait until their job is done
+0b15f49 - Craniumski, 3 months ago : Add Dylan's Theta class
+400a2d8 - Craniumski, 3 months ago : Add Dylan's Theta class
+1ec2fec - Craniumski, 3 months ago : fix
+92ba714 - Craniumski, 3 months ago : fix
+d4f7154 - Craniumski, 3 months ago : Merge remote-tracking branch 'origin/master'
+29bdcf1 - Craniumski, 3 months ago : Merge remote-tracking branch 'origin/master'
+c3a0cbe - RobertAtkinson, 3 months ago : prep bug report
+f269b6b - RobertAtkinson, 3 months ago : more loggign in 'easy'
+1351d09 - RobertAtkinson, 3 months ago : update javadoc
+3323392 - RobertAtkinson, 3 months ago : add READ_MODE.Balanced for better motor controller performance
+5550575 - Craniumski, 3 months ago : iml update
+b3103c9 - Craniumski, 3 months ago : fixup IronEmpire module and gradle settings
+624f85a - RobertAtkinson, 3 months ago : Merge branch 'MentorSandbox'
+412c309 - RobertAtkinson, 3 months ago : fix bumper pressing
+0831bf3 - RobertAtkinson, 3 months ago : add LinearTelemetryOp
+8e36c6a - RobertAtkinson, 3 months ago : merge
+734649e - RobertAtkinson, 3 months ago : javadoc fix
+9520ece - Craniumski, 3 months ago : Document Pose skeleton class
+309e569 - Craniumski, 3 months ago : Create Pose skeleton class
+470e325 - Craniumski, 3 months ago : Create Pose skeleton class
+afcc714 - Craniumski, 3 months ago : Update Swerve libraries to proper version and resolve conflicts
+7b154c6 - Craniumski, 3 months ago : Merge branch 'master' of https://github.com/SwerveRobotics/ftc_app
+b743717 - RobertAtkinson, 3 months ago : merge into master
+2c3efe1 - RobertAtkinson, 3 months ago : more canonicalization of logging tags
+33c8cc6 - RobertAtkinson, 3 months ago : Merge branch 'MentorSandbox' of https://github.com/SwerveRobotics/ftc_app.git
+fb1dfd8 - RobertAtkinson, 3 months ago : coalesce adjacent writes in I2cDeviceClient
+341c1f1 - Robert Atkinson, 3 months ago : Merge branch 'MentorSandbox' of https://github.com/SwerveRobotics/ftc_app.git
+92f31dc - RobertAtkinson, 3 months ago : merge to master
+732dd17 - RobertAtkinson, 3 months ago : logging
+f52ec1e - RobertAtkinson, 3 months ago : robustify sound playback
+90660f4 - RobertAtkinson, 3 months ago : put Dave Goldy's test to bed...
+fe4dce4 - RobertAtkinson, 3 months ago : fix timing math
+5d1078b - RobertAtkinson, 3 months ago : add Dave Goldy's opmode
+215fcab - RobertAtkinson, 3 months ago : merge MentorSandbox -> master
+6670754 - RobertAtkinson, 3 months ago : update javadoc
+1a73618 - RobertAtkinson, 3 months ago : move handleCapturedInterrupt etc back to internal
+8c5e993 - RobertAtkinson, 3 months ago : update javadoc
+63bf8ad - RobertAtkinson, 3 months ago : merge master -> mentorsandbox
+cb3b398 - RobertAtkinson, 3 months ago : imu demo doesn't log any more by default: little need
+383ad67 - RobertAtkinson, 3 months ago : motor perf can do two motors
+0028890 - RobertAtkinson, 3 months ago : fix EasyLegacyMotorController.getPosition()
+908e778 - RobertAtkinson, 3 months ago : fix easy..controller.getPosition()
+1ec8ebf - RobertAtkinson, 3 months ago : .iml needs to follow build.gradle
+2ab9a20 - RobertAtkinson, 3 months ago : remove unused imports
+2426808 - RobertAtkinson, 3 months ago : rework InterruptedException handling
+5b2cca3 - RobertAtkinson, 3 months ago : comments
+4931ee5 - RobertAtkinson, 3 months ago : more skullduggery centralization
+c5ac3f5 - RobertAtkinson, 3 months ago : refactoring skullduggery
+882c4c6 - RobertAtkinson, 3 months ago : fix sound playing
+187f3d6 - RobertAtkinson, 3 months ago : regularize logging tags
+a66a1ca - RobertAtkinson, 3 months ago : work around runtime bug that has FtcEventLoop.processCommand called before .init
+257eaab - RobertAtkinson, 3 months ago : formatting; avoid attempting monitor hook install after having been successful.
+8c9fb9f - Robert Atkinson, 3 months ago : gampad objects don't change, so can be final
+275a3a4 - Robert Atkinson, 3 months ago : comment
+31c2cde - Robert Atkinson, 3 months ago : tidy build.gradle files
+b5364cb - Robert Atkinson, 3 months ago : pulse waitOneFullHardwareCycle during init_loop()
+f2a9e59 - RobertAtkinson, 3 months ago : add more logging
+82d033e - RobertAtkinson, 3 months ago : merge from FTCHQ
+d07f8c7 - RobertAtkinson, 3 months ago : update readme
+c3ad5d2 - RobertAtkinson, 3 months ago : Merge branch 'MentorSandbox'
+6de2a88 - RobertAtkinson, 3 months ago : update readme
+36a47a2 - RobertAtkinson, 3 months ago : merge MentorSandbox -> Master
+e229b61 - RobertAtkinson, 3 months ago : play full sounds even w/ debugger attached; add automous polygon to default op modes
+5e470a6 - RobertAtkinson, 3 months ago : Add startup failure event / sound
+8a34803 - RobertAtkinson, 3 months ago : update javadoc, readme
+000f605 - RobertAtkinson, 3 months ago : merge FTC HQ 6 Oct release into MentorSandbox
+5707aa7 - RobertAtkinson, 3 months ago : concurrency is hard!
+7a14deb - RobertAtkinson, 3 months ago : when disarming i2cdeviceclient we need to drain any writes that have been issued but not yet completed
+81eb003 - RobertAtkinson, 3 months ago : 1. bug fix in easy..::stopMotors 2. update javadoc 3 add LinearAutonomousPolygon
+be89ca3 - RobertAtkinson, 3 months ago : update javadoc comments and regenerate
+c4eb53a - RobertAtkinson, 3 months ago : sound plays now on start
+62aaab6 - Robert Atkinson, 3 months ago : clean up LineaerMotorLoopPerf; simplify createEasyMotorController
+06cb3d5 - Robert Atkinson, 3 months ago : update readme
+5a09960 - Robert Atkinson, 3 months ago : update readme
+020c519 - Robert Atkinson, 3 months ago : update readme
+4274314 - Robert Atkinson, 3 months ago : use easylegacymotorcontroller always in sync; add LinearMotorLoopPerf
+5cd9d50 - Robert Atkinson, 3 months ago : more comment
+814697d - Robert Atkinson, 3 months ago : fix comment debacle
+deb88ce - Robert Atkinson, 3 months ago : comment
+4152fc2 - Robert Atkinson, 3 months ago : comment nit
+83e3804 - Robert Atkinson, 3 months ago : comments
+3722856 - Robert Atkinson, 3 months ago : coments; more started->running
+387d630 - Robert Atkinson, 3 months ago : comments
+96b3fba - Robert Atkinson, 3 months ago : comment; opmode display names
+1680e9c - Robert Atkinson, 3 months ago : comments; 'robot started' -> 'robot running'
+44de242 - Robert Atkinson, 3 months ago : comments
+86ae29e - Robert Atkinson, 3 months ago : IInterupptableAction is similarly unneeded
+369fb98 - Robert Atkinson, 3 months ago : IAction was redundant with Runnable; removed
+c5d9571 - Robert Atkinson, 3 months ago : rename xxx to EasyLegacyMotorController
+d734aec - Robert Atkinson, 3 months ago : Add OnRobotStart
+68ad62a - Robert Atkinson, 3 months ago : work on robot start hook
+1720291 - Robert Atkinson, 3 months ago : don't overload null context to mean don't auto-close
+4489b56 - Robert Atkinson, 3 months ago : motor controller doesn't need to wait for completion of i2c writes
+64c4f0d - Robert Atkinson, 3 months ago : avoid writing to device client if we're disarmed
+0bd2556 - RobertAtkinson, 3 months ago : small tidy
+40d9e42 - Robert Atkinson, 3 months ago : raw merge with FTC HQ
+dee1c76 - Craniumski, 3 months ago : update from swerve
+7a33ac2 - Craniumski, 3 months ago : keep up with ide
+d74759f - RobertAtkinson, 3 months ago : test heartbeats. work!
+297a962 - RobertAtkinson, 3 months ago : new legacy motor controller impl seems to work
+3124de0 - RobertAtkinson, 3 months ago : simplify and robustify shutdown logic. IMU verified, NxtMotorControllerOnI2cDevice not yet
+85b3fcb - FTC Engineer, 3 months ago : Release 15.10.06.002 - support for legacy Matrix motor servo controller.
+be26e83 - FTC Engineer, 3 months ago : Release 15.10.06.002 - support for legacy Matrix motor servo controller.
+a6299ff - Craniumski, 3 months ago : switch to tank drive
+c75931d - RobertAtkinson, 3 months ago : implement ClassFactory.createNxtMotorController second variation
+6166aaf - RobertAtkinson, 3 months ago : improve new motor controller shutdown robustness
+e21720e - RobertAtkinson, 3 months ago : Merge branch 'MentorSandbox'
+c5748af - RobertAtkinson, 3 months ago : update javadoc
+1ad32d2 - RobertAtkinson, 3 months ago : make method public
+c70c0b4 - RobertAtkinson, 3 months ago : comments
+f4cbbeb - RobertAtkinson, 3 months ago : add waitOneFullHardwareCycle
+756e3ad - RobertAtkinson, 3 months ago : merge mentorsandbox->master
+291f8c0 - RobertAtkinson, 3 months ago : merge packaging->MentorSandbox: fix project build structure
+db02bd1 - RobertAtkinson, 3 months ago : 1. improve javadoc. 2. update javadoc
+c2d5e36 - RobertAtkinson, 3 months ago : remove comments describing old workaround
+d99b4ef - RobertAtkinson, 3 months ago : make yourcodehere manifest completely trivial
+1c2d9f3 - RobertAtkinson, 3 months ago : fix versioning
+c2bbdb1 - RobertAtkinson, 3 months ago : switch library <-> application
+bcbb223 - RobertAtkinson, 3 months ago : remove activities located in ftcrobotcontroller binary
+b9a856d - RobertAtkinson, 4 months ago : Show WifDirect passphrase on robot controller screen
+1043f0c - RobertAtkinson, 4 months ago : merge mentorsandbox->master
+bd2c144 - RobertAtkinson, 4 months ago : comment typo
+9dd883b - RobertAtkinson, 4 months ago : optimize I2C reading from CDIM
+fb01501 - RobertAtkinson, 4 months ago : Merge branch 'master'
+7fd9a11 - RobertAtkinson, 4 months ago : comment
+42db5ec - RobertAtkinson, 4 months ago : merge from master
+06a734d - RobertAtkinson, 4 months ago : whitespace
+16d04af - RobertAtkinson, 4 months ago : comments
+fc363e5 - RobertAtkinson, 4 months ago : prep for reduced I2C segment reading
+25dcc3f - RobertAtkinson, 4 months ago : comments
+f7ef7ef - RobertAtkinson, 4 months ago : comments
+b898429 - RobertAtkinson, 4 months ago : remove default use of thread priority boost
+88dbd66 - RobertAtkinson, 4 months ago : comments
+cb05673 - RobertAtkinson, 4 months ago : avoid switch() use in anticipation of app refactoring
+2a3a615 - RobertAtkinson, 4 months ago : merge to master
+6880a56 - RobertAtkinson, 4 months ago : remove inadvertent text
+da0c52e - RobertAtkinson, 4 months ago : improve robot controller icon scaling
+4425a32 - RobertAtkinson, 4 months ago : make robot controller screen easier to read
+8f0ca38 - RobertAtkinson, 4 months ago : make controller UI a bit more readable
+cfb1bff - RobertAtkinson, 4 months ago : merge mentorsandbox -> master
+4606e59 - RobertAtkinson, 4 months ago : spelling mistake
+2a12c0e - RobertAtkinson, 4 months ago : need that too!
+a292b4e - RobertAtkinson, 4 months ago : Add voltage sensor if there's not one already and we've got one handy...
+b502d69 - RobertAtkinson, 4 months ago : update javadoc
+9ee0c1f - RobertAtkinson, 4 months ago : update readme
+2bc04cf - RobertAtkinson, 4 months ago : update readme
+9d0ff5c - Craniumski, 4 months ago : Merge branch 'master' of https://github.com/SwerveRobotics/ftc_app
+99dc155 - RobertAtkinson, 4 months ago : better exception behavior
+71aa88e - Craniumski, 4 months ago : irseeker mode change
+daf62d1 - RobertAtkinson, 4 months ago : improve thunking robustness
+25b5caa - RobertAtkinson, 4 months ago : don't shutdown main thread if it hasn't started
+f7f852d - RobertAtkinson, 4 months ago : disable LED demo by default
+d4a4703 - RobertAtkinson, 4 months ago : whitespace nit
+6b8d1cc - RobertAtkinson, 4 months ago : more javadoc
+40f0a2b - RobertAtkinson, 4 months ago : yet more javadoc
+4b4d5a7 - RobertAtkinson, 4 months ago : Merge branch 'MentorSandbox' of https://github.com/SwerveRobotics/ftc_app.git
+5d04fc5 - RobertAtkinson, 4 months ago : javadoc updates
+5ff69c7 - Steve Geffner, 4 months ago : Merge branch 'MentorSandbox' of https://github.com/SwerveRobotics/ftc_app into MentorSandbox
+9fb63b4 - Steve Geffner, 4 months ago : Changed SynchLEDDemo to actually use an LED object rather than a DigitalChannel.
+bb6208b - RobertAtkinson, 4 months ago : Merge branch 'MentorSandbox' of https://github.com/SwerveRobotics/ftc_app.git
+32f2c7a - RobertAtkinson, 4 months ago : update readme, javadoc
+48372f0 - Steve Geffner, 4 months ago : Fixed two comments
+82d4fc3 - RobertAtkinson, 4 months ago : update readme, javadoc; warn that NxtMotorControllerOnI2cDevice is experimental
+2073987 - RobertAtkinson, 4 months ago : mentor sandbox -> master
+ec1ac3e - RobertAtkinson, 4 months ago : disable AnalogOutDemo by default
+f3dc716 - RobertAtkinson, 4 months ago : bit more documentation; tidy experimental motor controller and color sensor creation; update javadoc
+4a1894d - RobertAtkinson, 4 months ago : comment on NaiveAccelerationIntegrator
+24227ca - RobertAtkinson, 4 months ago : ignore any boost-setting errors
+37fb460 - RobertAtkinson, 4 months ago : Merge branch 'MentorSandbox' of https://github.com/SwerveRobotics/ftc_app.git
+938f19e - RobertAtkinson, 4 months ago : add thread priority boots for IMU data acquisition
+e578787 - RobertAtkinson, 4 months ago : tidy NavUtil
+7ab77c2 - RobertAtkinson, 4 months ago : separate out the acceleration integration algorithm to make it pluggable
+f6198db - Craniumski, 4 months ago : Merge branch 'master' of https://github.com/SwerveRobotics/ftc_app
+329d201 - RobertAtkinson, 4 months ago : Lift IMU result objects to main level for simplicity and ease of resuse
+9062e22 - RobertAtkinson, 4 months ago : 1. Improve IMU logging selectivity 2. fix null pointer exception in ThunkedLED
+52e1d18 - Craniumski, 4 months ago : changes to debug config?
+7e1dd37 - Steve Geffner, 4 months ago : fix off-by-one initialization bug in Analog Output demo
+9a8b2bb - Steve Geffner, 4 months ago : Merge branch 'MentorSandbox' of https://github.com/SwerveRobotics/ftc_app into MentorSandbox
+3958c41 - Steve Geffner, 4 months ago : Added group names to three example files to follow Bob's other examples.
+6be5aed - RobertAtkinson, 4 months ago : work on integration of acceleration: fix deadlock, add telemetry in demo app, etc. Fix some missing synch locks. Catch & log user exceptions in loop() and stop(). IMU result objects are now immutable: so much cleaner.
+fe163d1 - RobertAtkinson, 4 months ago : merge to master
+8b30f67 - RobertAtkinson, 4 months ago : Merge branch 'MentorSandbox' of https://github.com/SwerveRobotics/ftc_app.git
+a45145f - RobertAtkinson, 4 months ago : 1. Fix bytes -> int assembly problems. IMU angles work now! 2. Fix voltage calc in our VoltageSensor 3. Pad the delays in the IMU startup to account for our lack of precise timing knowledge.
+9fada95 - Steve Geffner, 4 months ago : Merge branch 'MentorSandbox' of https://github.com/SwerveRobotics/ftc_app into MentorSandbox
+5d308e1 - Steve Geffner, 4 months ago : Update to Analog Out demo so we output frequencies of "real" notes
+f3b83ba - RobertAtkinson, 4 months ago : get IMU functional again
+d14e64b - RobertAtkinson, 4 months ago : comments regarding opmode registration
+c59c3d6 - Steve Geffner, 4 months ago : Merge branch 'MentorSandbox' of https://github.com/SwerveRobotics/ftc_app into MentorSandbox
+c1c4c31 - Steve Geffner, 4 months ago : Analog Out demo: initialization should happen after the opmode is started.
+7f2b2fa - RobertAtkinson, 4 months ago : state written by one thread but read by another needs to be 'volatile'
+77dd2aa - RobertAtkinson, 4 months ago : more referencs
+dc7bb0d - RobertAtkinson, 4 months ago : more reference material
+822cbad - RobertAtkinson, 4 months ago : Add RobotC driver suite
+0bdd667 - RobertAtkinson, 4 months ago : Merge branch 'MentorSandbox'
+1be03c6 - RobertAtkinson, 4 months ago : update javadoc
+5a8f42e - RobertAtkinson, 4 months ago : make creation APIs consistently named
+687218f - RobertAtkinson, 4 months ago : update javadoc
+d6512ec - RobertAtkinson, 4 months ago : 1. take readWindow out of I2cDeviceClient ctor: simpler 2. add NxtColorSensorOnI2cDevice
+bf43de3 - RobertAtkinson, 4 months ago : add more reference files regarding legacy devices
+c48b6d0 - RobertAtkinson, 4 months ago : proguard not needed for YourCodeHere
+9f360b5 - RobertAtkinson, 4 months ago : change logging tag; improve levels
+b3b7091 - RobertAtkinson, 4 months ago : missed a mentor sandox change
+1d78f95 - RobertAtkinson, 4 months ago : merge MentorSandbox -> master, bringing master up to date with the new release from FTC HQ
+9d1be0e - RobertAtkinson, 4 months ago : update documentation
+4b333ec - RobertAtkinson, 4 months ago : comments, adapt motor perf example, add public creation method for new NxtMotorController
+1107716 - RobertAtkinson, 4 months ago : more logging; improve thunking robustness
+170d830 - RobertAtkinson, 4 months ago : add hook for recording actions posted in queue
+db30e42 - RobertAtkinson, 4 months ago : simplify i2cdeviceclient creation, allow for explicit IStopActionRegistrar
+9ab53be - RobertAtkinson, 4 months ago : comments
+03d01d3 - RobertAtkinson, 4 months ago : simplify motor loop perf logic
+099a2b8 - RobertAtkinson, 4 months ago : better java method names on a few things; add missing volatiles (!); add explicit stop action registration to I2cDeviceClient creation; fix field extraction for legacy motor controller (still a hack)
+bb23f07 - RobertAtkinson, 4 months ago : tidy examples, add 'group' to their auto-registrations
+18d4e13 - Iron Reign, 4 months ago : Playing with IMUDemo
+fd96b0a - Steve Geffner, 4 months ago : Minor updates to LED, Servo and Analog Out demos. Haven't tested Analog Out with latest FTC framework, don't know if it works yet.
+46ccb7a - RobertAtkinson, 4 months ago : tweak hearbeating; update experimental motor controller; more comments
+0fbc7bf - Steve Geffner, 4 months ago : Merge branch 'MentorSandbox' of https://github.com/SwerveRobotics/ftc_app into MentorSandbox
+fe8657a - Steve Geffner, 4 months ago : Adding examples for servos, digital pins (led), and analog output. Analog output doesn't work yet (but it seems like it should...); I'm hoping the latest ftc update fixes something in the framework such that analog out will work now.
+d2461a9 - RobertAtkinson, 4 months ago : implement heartbeats
+c5cda1d - RobertAtkinson, 4 months ago : tidy samples
+097b43a - Iron Reign, 4 months ago : dang
+445c10e - RobertAtkinson, 4 months ago : much i2c work: add optional waitForCompletion to write(); add READ_MODE; add auto-read-window- setting for read(); be more robust about concurret clients; fix asserts; avoid unneccessary enableI2cReadMode calls
+67f6080 - Iron Reign, 4 months ago : Merge remote-tracking branch 'origin/master'
+df4198f - Iron Reign, 4 months ago : Merge branch 'master' of https://github.com/swerverobotics/ftc_app
+4d01ef1 - RobertAtkinson, 4 months ago : fix assert logic (duh!)
+1d93693 - RobertAtkinson, 4 months ago : implement I2C READ_MODE
+987d9f7 - RobertAtkinson, 4 months ago : add 'group' to @Autonomous and @TeleOp
+523a8a0 - RobertAtkinson, 4 months ago : add LICENSEs
+bcd5962 - RobertAtkinson, 4 months ago : update readme
+85aef42 - RobertAtkinson, 4 months ago : add logging output
+870d993 - RobertAtkinson, 4 months ago : improve IMU shutdown logic
+f8f87dc - RobertAtkinson, 4 months ago : add new devices to thunking. dig oup a Context if we aren't given one
+986e583 - RobertAtkinson, 4 months ago : normalize line endings. Yay!
+b125d02 - RobertAtkinson, 4 months ago : Update documentation.
+5368a2d - RobertAtkinson, 4 months ago : Update javadoc
+b0d804c - RobertAtkinson, 4 months ago : add init_loop() to SynchronousOpMode
+31ec783 - RobertAtkinson, 4 months ago : more integration cleanup
+7f14f16 - RobertAtkinson, 4 months ago : clean up code in light of ftc release
+266cdc9 - RobertAtkinson, 4 months ago : finish merge with FTC HQ release
+ce10f93 - RobertAtkinson, 4 months ago : partial merge with FTC HQ: took all the doc changes; rest later
+71f89cc - RobertAtkinson, 4 months ago : update readme
+06c26ac - RobertAtkinson, 4 months ago : update readme
+ff2f2a8 - RobertAtkinson, 4 months ago : merge MentorSandbox -> master
+5285c4a - RobertAtkinson, 4 months ago : update readme
+8262bc0 - RobertAtkinson, 4 months ago : update readme
+11e547f - RobertAtkinson, 4 months ago : update readme
+5dd5194 - RobertAtkinson, 4 months ago : update readme
+b66de3e - RobertAtkinson, 4 months ago : restore FTC HQ javadoc tree
+e53a8fe - RobertAtkinson, 4 months ago : regenerate javadoc, move reference PDFs
+d6e9863 - Thomas Eng, 4 months ago : rel 20150918_001
+e987c04 - RobertAtkinson, 4 months ago : redo javadoc, force YourCodeHere into build; add missing javadocs
+bf440b6 - RobertAtkinson, 4 months ago : implement OpModeRegistrar methods
+68d6f50 - RobertAtkinson, 4 months ago : add YourCodeHere, work on @OpModeRegistrar
+d84ecb4 - RobertAtkinson, 4 months ago : Start on OpModeRegistrar
+4e3238e - RobertAtkinson, 4 months ago : update readme and documentation
+c0b8a6b - RobertAtkinson, 4 months ago : update redme
+a43071b - RobertAtkinson, 4 months ago : update readme
+ed5d808 - RobertAtkinson, 4 months ago : update javadoc; add PDFs in doc\references
+2fc4221 - RobertAtkinson, 4 months ago : 1. Add update(ms) to telemetry. 2. action() => addAction(). 3. much javadoc work
+378f0dd - RobertAtkinson, 4 months ago : RegWindow -> ReadWindow
+ea3b2b6 - RobertAtkinson, 4 months ago : 1. write() (again) blocks until written: more deterministic subsequent delays() 2. more documentation
+d0b0013 - RobertAtkinson, 4 months ago : shutdown I2cDeviceClients when the opmode stops
+0ffb331 - RobertAtkinson, 4 months ago : i2cclient doesn't wait at end of write() small logging changes.
+8aebe6c - RobertAtkinson, 4 months ago : improve state transitions: imu demo works again
+4ac6c1a - RobertAtkinson, 4 months ago : big reworking of I2cClient statemachine; much simpler
+44e7620 - RobertAtkinson, 4 months ago : Add AnnotatedOpModeRegistrar
+defb2d3 - RobertAtkinson, 4 months ago : write calibration data during initialization if same is provided
+b425c98 - RobertAtkinson, 4 months ago : correctly clear composedLines
+f00870f - RobertAtkinson, 4 months ago : simplify gamepad processing, add updateGamepads() for stability of gamepad reasoning
+e588f97 - RobertAtkinson, 4 months ago : implement compatible telemetry apis
+538de73 - RobertAtkinson, 4 months ago : more telemetry cleanup
+f5d8190 - RobertAtkinson, 4 months ago : tidy and simplify telemetry
+3bb1c5b - RobertAtkinson, 4 months ago : strict reordering of members
+59245f5 - RobertAtkinson, 4 months ago : telemetry simplification: 'dashboard' is no longer a separate object
+1f5b83c - Robert Atkinson, 4 months ago : mode cache status goes idle at each hw cycle independent of what writecachestatus is doing
+58cc719 - RobertAtkinson, 4 months ago : Merge branch 'MentorSandbox' of https://github.com/SwerveRobotics/ftc_app.git
+8107c8c - RobertAtkinson, 4 months ago : 1. fix message printed for swerve exceptoins 2. i2c client write() calls now block until done 3. throw exception on unavailable chip id from BNO055 4. set up (but do not yet arm) proactive writing of i2c data 5. improve i2c logging
+136d59a - Robert Atkinson, 4 months ago : update readme
+d1e62e5 - Robert Atkinson, 4 months ago : update readme
+26a046a - Robert Atkinson, 4 months ago : update readme
+3703c3b - Robert Atkinson, 4 months ago : update readme
+b17bf3e - Robert Atkinson, 4 months ago : Merge branch 'master' of https://github.com/SwerveRobotics/ftc_app.git
+2268a37 - Robert Atkinson, 4 months ago : update readme
+34bd76a - RobertAtkinson, 4 months ago : remove redundant String.format calls
+dc0d4de - Robert Atinson, 4 months ago : Update README.md
+c6de4aa - Robert Atinson, 4 months ago : Update README.md
+2018269 - RobertAtkinson, 4 months ago : typo nit
+937ecd3 - RobertAtkinson, 4 months ago : mentorsandbox -> master
+5604e3d - RobertAtkinson, 4 months ago : 1. add calibration API 2. tweak delays 3. misc small nits
+d1f9c0b - RobertAtkinson, 4 months ago : 1. more imu demo work 2. fix unparameterized scaling issue in imu
+d6609fe - RobertAtkinson, 4 months ago : IMU work handle InterruptedExceptions better simplify suicidewatch
+d773def - Robert Atkinson, 4 months ago : implement a non-deadlocking event
+56aff52 - RobertAtkinson, 4 months ago : more IMU work
+7b80c01 - RobertAtkinson, 4 months ago : add HandshakeThreadStarter
+7d8480f - RobertAtkinson, 4 months ago : telemetry text
+684f9bd - RobertAtkinson, 4 months ago : 1. imu demo: better telemetry 2. rename a couple of variables 3. readme update
+64459ac - Craniumski, 4 months ago : update imu
+14bd350 - Craniumski, 4 months ago : move imutest to opmodes folder
+a21c955 - Craniumski, 4 months ago : Integrate Mr. Gilkes gyro code
+7d3cb4c - Craniumski, 4 months ago : O
+62b13da - Craniumski, 4 months ago : stuff
+7d81ebe - Craniumski, 4 months ago : Merge branch 'master' of https://github.com/SwerveRobotics/ftc_app
+5e206ce - Robert Atkinson, 4 months ago : again readme
+f263de9 - Robert Atkinson, 4 months ago : more readme
+78d291e - Robert Atkinson, 4 months ago : update readme
+2117356 - Robert Atkinson, 4 months ago : merge MentorSandbox -> master
+febba71 - Robert Atkinson, 4 months ago : update javadoc
+0896a8f - Robert Atkinson, 4 months ago : Merge branch 'MentorSandbox' of https://github.com/SwerveRobotics/ftc_app.git
+10c3eee - RobertAtkinson, 4 months ago : can successfully get angular position from IMU!
+a7b5adc - RobertAtkinson, 4 months ago : more logging; testing acceleration integration
+e82a4ea - RobertAtkinson, 4 months ago : IMU sensor works, basically!
+46ce7cd - RobertAtkinson, 4 months ago : max readable I2C window size is 26, not 27 bytes
+473fb55 - RobertAtkinson, 4 months ago : comments, improved logging
+0631aa4 - RobertAtkinson, 4 months ago : merge MentorSandbox -> master. IMU work much improved, but still not fully functional. Added support for 'experimental' HW modes.
+d90e186 - RobertAtkinson, 4 months ago : 1. improve debuggability of i2c devices 2. reduce yield()s in idle()
+222ce96 - RobertAtkinson, 4 months ago : 1. remove read16/write16 2. telemetry: add action() 3. VoltageSensor in LegacyDcMotorControllerOnI2cDevice
+efbdbd2 - RobertAtkinson, 4 months ago : merge Experiment -> MentorSandbox
+9f6c0f4 - RobertAtkinson, 4 months ago : move enableI2cWriteMode into the callback
+d63edf9 - RobertAtkinson, 4 months ago : 1. fix angle scale bug 2. add IThunkWrapper 3. IThunker->IThunkDispatcher 4. general progress on i2cdevice and IMU
+7504acc - RobertAtkinson, 4 months ago : documentation; ignore negative i2c addresses
+6217f7c - RobertAtkinson, 4 months ago : fix build break; more comments
+17f5fd9 - RobertAtkinson, 4 months ago : 1. 8bit i2cAddrs 2. IThunkingWrapper -> IHardwareWrapper 3. Heartbeat reads just use normal read window 4. separate out thunking creation from SynchronousOpMode 5. add useExperimentalThunking
+c5ed2d9 - RobertAtkinson, 4 months ago : 1. add both read and write heartbeats 2. implement HardwareDevice for i2c devices
+082e8a2 - Robert Atkinson, 5 months ago : more work on heartbeats
+e2a65b6 - Robert Atkinson, 5 months ago : work on heartbeats
+bfa9d3f - Robert Atkinson, 5 months ago : i2cdevice layering
+2ccb80d - Robert Atkinson, 5 months ago : more new motor contorller work
+12fc3c2 - Robert Atkinson, 5 months ago : implementation sketch of new legacy motor controller
+01cbb5a - Robert Atkinson, 5 months ago : documentation comments
+7e07e47 - Robert Atkinson, 5 months ago : Add skeletal LegacyDcMotorController
+e485698 - Robert Atkinson, 5 months ago : documenatation nit
+744be10 - Robert Atkinson, 5 months ago : merge from ftctechnh
+02e7bd1 - Robert Atkinson, 5 months ago : integrate from MentorSandBox to master
+5973999 - Robert Atkinson, 5 months ago : more documentation
+ba8136a - IronReignRobotics, 5 months ago : check in Alan's bosch driver and trial autonomous opmod
+e006f40 - IronReignRobotics, 5 months ago : testing snackbot and irseeker
+686b8ca - Robert Atkinson, 5 months ago : update the readme
+43bc128 - Robert Atkinson, 5 months ago : Add javadoc documentation for SwerveRoboticsLibrary
+e11136f - Robert Atkinson, 5 months ago : comments only
+fb237a9 - Robert Atkinson, 5 months ago : Auto-shutdown the integration thread
+8081a7e - Robert Atkinson, 5 months ago : add position and velocity management
+4e23900 - Thomas Eng, 5 months ago : corrected .gitignore error.
+5082dec - Robert Atkinson, 5 months ago : documentation nits
+48bb08b - Robert Atkinson, 5 months ago : timestamping of reads; documentation
+c7a46d1 - Robert Atkinson, 5 months ago : documentation
+c79c0e2 - Robert Atkinson, 5 months ago : documentation, yet again
+5b8157a - Robert Atkinson, 5 months ago : simplify telemetry: thunking not actually used
+e30bb05 - Robert Atkinson, 5 months ago : even yet more documentation
+8ba0304 - Robert Atkinson, 5 months ago : more documentation
+9d6724a - Robert Atkinson, 5 months ago : Make II2cDeviceClient
+194f7d9 - Robert Atkinson, 5 months ago : more javadoc
+1cf787a - Robert Atkinson, 5 months ago : Tidy IBNO055 utility classes
+35dbe4c - Robert Atkinson, 5 months ago : Tidy for javadoc generation
+a647a4e - Robert Atkinson, 5 months ago : more adafruit
+577290f - Robert Atkinson, 5 months ago : yet more BNO055 work
+ffaa1e0 - Robert Atkinson, 5 months ago : Work around Android Studio gradle heap size issue in 1.3.1
+600166b - Robert Atkinson, 5 months ago : comments, javadoc, and visibility
+66529b0 - Robert Atkinson, 5 months ago : more IMU work
+855421d - Robert Atkinson, 5 months ago : more work in I2CDeviceClient
+b4b71b2 - Thomas Eng, 5 months ago : updated K9 bot disclaimer. also, removed non-generic .pdf file names.
+6f930e2 - Robert Atkinson, 5 months ago : finish (?) work on register window management
+77f293a - RobertAtkinson, 5 months ago : work on setting register windows
+1980191 - RobertAtkinson, 5 months ago : 1. add ensureRegisterWindow. 2 setting register window invalidates read cache
+f7cbc40 - RobertAtkinson, 5 months ago : delegate, don't inherit
+5317581 - RobertAtkinson, 5 months ago : getValue() instead of ordinal()
+37a1c93 - RobertAtkinson, 5 months ago : 1. assert thunks only usable on synchronous threads. 2. a lot more work on BNO055 IMU 3. yield in idle() if we're returning immediately
+199f76b - RobertAtkinson, 5 months ago : small syntatic beautification
+367cc41 - RobertAtkinson, 5 months ago : Progress towards using i2c devices
+d90ec8f - Thomas Eng, 5 months ago : Added generic versions of the manual names (dropping the version number from the file name) at the request of the community.  This way the links to the documents do not need to change as the version number of the document changes.
+160974c - Thomas Eng, 5 months ago : added Telemetry class back to javadoc documents.
+b61cdd2 - RobertAtkinson, 5 months ago : mentor sandbox -> master
+c338ffc - RobertAtkinson, 5 months ago : 1. add motor loop perf. 2. add accessors for some SynchronousOpMode fields (more to come). 3. internals documentation on some sensor objects
+3d3cfb9 - RobertAtkinson, 5 months ago : merge MentorSandbox -> master
+9ce1e2a - RobertAtkinson, 5 months ago : comment
+488f775 - RobertAtkinson, 5 months ago : add IThunkingWrapper, make 'target' fields private
+e80c5be - RobertAtkinson, 5 months ago : tidy up telemetry example
+d8eec9d - RobertAtkinson, 5 months ago : Put SynchronousOpMode examples in the same place as other examples
+571c57b - RobertAtkinson, 5 months ago : rename SynchonousOpMode examples
+bfe7825 - RobertAtkinson, 5 months ago : close offline detection window
+4fcd765 - RobertAtkinson, 5 months ago : 1. HardwareDevice thunks are not tracked. 2. implement r vs w mode in legacy IrSeeker and Compass 3. add get/setChannel and get/setI2cAddr to I2cDevice
+b7be27c - RobertAtkinson, 5 months ago : merge MentorSandbox -> master
+92b0c99 - RobertAtkinson, 5 months ago : asserting init() and loop() on same thread
+72ab2b8 - RobertAtkinson, 5 months ago : stop worker threads before main
+43d68da - RobertAtkinson, 5 months ago : stop() should leave status flags alone: we'll reset in init() just fine
+2854714 - RobertAtkinson, 5 months ago : stop synchrnous threads in parallel
+c43ce10 - RobertAtkinson, 5 months ago : javadoc tweaks
+aa36c72 - RobertAtkinson, 5 months ago : implement synchronous worker threads
+61be840 - RobertAtkinson, 5 months ago : Rearrange, document, and tidy SynchronousOpMode to increase readability and sustainability.
+254c059 - RobertAtkinson, 5 months ago : clean up examples
+8902fe7 - RobertAtkinson, 5 months ago : Tidy Thunk::dispatch
+36672b2 - RobertAtkinson, 5 months ago : tidy Thunk
+0680737 - RobertAtkinson, 5 months ago : tidy action key management
+497db79 - RobertAtkinson, 5 months ago : Wrap() -> wrap(). ThunkBase -> Thunk. ThunkedMotorController -> ThunkedDCMotorController. Stall isBusy() until hw has had a chance to see writes to channel.
+9cf8207 - RobertAtkinson, 5 months ago : Thunked writes now use actionKeys. Rename & simplify thunking classes. waitForThreadsWritesToReachHardware() now waits for propagation to hw instead of just thunk completion.
+165467e - RobertAtkinson, 5 months ago : efficiencies suggested by the Android Studio checker..
+f69073a - RobertAtkinson, 5 months ago : merge from MentorSandbox to Master
+ca74691 - RobertAtkinson, 5 months ago : add waitForUpdatesToReachHardware
+fdb720b - RobertAtkinson, 5 months ago : omit local gitIgnore
+8195a1f - RobertAtkinson, 5 months ago : tidy examples
+be87e04 - RobertAtkinson, 5 months ago : move library files to library module
+60b6a76 - RobertAtkinson, 5 months ago : Add SwerveRoboticsLibrary dependency to FtcRobotControlller
+4ef4262 - RobertAtkinson, 5 months ago : push gradle changes to FtcRobotController.iml
+e4431e6 - RobertAtkinson, 5 months ago : add skeletal SwerveRoboticsLibrary Android module
+fabeb63 - RobertAtkinson, 5 months ago : Tidy TeleOpDriveModes
+ea35af5 - RobertAtkinson, 5 months ago : try to make sense of edits vs renames. sigh.
+2b9861a - Steve Geffner, 5 months ago : Merge branch 'MentorSandbox' of https://github.com/SwerveRobotics/ftc_app into MentorSandbox
+250ffee - RobertAtkinson, 5 months ago : Good idea that was, but we can't actually kill things ourselves as we don't actually talk to the hw. Besides, the runtime tries to shut thigns down when stop() returns; they just have a bug right now.
+e8ef5d8 - RobertAtkinson, 5 months ago : If the main() thread doesn't terminate gracefully in a reasonable amount of time, kill everything that moves.
+f98effd - Steve Geffner, 5 months ago : Adding Darryl's opmode that supports several teleop driving modes (tank drive, arcade drive, single stick drive). Single stick drive doesn't work well yet.
+30e67ba - RobertAtkinson, 5 months ago : Expose IGamepad instead of ThreadSafeGamepad
+741f383 - RobertAtkinson, 5 months ago : thunking -> internal
+97c744c - RobertAtkinson, 5 months ago : Merge branch 'MentorSandbox'
+d19c394 - RobertAtkinson, 5 months ago : TelemetryHack, while cool, turned out to be unable to solve our problem, as the sorting of the telemetry display happens in the driver station, not the robot.
+4dcce23 - RobertAtkinson, 5 months ago : merge
+36508ea - RobertAtkinson, 5 months ago : remove use of TelemetryHack. use unprintable characters for telemetry sort order.
+5271801 - RobertAtkinson, 5 months ago : work on TelemetryHack
+8d98505 - RobertAtkinson, 5 months ago : Fix private field access. Comment updates. Progress towards working around exiting telemetry limitations.
+ea2129d - RobertAtkinson, 5 months ago : Merge branch 'MentorSandbox'
+1c97966 - RobertAtkinson, 5 months ago : Claiming a new mode for a loop() cycle neither worked as intended nor was in fact necessary.
+e93d162 - RobertAtkinson, 5 months ago : allow display line count to be changed at any time
+13882af - RobertAtkinson, 5 months ago : Merge branch 'MentorSandbox'
+e1652fb - RobertAtkinson, 5 months ago : add ability to display telemety log in either order
+18d3e06 - RobertAtkinson, 5 months ago : Merge branch 'MentorSandbox'
+abb8b72 - RobertAtkinson, 5 months ago : work around for changed telemetry display behavior
+9d29c90 - RobertAtkinson, 5 months ago : Merge branch 'MentorSandbox'
+d364249 - RobertAtkinson, 5 months ago : tidy and prettify
+b8812d6 - RobertAtkinson, 5 months ago : Merge branch 'MentorSandbox'
+f305d1a - RobertAtkinson, 5 months ago : less clutter in example
+fb9032c - RobertAtkinson, 5 months ago : Merge branch 'MentorSandbox'
+ba66e70 - RobertAtkinson, 5 months ago : add dashboard to teleop example to mirror NXT example in FTC SDK
+98bbaba - RobertAtkinson, 5 months ago : Merge branch 'MentorSandbox'
+ed25d89 - RobertAtkinson, 5 months ago : formatting
+44b9e38 - RobertAtkinson, 5 months ago : more doc'n
+b5721d8 - RobertAtkinson, 5 months ago : nit
+b1fba6b - RobertAtkinson, 5 months ago : comments, documentation
+bb551a6 - RobertAtkinson, 5 months ago : remove paranoia about thunking synchronization
+988e309 - RobertAtkinson, 5 months ago : renaming
+e94cf14 - RobertAtkinson, 5 months ago : I2cDevice, PWMOutput
+b978d97 - RobertAtkinson, 5 months ago : PWMOutput
+f0fa22f - RobertAtkinson, 5 months ago : optical distance and touch sensors
+bb735d8 - RobertAtkinson, 5 months ago : paranoia: make thunking methods synchronized. Can probably be relaxed, but later...
+61da3af - RobertAtkinson, 5 months ago : analog input and output wrapping
+f9efb9d - RobertAtkinson, 5 months ago : 1. clean up stop() 2. thunk digital channels
+9317b71 - RobertAtkinson, 5 months ago : atomicially claim new actionKeys
+6392bca - RobertAtkinson, 5 months ago : 20ms max dwell time, not 30. Implement only-reads-or-writes-not-both in a loop() cycle for legacy motor controllers.
+7af422b - RobertAtkinson, 5 months ago : simplify idle()
+101b4b7 - RobertAtkinson, 5 months ago : Per Mssr. Berling, one can reasonably only change an NXT motor controller mode at the top of loop().
+8781f23 - RobertAtkinson, 5 months ago : more work on integrating all the new beta bits
+21cfce5 - RobertAtkinson, 5 months ago : clean up gamepad; nit in legacy module
+09942ad - RobertAtkinson, 5 months ago : Merge branch 'MentorSandbox'
+0ce876c - RobertAtkinson, 5 months ago : thunk the exceptions
+43ef547 - RobertAtkinson, 5 months ago : Update to the Beta FTC library
+14b6758 - RobertAtkinson, 5 months ago : more adaptations to beta FTC library
+85c74f8 - RobertAtkinson, 5 months ago : gradle-driven changes
+12003eb - RobertAtkinson, 5 months ago : adapt to beta changes in the FTC library
+6cc8a55 - RobertAtkinson, 5 months ago : update to  FTC SDK (20150803_001)
+0bffa7c - RobertAtkinson, 5 months ago : add missing volatile
+408dfba - Thomas Eng, 5 months ago : Beta 20150803_001 (app version 1.05)
+6c4daae - RobertAtkinson, 6 months ago : Doh! Another typo!
+998bbb0 - RobertAtkinson, 6 months ago : typo
+a93aebd - RobertAtkinson, 6 months ago : yet more doc'n
+212fb9e - RobertAtkinson, 6 months ago : more doc'n tweak
+bcd918d - RobertAtkinson, 6 months ago : Add brief usage description
+8253baf - RobertAtkinson, 6 months ago : 1: comments 2: simplify paradigmatic main while loop 3: public targets in thunkers 3: make dashboard and log usable from the loop() thread
+1af2fe3 - RobertAtkinson, 6 months ago : Thunking->Thunked
+860ef91 - RobertAtkinson, 6 months ago : comments; rework isSynchronousThread()
+655707d - RobertAtkinson, 6 months ago : add more line() variants to dashboard
+b1fc962 - RobertAtkinson, 6 months ago : comments
+77c2fb9 - RobertAtkinson, 6 months ago : update readme
+66f65d2 - RobertAtkinson, 6 months ago : update readme
+bae7856 - RobertAtkinson, 6 months ago : update readme
+1a64c19 - RobertAtkinson, 6 months ago : comments
+829d846 - RobertAtkinson, 6 months ago : 1. Add readme 2. Small change in telemetry example output.
+4b1e917 - RobertAtkinson, 6 months ago : 1. ThreadContext -> SynchronousThreadContext 2. Improve assert calls
+c1ab2df - RobertAtkinson, 6 months ago : better loopLock behavior
+5a2cc2c - RobertAtkinson, 6 months ago : 1. nuke our NullOp 2. bunch of work on dashboard and log 3. better style points
+babfadd - RobertAtkinson, 6 months ago : 1. yet more telemetry work 2. Create() -> create()
+18bd5f7 - RobertAtkinson, 6 months ago : more dashboard and log work
+02e8dbd - RobertAtkinson, 6 months ago : generalize ITelemetryValue into IFunc<T>, mirroring .NET
+ff0cf30 - RobertAtkinson, 6 months ago : initial work on telemetry dashboard and log
+3578dda - RobertAtkinson, 6 months ago : add TelemetryDashboard
+7044d12 - RobertAtkinson, 6 months ago : 1. improve Synchronous NullOp example 2. Do null target checks in Thunked objects
+31b6ac9 - RobertAtkinson, 6 months ago : Robustify and simplify thunking dispatch logic
+1455afb - RobertAtkinson, 6 months ago : lift out ThunkedBase to allow better reuse
+dfe09ef - RobertAtkinson, 6 months ago : refactor into more tidy packages
+cfa0826 - RobertAtkinson, 6 months ago : 1. Be more rigorous about using v19 of SDK 2. Use source version 1.7, not 1.6 (multicatch exeptions prompted this) 3. Adapt to a more correct understanding of thread interrupts 4. More architected hooks on loop() thread
+5014426 - RobertAtkinson, 6 months ago : small comments
+6a28ca8 - RobertAtkinson, 6 months ago : 1. add synchronous opmodes to the OpMode register 2. add a synchrnous NullOp 3. fix many silly initial bugs 4. thunked the telemetry object
+55400f4 - RobertAtkinson, 6 months ago : 1. GamePad -> ThreadSafeGamepad 2. longer max dwell time for loop()
+511e22f - RobertAtkinson, 6 months ago : wait longer for thread to self-stop
+244d774 - RobertAtkinson, 6 months ago : fix waitForThreadThunkCompletion to deal with (a) no work present on entry, and (b) spurious wakeups
+cfc2eba - RobertAtkinson, 6 months ago : make thunking motors and servos thread-safe so they can be called from multiple synchronous threads add more comments
+ed88962 - RobertAtkinson, 6 months ago : better java style in ThreadThunkContext, elsewhere fix waiting bug in SynchronousOpMode.stop()
+ca27cb9 - RobertAtkinson, 6 months ago : revert all FTC-provided code back to original state
+986d2c0 - RobertAtkinson, 6 months ago : simplify thunks by using final method parameters loopThreadActionQueue is templated comments spelling mistakes
+2d8ec07 - RobertAtkinson, 6 months ago : 1. small bug fixes 2. set() thunk calls now only *initiate* the work; they don't wait for the work completion 3. waitForThreadThunkCompletions() can wait later for the completions.
+5c820d5 - RobertAtkinson, 6 months ago : Refactor thunking infrastructure into public classes Add flooding check in loop() implementation Add NonwaitingThunk
+5abfe2f - RobertAtkinson, 6 months ago : more comments add support for SynchronousOpMode spawning worker threads (advanced)
+e97bb25 - RobertAtkinson, 6 months ago : delete in-progress higher-level constructs (for now): we've now *just* got the thunking layer. yet more commenting
+c603be3 - RobertAtkinson, 6 months ago : more comments, some small thunking updates
+e16ca08 - RobertAtkinson, 6 months ago : update some comments
+c721e84 - RobertAtkinson, 6 months ago : handle the controller device mode switching automatically
+461586e - RobertAtkinson, 6 months ago : Merge branch 'MentorSandbox' of https://github.com/SwerveRobotics/ftc_app.git
+6ec0a9b - RobertAtkinson, 6 months ago : progress: make the gamepads threadsafe and implement example driving logic. Also: kitkat is api 19, not 21
+c0bbe41 - Steve Geffner, 6 months ago : Removing Model A from mentorsandbox. I'll keep a copy in a separate branch.
+d668401 - RobertAtkinson, 6 months ago : version as of mentor meeting 14 July 15
+db3f566 - RobertAtkinson, 6 months ago : Merge branch 'MentorSandbox' of https://github.com/SwerveRobotics/ftc_app.git
+9edf3cc - RobertAtkinson, 6 months ago : a bunch more work on synchronous op mode
+f70e7ee - Steve Geffner, 6 months ago : Removing my first experiment (TestOp) which represents a deprecated approach. I have left Model A in the tree for now. Model A is demo'd in TestOpSwerveDualMotor, TestOpSwerveMotor, and supporting classes. I haven't bothered to go through the supporting classes and removed unused ones yet (not much free time on my lunch hour today).
+7f09b24 - RobertAtkinson, 6 months ago : more working on thunking: start SynchronsOpMode.CreateThunkedHardwareMap work
+85063ef - RobertAtkinson, 6 months ago : fill in pieces of implementation of synchronous programming model
+57bdb3d - Steve Geffner, 6 months ago : Added a SwerveLRMotors object which wraps a left and right motor used for steering. This provides one way to implement line following and other tasks that need to coordinate the left and right motors over time. Added an OpMode and supporting SwerveActions to demo this capability.
+386417e - Steve Geffner, 7 months ago : Refactor SwerveMotor so loop() isn't talking directly to the SwerveMotor member variables.
+9fe74a5 - Steve Geffner, 7 months ago : Added new SwerveActions: motor start, motor stop, wait for ultrasonic value. Created an alternative implementation (TestOpSwerveMotor) that wraps the motor and its queue together in an object (SwerveMotor), and then provides a simpler interface for adding commands into that motor's queue.
+39dc509 - Steve Geffner, 7 months ago : Proof of concept of a queue-based approach. This approach doesn't require a separate thread. This commit has a queue (LinkedList) that maintains a list of SwerveActions that target a motor. Each motor would get its own queue. In this test, the SwerveActions to perform during autonomous mode are queued in the constructor. You can also queue additional actions during teleop mode by pressing: a: adds a timed motor command x: adds a timed delay y: adds a short sequence of commands that execute in order b: clears whatever is currently in the queue
+30b41f0 - Steve Geffner, 7 months ago : Empty comment to test pushing
+29d9186 - Steve Geffner, 7 months ago : Fixing the right stick message
+931531d - sgeffner22, 7 months ago : Merge pull request #2 from SwerveRobotics/Steve_Branch_3
+90a9701 - Steve Geffner, 7 months ago : My first Github commit. Making a trivial change to the return statement of this method following Android's suggestion that unboxing primitives isn't necessary in java 5.0 and later.
+6710480 - Darrell, 7 months ago : Added a controller test mode which attempt to write out all gamepad1 data to the telemetry.
+2c671ad - Thomas Eng, 7 months ago : Added an empty op mode that teams can use as a template for creating their own op mode.
+2f73054 - Thomas Eng, 7 months ago : Minor updates to .pdf files for tutorial. Added disclaimer for K9bot.
+d39389f - Thomas Eng, 7 months ago : Merge branch 'JacobAMason-master'
+fb22997 - JacobAMason, 7 months ago : Adds minimal .gitignore
+2dcbc3e - Thomas Eng, 8 months ago : corrected error in training manual
+83a167e - Thomas Eng, 8 months ago : updated build guide - now with parts inventory.
+801f7f3 - Thomas Eng, 8 months ago : Added team and mentor guide.
+4bfb5b4 - Thomas Eng, 8 months ago : rearranged doc folder.  created javadoc subdirectory, added tutorial files, and also created subdirectory with the release .apk files.
+4e835ba - Thomas Eng, 8 months ago : added javadoc documentation.  note that the javadoc documentation has several entries that are out of date and need to be updated.
+faafc8d - Thomas Eng, 8 months ago : Merge branch 'master' of https://github.com/ftctechnh/ftc_app
+cbd67d6 - Thomas Eng, 8 months ago : cleaned up and some old files.
+a03b985 - FTC Engineering, 8 months ago : Create README.md
+4ce8439 - Thomas Eng, 8 months ago : removed .idea and .gradle
+d0e5c1a - Thomas Eng, 8 months ago : included changes to manifest file to use string literals rather than string resources.  Allows the APK to be scanned properly by Google Play during upload.
+08de4b2 - Thomas Eng, 8 months ago : Merge branch 'master' of https://github.com/ftctechnh/ftc_app
+2b5769a - Thomas Eng, 8 months ago : removed .gitignore
+7c7970a - FTC Engineering, 8 months ago : Delete .gitignore
+1cc635f - Thomas Eng, 8 months ago : Initial upload

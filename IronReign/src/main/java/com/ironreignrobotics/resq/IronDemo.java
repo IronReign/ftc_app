@@ -41,7 +41,7 @@ public class IronDemo extends SynchronousOpMode {
     private boolean active = false;
     private double KpDrive = .0145;
     private double KiDrive = 0;
-    private double KdDrive = -0.05;
+     private double KdDrive = -0.05;
     private double driveIMUBasePower = .5;
     private double motorPower = 0;
     private double climberPower = 0;
@@ -57,11 +57,11 @@ public class IronDemo extends SynchronousOpMode {
     private boolean climberEngaged = false;
     private boolean climberUp = false;
     private long autoPushButtonTimerStart = -1;
-
-    private final static int cliffEngage = 1637;
-    private final static int cliffClear = 1577;
-    private final static int churroEngage = 1850;
-    private final static int churroClear = 1830;
+    public static int servoOffset = 155;
+    private final static int cliffEngage = 1637 +  210;
+    private final static int cliffClear = 1577 + 210;
+    private final static int churroEngage = 1850 + servoOffset;
+    private final static int churroClear = 1830 + servoOffset;
 
     // Our sensors, motors, and other devices go here, along with other long term state
     IBNO055IMU imu;
@@ -311,6 +311,13 @@ Publish ErrorDegrees
             if(pad.b)
             {
                 climberEngaged = !climberEngaged;
+            }
+            if(pad.dpad_up)
+            {
+                cliffHanger1.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+                cliffHanger2.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+                cliffHanger1.setTargetPosition(cliffHanger1.getCurrentPosition());
+                cliffHanger2.setTargetPosition(cliffHanger2.getCurrentPosition());
             }
 
         }

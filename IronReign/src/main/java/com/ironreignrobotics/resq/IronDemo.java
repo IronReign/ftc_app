@@ -132,23 +132,14 @@ Publish ErrorDegrees
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorBeater.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-//        this.motorChurros.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
         this.cliffHanger1.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.cliffHanger2.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
 
 
-        // One of the two motors (here, the left) should be set to reversed direction
-        // so that it can take the same power level values as the other motor.
-        //this.motorRightBack.setDirection(DcMotor.Direction.REVERSE);
-        this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
+
+        this.motorRight.setDirection(DcMotor.Direction.REVERSE);
         this.cliffHanger2.setDirection(DcMotor.Direction.REVERSE);
-//        climber = new Climber(motorChurros);
-        //churroClimber = new Thread(climber);
-        //churroClimber.start();
 
-
-        // retract churro grapples
-        //this.motorChurros.setPower(-0.1);
 
         // We are expecting the IMU to be attached to an I2C port on  a core device interface
         // module and named "imu". Retrieve that raw I2cDevice and then wrap it in an object that
@@ -661,8 +652,8 @@ Publish ErrorDegrees
     void Autonomous(){
         switch (autoStage) {
             case 0:   //Drive away from the wall to deploy beater bar ; angle = 0
-                MoveIMU(KpDrive, KiDrive, KdDrive, -1 * driveIMUBasePower, 0 * isRed, drivePID);
-                if (pose.getOdometer() <= -0.1) {
+                MoveIMU(KpDrive, KiDrive, KdDrive, driveIMUBasePower, 0 * isRed, drivePID);
+                if (pose.getOdometer() > 0.1) {
                     servoPlow.setPosition(.64);  //TODO: test with servo tester and normalize (for greater accuracy)
                     motorLeft.setPower(0);
                     motorRight.setPower(0);
@@ -680,8 +671,8 @@ Publish ErrorDegrees
 //                }
                 break;
             case 2:   //Drive to the beacon; angle = 0
-                MoveIMU(KpDrive, KiDrive, KdDrive, -1 * driveIMUBasePower, 0, drivePID);
-                if (pose.getOdometer() <= -2.6) {
+                MoveIMU(KpDrive, KiDrive, KdDrive, driveIMUBasePower, 0, drivePID);
+                if (pose.getOdometer() > 2.6) {
                     motorLeft.setPower(0);
                     motorRight.setPower(0);
                     pose.setOdometer(0);
@@ -690,8 +681,8 @@ Publish ErrorDegrees
                 break;
 
             case 3:   //rough turn to beacon; angle = 0 to 45(blu) or -45(red)
-                MoveIMU(KpDrive, 0, KdDrive, 0, -45, drivePID);   //
-                if (pose.getHeading() <= -45) {
+                MoveIMU(KpDrive, 0, KdDrive, 0, 45, drivePID);   //
+                if (pose.getHeading() <= 45) {
                     motorLeft.setPower(0);
                     pose.setOdometer(0);
                     autoStage++;

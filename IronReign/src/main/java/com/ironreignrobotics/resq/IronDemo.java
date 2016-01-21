@@ -39,7 +39,7 @@ public class IronDemo extends SynchronousOpMode {
     //NOTE: on isRed, 1 is for blue side and -1 is for red side
     private int isRed = 1;
     private boolean active = false;
-    private double KpDrive = .0145;
+    private double KpDrive = .0125;
     private double KiDrive = 0;
      private double KdDrive = -0.05;
     private double driveIMUBasePower = .5;
@@ -137,7 +137,7 @@ Publish ErrorDegrees
 
 
 
-        this.motorRight.setDirection(DcMotor.Direction.REVERSE);
+        this.motorLeft.setDirection(DcMotor.Direction.REVERSE);
         this.cliffHanger2.setDirection(DcMotor.Direction.REVERSE);
 
 
@@ -672,7 +672,7 @@ Publish ErrorDegrees
                 break;
             case 2:   //Drive to the beacon; angle = 0
                 MoveIMU(KpDrive, KiDrive, KdDrive, driveIMUBasePower, 0, drivePID);
-                if (pose.getOdometer() > 2.6) {
+                if (pose.getOdometer() > .45) { //TODO: fix distance value
                     motorLeft.setPower(0);
                     motorRight.setPower(0);
                     pose.setOdometer(0);
@@ -682,7 +682,7 @@ Publish ErrorDegrees
 
             case 3:   //rough turn to beacon; angle = 0 to 45(blu) or -45(red)
                 MoveIMU(KpDrive, 0, KdDrive, 0, 45, drivePID);   //
-                if (pose.getHeading() <= 45) {
+                if (pose.getHeading() >= 45) {
                     motorLeft.setPower(0);
                     pose.setOdometer(0);
                     autoStage++;
@@ -700,7 +700,7 @@ Publish ErrorDegrees
                 break;
 
             case 5:   //Beacon approach - color blob assisted; angle = 45(?)
-                MoveRobot(KpDrive, 0, KdDrive, -.35, ErrorPixToDeg(x), 0, drivePID);
+                MoveRobot(KpDrive, 0, KdDrive, .25, ErrorPixToDeg(x), 0, drivePID);
                 if(pose.getOdometer() >= .25) {
                     motorLeft.setPower(0);
                     motorRight.setPower(0);

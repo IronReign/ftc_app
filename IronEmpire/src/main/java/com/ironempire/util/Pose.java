@@ -227,9 +227,13 @@ public class Pose
             initialized = true;
         }
 
-        poseHeading = imu.heading + offsetHeading;
-        posePitch = imu.pitch + offsetPitch;
-        poseRoll = imu.roll + offsetRoll;
+        //poseHeading = imu.heading + offsetHeading;
+        //posePitch = imu.pitch + offsetPitch;
+        //poseRoll = imu.roll + offsetRoll;
+
+        poseHeading = diffAngle(imu.heading, offsetHeading);
+        posePitch = diffAngle(imu.pitch, offsetPitch);
+        poseRoll = diffAngle(imu.roll, offsetRoll);
 
         double displacement = (((double)(ticksRight - ticksRightPrev)/ticksPerMeterRight) + ((double)(ticksLeft - ticksLeftPrev)/ticksPerMeterLeft))/2.0;
 
@@ -281,7 +285,20 @@ public class Pose
      * @return
      */
     public double diffAngle(double angle1, double angle2){
-        return Math.abs(angle1 - angle2) < Math.abs(angle2-angle1) ? angle1 - angle2 : angle2-angle1;
+       // return Math.abs(angle1 - angle2) < Math.abs(angle2-angle1) ? Math.abs(angle1 - angle2) : Math.abs(angle2-angle1);
+        double diff = angle1 - angle2;
+
+        //allow wrap around
+
+            if (Math.abs(diff) > 180)
+                    {
+                if (diff > 0) {
+                    diff -= 360;
+                } else {
+                    diff += 360;
+                }
+            }
+        return diff;
         }
 
 }

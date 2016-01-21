@@ -221,9 +221,9 @@ public class Pose
         if (!initialized){
             //first time in - we assume that the robot has not started moving and that orientation values are set to the current absolute orientation
             //so first set of imu readings are effectively offsets
-            offsetHeading = -diffAngle(poseHeading, imu.heading);
-            offsetPitch = -diffAngle(posePitch, imu.pitch);
-            offsetRoll = -diffAngle(poseRoll, imu.roll);
+            offsetHeading = wrapAngle(imu.heading, poseHeading);
+            offsetPitch = wrapAngle(imu.pitch, posePitch);
+            offsetRoll = wrapAngle(imu.roll, poseRoll);
             initialized = true;
         }
 
@@ -231,9 +231,9 @@ public class Pose
         //posePitch = imu.pitch + offsetPitch;
         //poseRoll = imu.roll + offsetRoll;
 
-        poseHeading = diffAngle(imu.heading, offsetHeading);
-        posePitch = diffAngle(imu.pitch, offsetPitch);
-        poseRoll = diffAngle(imu.roll, offsetRoll);
+        poseHeading = wrapAngle(imu.heading, offsetHeading);
+        posePitch = wrapAngle(imu.pitch, offsetPitch);
+        poseRoll = wrapAngle(imu.roll, offsetRoll);
 
         double displacement = (((double)(ticksRight - ticksRightPrev)/ticksPerMeterRight) + ((double)(ticksLeft - ticksLeftPrev)/ticksPerMeterLeft))/2.0;
 
@@ -285,7 +285,11 @@ public class Pose
      * @return
      */
     public double diffAngle(double angle1, double angle2){
-       // return Math.abs(angle1 - angle2) < Math.abs(angle2-angle1) ? Math.abs(angle1 - angle2) : Math.abs(angle2-angle1);
+        return Math.abs(angle1 - angle2) < Math.abs(angle2-angle1) ? Math.abs(angle1 - angle2) : Math.abs(angle2-angle1);
+    }
+
+    public double diffAngle2(double angle1, double angle2){
+
         double diff = angle1 - angle2;
 
         //allow wrap around
@@ -301,4 +305,15 @@ public class Pose
         return diff;
         }
 
+
+    /**
+     * Apply and angular adjustment to a base angle with result wrapping around at 360 degress
+     *
+      * @param angle1
+     * @param angle2
+     * @return
+     */
+    public double wrapAngle(double angle1, double angle2){
+        return (angle1 + angle2) % 360;
+    }
 }

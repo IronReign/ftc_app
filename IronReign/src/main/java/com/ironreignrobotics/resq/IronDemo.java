@@ -144,8 +144,8 @@ Publish ErrorDegrees
         // We are expecting the IMU to be attached to an I2C port on  a core device interface
         // module and named "imu". Retrieve that raw I2cDevice and then wrap it in an object that
         // semantically understands this particular kind of sensor.
-        parameters.angleunit = IBNO055IMU.ANGLEUNIT.DEGREES;
-        parameters.accelunit = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
+        parameters.angleUnit = IBNO055IMU.ANGLEUNIT.DEGREES;
+        parameters.accelUnit = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
         parameters.loggingEnabled = false;
         parameters.loggingTag = "BNO055";
         imu = ClassFactory.createAdaFruitBNO055IMU(hardwareMap.i2cDevice.get("imu"), parameters);
@@ -622,7 +622,7 @@ Publish ErrorDegrees
     }
 
     String formatAngle(double angle) {
-        return parameters.angleunit == IBNO055IMU.ANGLEUNIT.DEGREES ? formatDegrees(angle) : formatRadians(angle);
+        return parameters.angleUnit == IBNO055IMU.ANGLEUNIT.DEGREES ? formatDegrees(angle) : formatRadians(angle);
     }
 
     String formatRadians(double radians) {
@@ -640,7 +640,7 @@ Publish ErrorDegrees
     }
 
     String formatPosition(double coordinate) {
-        String unit = parameters.accelunit == IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC
+        String unit = parameters.accelUnit == IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC
                 ? "m" : "??";
         return String.format("%.3f%s", coordinate, unit);
     }
@@ -652,6 +652,12 @@ Publish ErrorDegrees
     void Autonomous(){
         switch (autoStage) {
             case 0:   //Drive away from the wall to deploy beater bar ; angle = 0
+                pose.setPoseHeading(0);
+                pose.Update(imu.getAngularOrientation(), motorLeft.getCurrentPosition(), motorRight.getCurrentPosition());
+                autoStage++;
+
+                break;
+            case 1:   //commented out
                 MoveIMU(KpDrive, KiDrive, KdDrive, driveIMUBasePower, 0 * isRed, drivePID);
                 if (pose.getOdometer() > 0.1) {
                     servoPlow.setPosition(.64);  //TODO: test with servo tester and normalize (for greater accuracy)
@@ -660,15 +666,6 @@ Publish ErrorDegrees
                     pose.setOdometer(0);
                     autoStage++;
                 }
-                break;
-            case 1:   //commented out
-//                MoveIMU(KpDrive, 0, KdDrive, 0, -45, drivePID);   //
-//                if (pose.getHeading() <= -45) {
-//                    servoPlow.setPosition(.64);
-//                    motorLeft.setPower(0);
-//                    pose.setOdometer(0);
-                    autoStage++;
-//                }
                 break;
             case 2:   //Drive to the beacon; angle = 0
                 MoveIMU(KpDrive, KiDrive, KdDrive, driveIMUBasePower, 0, drivePID);
@@ -682,7 +679,7 @@ Publish ErrorDegrees
 
             case 3:   //rough turn to beacon; angle = 0 to 45(blu) or -45(red)
                 MoveIMU(KpDrive, 0, KdDrive, 0, 45, drivePID);   //
-                if (pose.getHeading() >= 45) {
+                if (pose.getHeading() >= 45 && pose.getHeading() <= 50 ) {
                     motorLeft.setPower(0);
                     pose.setOdometer(0);
                     autoStage++;
@@ -691,7 +688,7 @@ Publish ErrorDegrees
 
             case 4:   //Precise turn to beacon - color blob assisted; angle = 45(?)
                 MoveRobot(KpDrive, 0, KdDrive, 0, ErrorPixToDeg(x), 0, drivePID);
-                if((ErrorPixToDeg(x) < 1) || (ErrorPixToDeg(x) > 359)) {
+                if((ErrorPixToDeg(x) < 2) || (ErrorPixToDeg(x) > 358)) {
                     motorLeft.setPower(0);
                     motorRight.setPower(0);
                     pose.setOdometer(0);

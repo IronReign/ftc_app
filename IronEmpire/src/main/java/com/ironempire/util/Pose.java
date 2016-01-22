@@ -221,9 +221,9 @@ public class Pose
         if (!initialized){
             //first time in - we assume that the robot has not started moving and that orientation values are set to the current absolute orientation
             //so first set of imu readings are effectively offsets
-            offsetHeading = wrapAngle(imu.heading, poseHeading);
-            offsetPitch = wrapAngle(imu.pitch, posePitch);
-            offsetRoll = wrapAngle(imu.roll, poseRoll);
+            offsetHeading = wrapAngleMinus(poseHeading, imu.heading);
+            offsetPitch = wrapAngleMinus(imu.pitch, posePitch);
+            offsetRoll = wrapAngleMinus(imu.roll, poseRoll);
             initialized = true;
         }
 
@@ -315,5 +315,8 @@ public class Pose
      */
     public double wrapAngle(double angle1, double angle2){
         return (angle1 + angle2) % 360;
+    }
+    public double wrapAngleMinus(double angle1, double angle2){
+        return 360-((angle1 + angle2) % 360);
     }
 }

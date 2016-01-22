@@ -138,8 +138,8 @@ public class IronDemoED extends OpMode
             // We are expecting the IMU to be attached to an I2C port on  a core device interface
             // module and named "imu". Retrieve that raw I2cDevice and then wrap it in an object that
             // semantically understands this particular kind of sensor.
-            parameters.angleunit      = IBNO055IMU.ANGLEUNIT.DEGREES;
-            parameters.accelunit      = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
+            parameters.angleUnit      = IBNO055IMU.ANGLEUNIT.DEGREES;
+            parameters.accelUnit      = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
             parameters.loggingEnabled = false;
             parameters.loggingTag     = "BNO055";
             imu = ClassFactory.createAdaFruitBNO055IMU(hardwareMap.i2cDevice.get("imu"), parameters);
@@ -539,7 +539,7 @@ public class IronDemoED extends OpMode
 
         String formatAngle(double angle)
         {
-            return parameters.angleunit==IBNO055IMU.ANGLEUNIT.DEGREES ? formatDegrees(angle) : formatRadians(angle);
+            return parameters.angleUnit==IBNO055IMU.ANGLEUNIT.DEGREES ? formatDegrees(angle) : formatRadians(angle);
         }
         String formatRadians(double radians)
         {
@@ -557,7 +557,7 @@ public class IronDemoED extends OpMode
         }
         String formatPosition(double coordinate)
         {
-            String unit = parameters.accelunit== IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC
+            String unit = parameters.accelUnit== IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC
                     ? "m" : "??";
             return String.format("%.2f%s", coordinate, unit);
         }

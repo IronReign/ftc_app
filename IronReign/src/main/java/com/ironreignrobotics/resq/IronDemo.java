@@ -40,8 +40,8 @@ public class IronDemo extends SynchronousOpMode {
     private int isRed = 1;
     private boolean active = false;
     private double KpDrive = .0125;
-    private double KiDrive = 0;
-     private double KdDrive = -0.05;
+    private double KiDrive = .01;
+     private double KdDrive = -0.04;
     private double driveIMUBasePower = .5;
     private double motorPower = 0;
     private double climberPower = 0;
@@ -232,11 +232,25 @@ Publish ErrorDegrees
                         if (gamepad1.dpad_right) {
                             KpDrive += .001;
                         }
+                        if (gamepad1.a)
+                        {
+                            KiDrive -= .001;
+                        }
+                        if (gamepad1.y) {
+                            KiDrive += .001;
+                        }
+                        if (gamepad1.dpad_down)
+                        {
+                            KdDrive -= .001;
+                        }
+                        if (gamepad1.dpad_up) {
+                            KdDrive += .001;
+                        }
                         if(gamepad1.b) {
-                            MoveArgos(KpDrive, 0, KdDrive, ErrorPixToDeg(x), 0, drivePID);
+                            MoveArgos(KpDrive, KiDrive, KdDrive, ErrorPixToDeg(x), 0, drivePID);
                         }
                         else {
-                            MoveRobot(KpDrive, 0, KdDrive, 0, ErrorPixToDeg(x), 0, drivePID);
+                            MoveRobot(KpDrive, KiDrive, KdDrive, 0, ErrorPixToDeg(x), 0, drivePID);
                         }
                         break;
                     default:
@@ -332,6 +346,15 @@ Publish ErrorDegrees
             if (pad.b) {
                 motorBeater.setPower(-1);
             }
+            /*
+            if (pad.left_trigger > 0.6)
+            {
+                KiDrive -= .001;
+            }
+            if (pad.right_trigger > 0.6)
+            {
+                KiDrive += .001;
+            }*/
             /*(if (pad.left_trigger > 0.5) {
                 motorChurros.setTargetPosition(0);
                 motorChurros.setPower(-.5);
@@ -345,15 +368,7 @@ Publish ErrorDegrees
 
 
 
-        /*
-        if (pad.left_trigger > 0.6)
-        {
-            KpDrive -= .001;
-        }
-        if (pad.right_trigger > 0.6)
-        {
-            KpDrive += .001;
-        }*/
+
 
 
         // We're going to assume that the deadzone processing has been taken care of for us
@@ -462,11 +477,33 @@ Publish ErrorDegrees
                             public Object value() {
                                 return format(autoStage);
                             }
-                        }),
+                        })
+
+                );
+        this.telemetry.addLine
+                (
                         this.telemetry.item("Kp:", new IFunc<Object>() {
                             @Override
                             public Object value() {
                                 return formatPosition(KpDrive);
+                            }
+                        }),
+                        this.telemetry.item("Ki:", new IFunc<Object>() {
+                            @Override
+                            public Object value() {
+                                return formatPosition(KiDrive);
+                            }
+                        }),
+                        this.telemetry.item("Kd:", new IFunc<Object>() {
+                            @Override
+                            public Object value() {
+                                return formatPosition(KdDrive);
+                            }
+                        }),
+                        this.telemetry.item("Total Error:", new IFunc<Object>() {
+                            @Override
+                            public Object value() {
+                                return formatPosition(drivePID.m_totalError);
                             }
                         })
 
@@ -678,7 +715,7 @@ Publish ErrorDegrees
                 break;
 
             case 3:   //rough turn to beacon; angle = 0 to 45(blu) or -45(red)
-                MoveIMU(KpDrive, 0, KdDrive, 0, 45, drivePID);   //
+                MoveIMU(KpDrive, KiDrive, KdDrive, 0, 45, drivePID);   //
                 if (pose.getHeading() >= 45 && pose.getHeading() <= 50 ) {
                     motorLeft.setPower(0);
                     pose.setOdometer(0);
@@ -687,7 +724,7 @@ Publish ErrorDegrees
                 break;
 
             case 4:   //Precise turn to beacon - color blob assisted; angle = 45(?)
-                MoveRobot(KpDrive, 0, KdDrive, 0, ErrorPixToDeg(x), 0, drivePID);
+                MoveRobot(KpDrive, KiDrive, KdDrive, 0, ErrorPixToDeg(x), 0, drivePID);
                 if((ErrorPixToDeg(x) < 2) || (ErrorPixToDeg(x) > 358)) {
                     motorLeft.setPower(0);
                     motorRight.setPower(0);
@@ -697,7 +734,7 @@ Publish ErrorDegrees
                 break;
 
             case 5:   //Beacon approach - color blob assisted; angle = 45(?)
-                MoveRobot(KpDrive, 0, KdDrive, .25, ErrorPixToDeg(x), 0, drivePID);
+                MoveRobot(KpDrive, KiDrive, KdDrive, .25, ErrorPixToDeg(x), 0, drivePID);
                 if(pose.getOdometer() >= .25) {
                     motorLeft.setPower(0);
                     motorRight.setPower(0);

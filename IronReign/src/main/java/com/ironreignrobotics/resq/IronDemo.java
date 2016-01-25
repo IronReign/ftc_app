@@ -39,9 +39,9 @@ public class IronDemo extends SynchronousOpMode {
     //NOTE: on isRed, 1 is for blue side and -1 is for red side
     private int isRed = 1;
     private boolean active = false;
-    private double KpDrive = .0125;
-    private double KiDrive = .01;
-     private double KdDrive = -0.04;
+    private double KpDrive = .025;
+    private double KiDrive = 150;
+     private double KdDrive = 0.04;
     private double driveIMUBasePower = .5;
     private double motorPower = 0;
     private double climberPower = 0;
@@ -62,6 +62,8 @@ public class IronDemo extends SynchronousOpMode {
     private final static int cliffClear = 1577 + 210;
     private final static int churroEngage = 1850 + servoOffset;
     private final static int churroClear = 1830 + servoOffset;
+    private boolean demoCase = false;
+    private int demoAngle = 0;
 
     // Our sensors, motors, and other devices go here, along with other long term state
     IBNO055IMU imu;
@@ -225,33 +227,7 @@ Publish ErrorDegrees
 
                         break;
                     case 5:
-                        if (gamepad1.dpad_left)
-                        {
-                            KpDrive -= .001;
-                        }
-                        if (gamepad1.dpad_right) {
-                            KpDrive += .001;
-                        }
-                        if (gamepad1.a)
-                        {
-                            KiDrive -= .001;
-                        }
-                        if (gamepad1.y) {
-                            KiDrive += .001;
-                        }
-                        if (gamepad1.dpad_down)
-                        {
-                            KdDrive -= .001;
-                        }
-                        if (gamepad1.dpad_up) {
-                            KdDrive += .001;
-                        }
-                        if(gamepad1.b) {
-                            MoveArgos(KpDrive, KiDrive, KdDrive, ErrorPixToDeg(x), 0, drivePID);
-                        }
-                        else {
-                            MoveRobot(KpDrive, KiDrive, KdDrive, 0, ErrorPixToDeg(x), 0, drivePID);
-                        }
+                        DemoPID();
                         break;
                     default:
                         motorLeft.setPower(0);
@@ -508,6 +484,34 @@ Publish ErrorDegrees
                         })
 
                 );
+        this.telemetry.addLine
+                (
+                        this.telemetry.item("Kp Result:", new IFunc<Object>() {
+                            @Override
+                            public Object value() {
+                                return formatSmallNum(drivePID.pwrP);
+                            }
+                        }),
+                        this.telemetry.item("Ki Result:", new IFunc<Object>() {
+                            @Override
+                            public Object value() {
+                                return formatSmallNum(drivePID.pwrI);
+                            }
+                        }),
+                        this.telemetry.item("Kd Result:", new IFunc<Object>() {
+                            @Override
+                            public Object value() {
+                                return formatSmallNum(drivePID.pwrD);
+                            }
+                        }),
+                        this.telemetry.item("Delta T:", new IFunc<Object>() {
+                            @Override
+                             public Object value() {
+                                return formatSmallNum(drivePID.m_deltaTime);
+                             }
+                        })
+                );
+
         this.telemetry.addLine //color blob detector stuff
                 (
 
@@ -675,6 +679,9 @@ Publish ErrorDegrees
     String formatRate(double cyclesPerSecond) {
         return String.format("%.2f", cyclesPerSecond);
     }
+    String formatSmallNum(double cyclesPerSecond) {
+        return String.format("%.6f", cyclesPerSecond);
+    }
 
     String formatPosition(double coordinate) {
         String unit = parameters.accelUnit == IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC
@@ -769,6 +776,49 @@ Publish ErrorDegrees
                 break;
         }
     }
+    void DemoPID(){
+        if (gamepad1.dpad_left)
+        {
+            KpDrive -= .001;
+        }
+        if (gamepad1.dpad_right) {
+            KpDrive += .001;
+        }
+        if (gamepad1.a)
+        {
+            KiDrive -= .001;
+        }
+        if (gamepad1.y) {
+            KiDrive += .001;
+        }
+        if (gamepad1.dpad_down)
+        {
+            KdDrive -= .001;
+        }
+        if (gamepad1.dpad_up) {
+            KdDrive += .001;
+        }
+        if (gamepad1.x){
+            demoCase = !demoCase;
+        }
+        if (gamepad1.right_trigger > .6) {
+            demoAngle += 5;
+            demoAngle = (int)pose.wrapAngle(demoAngle, 0.0);
+        }
+        if (gamepad1.right_trigger > .6) {
+            demoAngle -= 5;
+            demoAngle = (int)pose.wrapAngle(demoAngle, 0.0);
+        }
+        if(demoCase){
+            MoveIMU(KpDrive, KiDrive, KdDrive, 0, demoAngle, drivePID);
+        } else {
+            if (gamepad1.b) {
+                MoveArgos(KpDrive, KiDrive, KdDrive, ErrorPixToDeg(x), 0, drivePID);
+            } else {
+                MoveRobot(KpDrive, KiDrive, KdDrive, 0, ErrorPixToDeg(x), 0, drivePID);
+            }
+        }
+    }
     void MoveRobot(double Kp, double Ki, double Kd, double pwr, double currentAngle, int targetAngle, PIDController PID) {
         PID.setPID(Kp, Ki, Kd);
         PID.setSetpoint(targetAngle);
@@ -778,8 +828,9 @@ Publish ErrorDegrees
         PID.setContinuous();
         //PID.setInput(pose.getHeading());
         PID.setInput(currentAngle);
-        motorLeft.setPower(pwr + PID.performPID());
-        motorRight.setPower(pwr - PID.performPID());
+        double correction = PID.performPID();
+        motorLeft.setPower(pwr + correction);
+        motorRight.setPower(pwr - correction);
     }
     void MoveArgos(double Kp, double Ki, double Kd, double currentAngle, int targetAngle, PIDController PID){
 

@@ -51,7 +51,11 @@ public class PIDController {
     private double m_error = 0.0;
     private double m_result = 0.0;
     private long m_prevTime; //time of previous calculate() in nanoseconds from the current epoch
-    private double m_deltaTime; // time between calls to calculate() in fractional seconds
+    public double m_deltaTime; // time between calls to calculate() in fractional seconds
+    private long m_currentTime;
+    public double pwrP = 0.0;
+    public double pwrI = 0.0;
+    public double pwrD = 0.0;
 
     /**
      * Allocate a PID object with the given constants for P, I, D
@@ -99,17 +103,33 @@ public class PIDController {
             }
 
             //time since last iteration
-            m_deltaTime=(System.nanoTime()-m_prevTime)/1E9;
-
+            m_currentTime = System.nanoTime();
+            m_deltaTime=(m_currentTime-m_prevTime)/1E9;
+            m_prevTime=m_currentTime;
             /* Integrate the errors as long as the upcoming integrator does
                not exceed the minimum and maximum output thresholds */
-            if (((m_totalError + m_error) * m_deltaTime * m_I < m_maximumOutput) &&
-                    ((m_totalError + m_error) * m_deltaTime * m_I > m_minimumOutput)) {
-                m_totalError += m_error;
+//            if (((m_totalError + m_error) * m_deltaTime * m_I < m_maximumOutput) &&
+//                    ((m_totalError + m_error) * m_deltaTime * m_I > m_minimumOutput)) {
+//                m_totalError += m_error;
+//            }
+            if(m_deltaTime > 0.00002)
+            {
+                m_deltaTime = 0;
             }
+            if(Math.abs(m_error) > 15)
+                m_totalError = 0;
+            else
+                m_totalError += m_error;
 
             // Perform the primary PID calculation
-            m_result = (m_P * m_error + m_I * m_totalError * m_deltaTime + m_D * (m_error - m_prevError) * m_deltaTime);
+//            m_result = (m_P * m_error + m_I * m_totalError * m_deltaTime + m_D * (m_error - m_prevError) * m_deltaTime);
+            //TEST VARS TO RETURN
+            pwrP = m_P * m_error;
+            pwrI = m_I * m_totalError * m_deltaTime;
+            pwrD = m_D * (m_error - m_prevError) * m_deltaTime;
+
+            m_result = pwrP + pwrI + pwrD;
+
 
             // Set the current error to the previous error for the next cycle
             m_prevError = m_error;
@@ -121,7 +141,7 @@ public class PIDController {
                 m_result = m_minimumOutput;
             }
 
-            m_prevTime=System.nanoTime();
+
         }
     }
 

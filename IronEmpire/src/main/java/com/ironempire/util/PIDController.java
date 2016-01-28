@@ -1,5 +1,7 @@
 package com.ironempire.util;
 
+import android.util.Log;
+
 /**
  * Created on 6/28/2015.
  */
@@ -112,8 +114,9 @@ public class PIDController {
 //                    ((m_totalError + m_error) * m_deltaTime * m_I > m_minimumOutput)) {
 //                m_totalError += m_error;
 //            }
-            if(m_deltaTime > 0.00002)
+            if(m_deltaTime > 2E-5)
             {
+                Log.e("", "Time Jump! " + m_deltaTime * 1E5 + " E-5 sec");
                 m_deltaTime = 0;
             }
             if(Math.abs(m_error) > 15)

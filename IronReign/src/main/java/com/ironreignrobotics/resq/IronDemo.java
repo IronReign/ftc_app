@@ -48,22 +48,23 @@ public class IronDemo extends SynchronousOpMode {
     float ctlLeft;
     float ctlRight;
     int direction = 1;
-    double baseSpeed = 0;
-    double baseHeading = 0;
-    public String[] State = {"TeleOp", "Auto", "GoStraight", "GoStraightIMU", "SquareDance"};
+//    double baseSpeed = 0;
+//    double baseHeading = 0;
+//    public String[] State = {"TeleOp", "Auto", "GoStraight", "GoStraightIMU", "SquareDance"};
     public int demoMode = 0;
     public int autoStage = 0;
     private boolean climberScheme = false;
     private boolean climberEngaged = false;
     private boolean climberUp = false;
     private long autoPushButtonTimerStart = -1;
-    public static int servoOffset = 155;
-    private final static int cliffEngage = 1637 +  210;
-    private final static int cliffClear = 1577 + 210;
-    private final static int churroEngage = 1850 + servoOffset;
-    private final static int churroClear = 1830 + servoOffset;
+    public static int servoOffset = 300;
+    private final static int cliffEngage = 1850;//1637
+    private final static int cliffClear = 1760; //1577
+    private final static int mtnEngage = 1850 + servoOffset;
+    private final static int mtnClear = 1800 + servoOffset;
     private boolean demoCase = false;
     private int demoAngle = 0;
+    public String climberPos;
 
     // Our sensors, motors, and other devices go here, along with other long term state
     IBNO055IMU imu;
@@ -87,24 +88,13 @@ public class IronDemo extends SynchronousOpMode {
         int ViewWidth = 800;
         int ScreenCenterPix;
         int ErrorPix;
-        int PixPerDegrees;
+        double PixPerDegree;
         double errorDegrees;
 
-        /*
-ScreenCenterPix=ViewWidth/2
-ErrorPix = -(blobx - ScreenCenterPix)
-PixPerDegree = ViewWidth/FOV
-ErrorDegrees = ErrorPix/PixPerDegree
-If ErrorDegrees<0 then
- //ErrorDegress = 360 - ErrorDegrees
-ErrorDegress = 360 + ErrorDegrees
-Publish ErrorDegrees
-
-         */
         ScreenCenterPix = ViewWidth/2;
         ErrorPix = ScreenCenterPix - blobx;
-        PixPerDegrees = ViewWidth / 65; //FOV maybe accurate?
-        errorDegrees = ErrorPix/PixPerDegrees;
+        PixPerDegree = ViewWidth / 75; //FOV
+        errorDegrees = ErrorPix/PixPerDegree;
         if (errorDegrees < 0) {
             errorDegrees += 360;
         }
@@ -243,6 +233,7 @@ Publish ErrorDegrees
                 pose.setOdometer(0);
                 cliffHanger1.setPower(0);
                 cliffHanger2.setPower(0);
+                servoClimber.getController().pwmDisable();
 //                motorChurros.setPower(0);
             }
 
@@ -288,6 +279,7 @@ Publish ErrorDegrees
             if(pad.y)
             {
                 climberUp = !climberUp;
+
             }
             if(pad.b)
             {
@@ -382,6 +374,8 @@ Publish ErrorDegrees
     void dexSwitch(Gamepad pad) {
         if (pad.start) {
             active = !active;
+            if(active) servoClimber.getController().pwmEnable();
+            else servoClimber.getController().pwmDisable();
         } else if (pad.right_bumper) {
             autoStage = 0;        //Add code preventing bumpers changing state if "halt" is true (halt is made true when state
             if (demoMode < 5)    //changes and made false when some other button is pressed)
@@ -453,8 +447,13 @@ Publish ErrorDegrees
                             public Object value() {
                                 return format(autoStage);
                             }
+                        }),
+                        this.telemetry.item(" ", new IFunc<Object>() {
+                            @Override
+                            public Object value() {
+                                return formatClimber();
+                            }
                         })
-
                 );
         this.telemetry.addLine
                 (
@@ -688,6 +687,18 @@ Publish ErrorDegrees
                 ? "m" : "??";
         return String.format("%.3f%s", coordinate, unit);
     }
+    String formatClimber() {
+        if(climberUp)
+        {
+            if(climberEngaged) return "Cliff Engaged";
+            return "Cliff Clear";
+        }
+        else
+        {
+            if(climberEngaged) return "Mtn Engaged";
+            return "Mtn Clear";
+        }
+    }
 
     //----------------------------------------------------------------------------------------------
     // Utility
@@ -874,10 +885,10 @@ Publish ErrorDegrees
         }
         else{
             if(engage)
-                pulse = churroEngage;
+                pulse = mtnEngage;
 
             else
-                pulse = churroClear;
+                pulse = mtnClear;
 
         }
         return ServoNormalize(pulse); //convert mr servo controller pulse width to double on 0 - 1 scale

@@ -11,7 +11,7 @@ import com.ironempire.util.*;
  * An example of a synchronous opmode that implements a simple drive-a-bot.
  */
 @TeleOp(name="3734 Demo (sync)", group="IronReign")
-//@Disabled
+@Disabled
 public class ImperialDemo extends SynchronousOpMode
     {
     // All hardware variables can only be initialized inside the main() function,

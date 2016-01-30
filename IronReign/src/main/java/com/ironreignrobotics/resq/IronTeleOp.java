@@ -10,7 +10,7 @@ import org.swerverobotics.library.interfaces.*;
  * An example of a synchronous opmode that implements a simple drive-a-bot.
  */
 @TeleOp(name="6832 TeleOp (sync)", group="IronReign")
-//@Disabled
+@Disabled
 public class IronTeleOp extends SynchronousOpMode
     {
     // All hardware variables can only be initialized inside the main() function,

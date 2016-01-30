@@ -2,6 +2,8 @@ package com.ironempire.util;
 
 import org.swerverobotics.library.*;
 import org.swerverobotics.library.interfaces.*;
+
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
@@ -33,7 +35,8 @@ public class Pose
     private double offsetRoll;
     private long ticksPerMeterLeft = 20000; //arbitrary initial value so we don't get a divide by zero
     private long ticksPerMeterRight= 20000; //need actual measured value
-    private long ticksPerMeterGrapple = 11687; //actual measured value
+    private long ticksPerMeterClimber = 11687; //actual measured value
+    private long ticksClimberOffset = 0;
     private long ticksLeftPrev;
     private long ticksRightPrev;
     private long ticksLeftOffset; //provide a way to offset (effectively reset) the motor encoder readings
@@ -199,6 +202,35 @@ public class Pose
     public void setTicksPerMeterLeft(long ticksPerMeterLeft) {
         this.ticksPerMeterLeft = ticksPerMeterLeft;
     }
+
+    public long getTicksPerMeterClimber() {
+        return ticksPerMeterClimber;
+    }
+
+    public void setTicksPerMeterClimber(long ticksPerMeterClimber) {
+        this.ticksPerMeterClimber = ticksPerMeterClimber;
+    }
+    public long getTicksClimberOffset() {
+        return ticksClimberOffset;
+    }
+
+    public void setTicksClimberOffset(long ticksClimberOffset) {
+        this.ticksClimberOffset = ticksClimberOffset;
+    }
+
+    public double getClimberPosMeters(DcMotor cliffHanger)
+    {
+    return (double)(cliffHanger.getCurrentPosition()- getTicksClimberOffset())/ticksPerMeterClimber;
+
+    }
+
+    public int calcClimberTarget(DcMotor cliffHanger, double metersOut)
+    {
+        return (int) (getTicksClimberOffset()+(metersOut * ticksPerMeterClimber));
+
+    }
+
+
     /**
      * Update the current location of the robot. This implementation gets heading and orientation
      * from the Bosch BNO055 IMU and assumes a simple differential steer robot with left and right motor

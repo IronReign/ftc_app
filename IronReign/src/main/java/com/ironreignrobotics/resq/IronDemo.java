@@ -1,5 +1,7 @@
 package com.ironreignrobotics.resq;
 
+import android.widget.SearchView;
+
 import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
 import com.qualcomm.robotcore.hardware.*;
 
@@ -17,6 +19,13 @@ import com.ironempire.util.*;
 @TeleOp(name = "6832 Demo (sync)", group = "IronReign")
 //@Disabled
 public class IronDemo extends SynchronousOpMode {
+
+    private boolean active = false;
+    public int demoMode = 0;
+    public int autoStage = 0;
+    public boolean isBlueAlliance = true;
+
+
     // All hardware variables can only be initialized inside the main() function,
     // not here at their member variable declarations.
     //DcMotor motorLeftBack = null;
@@ -30,6 +39,9 @@ public class IronDemo extends SynchronousOpMode {
 //    volatile DcMotor motorChurros = null;
     Servo servoPlow = null;
     Servo servoClimber = null;
+    Servo servoTrough = null;
+    Servo servoConveyor = null;
+
 //    public Climber climber;
 
     //public Thread churroClimber;
@@ -37,8 +49,9 @@ public class IronDemo extends SynchronousOpMode {
 
     PIDController drivePID = new PIDController(0, 0, 0);
     //NOTE: on isRed, 1 is for blue side and -1 is for red side
-    private int isRed = 1;
-    private boolean active = false;
+    //private int isRed = 1;
+
+
     private double KpDrive = .025;
     private double KiDrive = 150;
      private double KdDrive = 0.04;
@@ -51,8 +64,7 @@ public class IronDemo extends SynchronousOpMode {
 //    double baseSpeed = 0;
 //    double baseHeading = 0;
 //    public String[] State = {"TeleOp", "Auto", "GoStraight", "GoStraightIMU", "SquareDance"};
-    public int demoMode = 0;
-    public int autoStage = 0;
+
     private boolean climberScheme = false;
     private boolean climberEngaged = false;
     private boolean climberUp = false;
@@ -68,18 +80,21 @@ public class IronDemo extends SynchronousOpMode {
     private long climberZero = 0;
     private final static int climberDefault = 2250;
     private final static int climberStartPos = 1700;
-//    private boolean diagnosticsStarted = false;
+    private final static int climberButton = 2250;
+//  private boolean diagnosticsStarted = false;
 //    private boolean tapeRetractFinish = false;
     private int diagnosticCase = 0;
 //    private boolean diagnosticsFinished = false;
     private long diagnosticTimer = 0;
 //    public String climberPos;
-//    public final static int troughDown = 1900;
-//    public final static int troughUp =   1688;
-//    public final static int troughMid =  1855;
-//    public final static int conveyorLeft  = 1000;
-//    public final static int conveyorRight = 2000;
-//    public final static int conveyorStop  = 1500;
+    public final static int troughDown = 1900;
+    public final static int troughUp =   1688;
+    public final static int troughMid =  1855;
+    public final static int conveyorLeft  = 1000;
+    public final static int conveyorRight = 2000;
+    public final static int conveyorStop  = 1500;
+    public final static int plowDown = 1648;
+    public final static int plowUp = 1000;
 //
 // Our sensors, motors, and other devices go here, along with other long term state
     IBNO055IMU imu;
@@ -130,7 +145,8 @@ public class IronDemo extends SynchronousOpMode {
 //        this.motorChurros = this.hardwareMap.dcMotor.get("motorChurros");
         this.cliffHanger1 = this.hardwareMap.dcMotor.get("motorCliffHanger1");
         this.cliffHanger2 = this.hardwareMap.dcMotor.get("motorCliffHanger2");
-
+        this.servoTrough = this.hardwareMap.servo.get("servoTrough");
+        this.servoConveyor = this.hardwareMap.servo.get("servoConveyor");
         // Configure the knobs of the hardware according to how you've wired your
         // robot. Here, we assume that there are no encoders connected to the motors,
         // so we inform the motor objects of that fact.
@@ -215,6 +231,7 @@ public class IronDemo extends SynchronousOpMode {
                                         cliffHanger2.setPower(0);
                                         climPrevPos = cliffHanger1.getCurrentPosition();
                                         climberZero = climPrevPos;
+                                        pose.setTicksClimberOffset(climberZero);
                                         diagnosticCase++;
                                     }
                                     diagnosticTimer = System.nanoTime();
@@ -225,10 +242,14 @@ public class IronDemo extends SynchronousOpMode {
                             case 3:
                                 cliffHanger1.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
                                 cliffHanger2.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+                                cliffHanger1.setTargetPosition(pose.calcClimberTarget(cliffHanger1,0.1));
+                                cliffHanger2.setTargetPosition(cliffHanger1.getTargetPosition());
+                                cliffHanger1.setPower(.15);
+                                cliffHanger2.setPower(.15);
                                 diagnosticTimer = System.nanoTime();
                                 diagnosticCase++;
                                 break;
-                            case 4:
+                            case 4: //this will run once without effect as written
                                 if(gamepad1.left_trigger > .6)
                                 {
                                     cliffHanger1.setPower(-.15);
@@ -382,10 +403,10 @@ public class IronDemo extends SynchronousOpMode {
         else {
             if (pad.dpad_down)//1753 micros
             {
-                servoPlow.setPosition(ServoNormalize(1648));
+                servoPlow.setPosition(ServoNormalize(plowDown));
             }
             if (pad.dpad_up) {
-                servoPlow.setPosition(ServoNormalize(1000)); //1244
+                servoPlow.setPosition(ServoNormalize(plowUp));
             }
 //            if (pad.dpad_left) {
 //                servoPlow.setPosition(ServoNormalize(1517)); //1517
@@ -813,13 +834,15 @@ public class IronDemo extends SynchronousOpMode {
             case 0:   //Drive away from the wall to deploy beater bar ; angle = 0
                 pose.setPoseHeading(0);
                 pose.Update(imu.getAngularOrientation(), motorLeft.getCurrentPosition(), motorRight.getCurrentPosition());
+                servoPlow.setPosition(ServoNormalize(plowDown));
                 autoStage++;
 
                 break;
             case 1:   //commented out
-                MoveIMU(KpDrive, KiDrive, KdDrive, driveIMUBasePower, 0 * isRed, drivePID);
+                autoStage++; //skipping case 1 right now ********************
+                //MoveIMU(KpDrive, KiDrive, KdDrive, driveIMUBasePower, 0, drivePID);
                 if (pose.getOdometer() > 0.1) {
-                    servoPlow.setPosition(.64);  //TODO: test with servo tester and normalize (for greater accuracy)
+
                     motorLeft.setPower(0);
                     motorRight.setPower(0);
                     pose.setOdometer(0);
@@ -836,9 +859,9 @@ public class IronDemo extends SynchronousOpMode {
                 }
                 break;
 
-            case 3:   //rough turn to beacon; angle = 0 to 45(blu) or -45(red)
-                MoveIMU(KpDrive, KiDrive, KdDrive, 0, 45, drivePID);   //
-                if (pose.getHeading() >= 45 && pose.getHeading() <= 50 ) {
+            case 3:   //rough turn to beacon; angle = 0 to 45(blu) or 360-45(red)
+                MoveIMU(KpDrive, KiDrive, KdDrive, 0, allianceAngle(45), drivePID);   //
+                if (pose.getHeading() >= allianceAngle(45)-2 && pose.getHeading() <= allianceAngle(45)+ 2) { //TODO: this closeness test won't work right around 0 degrees because of the discontinuity
                     motorLeft.setPower(0);
                     pose.setOdometer(0);
                     autoStage++;
@@ -867,22 +890,45 @@ public class IronDemo extends SynchronousOpMode {
                 break;
 
             case 6:   //Push the button
-                cliffHanger1.setPower(.15);
-                cliffHanger2.setPower(.15);
+                int curposCliffHangers = cliffHanger1.getCurrentPosition();
+                cliffHanger1.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+                cliffHanger2.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+                cliffHanger1.setTargetPosition(pose.calcClimberTarget(cliffHanger1,0.3));
+                cliffHanger2.setTargetPosition(cliffHanger1.getTargetPosition());
+                cliffHanger1.setPower(.5);
+                cliffHanger2.setPower(.5);
+
+                //Retract tape again
+                // TODO: should test based on position, not time
                 if(System.nanoTime() - autoPushButtonTimerStart > 2500000){
-                    cliffHanger1.setPower(-.15);
-                    cliffHanger2.setPower(-.15);
+                    //return tape to previous position
+                    cliffHanger1.setTargetPosition(curposCliffHangers);
+                    cliffHanger2.setTargetPosition(curposCliffHangers);
                     autoStage++;
+                    autoPushButtonTimerStart = System.nanoTime();
                 }
+
                 break;
 
-            case 7:   //drop climbers
+            case 7:   //move forward and drop climbers
+                servoPlow.setPosition(ServoNormalize(plowUp)); //pull up plow
+                motorLeft.setPower(.2);
+                motorRight.setPower(.2);
+                // TODO: should test based on wall sensor or color blob width
+                if(System.nanoTime() - autoPushButtonTimerStart > 2500000){
+                    motorLeft.setPower(0);
+                    motorRight.setPower(0);
+                    autoStage++;
+                    autoPushButtonTimerStart = System.nanoTime();
+                }
+                servoTrough.setPosition(ServoNormalize(troughUp)); //pull up trough to dump climbers
                 autoStage++;
                 break;
 
             case 8:   //retreat
 //                cliffHanger1.setPower(0);
 //                cliffHanger2.setPower(0);
+                //servoPlow.setPosition(ServoNormalize(plowDown));
                 autoStage++;
                 break;
             default:
@@ -934,7 +980,7 @@ public class IronDemo extends SynchronousOpMode {
             }
         }
     }
-    void MoveRobot(double Kp, double Ki, double Kd, double pwr, double currentAngle, int targetAngle, PIDController PID) {
+    void MoveRobot(double Kp, double Ki, double Kd, double pwr, double currentAngle, double targetAngle, PIDController PID) {
         PID.setPID(Kp, Ki, Kd);
         PID.setSetpoint(targetAngle);
         PID.enable();
@@ -947,7 +993,7 @@ public class IronDemo extends SynchronousOpMode {
         motorLeft.setPower(pwr + correction);
         motorRight.setPower(pwr - correction);
     }
-    void MoveArgos(double Kp, double Ki, double Kd, double currentAngle, int targetAngle, PIDController PID){
+    void MoveArgos(double Kp, double Ki, double Kd, double currentAngle, double targetAngle, PIDController PID){
 
 //        PID.setPID(Kp, Ki, Kd);
 //        PID.setSetpoint(targetAngle);
@@ -973,10 +1019,16 @@ public class IronDemo extends SynchronousOpMode {
 
     }
 
-    void MoveIMU(double Kp, double Ki, double Kd, double pwr, int angle, PIDController PID) {
+    void MoveIMU(double Kp, double Ki, double Kd, double pwr, double angle, PIDController PID) {
         MoveRobot(Kp, Ki, Kd, pwr, pose.getHeading(), angle, drivePID);
     }
+double allianceAngle(double blueAngle) {
+    if (isBlueAlliance)
+        return blueAngle;
+    else
+        return 360 - blueAngle;
 
+}
     double ClimberAngle (boolean up, boolean engage){
         int pulse = 0;
         if(up){

@@ -16,12 +16,12 @@ import com.ironempire.util.*;
 /**
  * An example of a synchronous opmode that implements a simple drive-a-bot.
  */
-@TeleOp(name = "6832 Demo (sync)", group = "IronReign")
-//@Disabled Q
-public class IronDemo extends SynchronousOpMode {
+@TeleOp(name = "6832 Blue Side (sync)", group = "IronReign")
+//@Disabled
+public class IronBlue extends SynchronousOpMode {
 
-    private boolean active = false;
-    public int demoMode = 0;
+    private boolean active = true;
+    public int demoMode = 1;
     public int autoStage = 0;
     public boolean isBlueAlliance = true;
 
@@ -71,7 +71,7 @@ public class IronDemo extends SynchronousOpMode {
     private long autoPushButtonTimerStart = -1;
     public static int servoOffset = 280;
     private final static int cliffEngage = 1850;//1637
-    private final static int cliffClear = 1730; //1577
+    private final static int cliffClear = 1760; //1577
     private final static int mtnEngage = 1850 + servoOffset;
     private final static int mtnClear = 1800 + servoOffset;
     private boolean demoCase = false;
@@ -93,8 +93,8 @@ public class IronDemo extends SynchronousOpMode {
     public final static int conveyorLeft  = 1000;
     public final static int conveyorRight = 2000;
     public final static int conveyorStop  = 1500;
-    public final static int plowDown = 1830;
-    public final static int plowUp = 750;
+    public final static int plowDown = 1700;
+    public final static int plowUp = 900;
 //
 // Our sensors, motors, and other devices go here, along with other long term state
     IBNO055IMU imu;
@@ -496,8 +496,6 @@ public class IronDemo extends SynchronousOpMode {
 //            diagnosticsStarted = false;
 //            tapeRetractFinish = false;
             diagnosticCase = 0;
-            cliffHanger1.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-            cliffHanger2.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         } else if (pad.right_bumper) {
             autoStage = 0;        //Add code preventing bumpers changing state if "halt" is true (halt is made true when state
             if (demoMode < 5)    //changes and made false when some other button is pressed)
@@ -911,22 +909,22 @@ public class IronDemo extends SynchronousOpMode {
 
             case 6:   //Push the button
                 int curposCliffHangers = cliffHanger1.getCurrentPosition();
-   //             cliffHanger1.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-   //             cliffHanger2.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-   //             cliffHanger1.setTargetPosition(pose.calcClimberTarget(cliffHanger1,0.3));
-   //             cliffHanger2.setTargetPosition(cliffHanger1.getTargetPosition());
-   //             cliffHanger1.setPower(.5);
-   //             cliffHanger2.setPower(.5);
+                cliffHanger1.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+                cliffHanger2.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+                cliffHanger1.setTargetPosition(pose.calcClimberTarget(cliffHanger1,0.3));
+                cliffHanger2.setTargetPosition(cliffHanger1.getTargetPosition());
+                cliffHanger1.setPower(.5);
+                cliffHanger2.setPower(.5);
 
                 //Retract tape again
                 // TODO: should test based on position, not time
-//                if(System.nanoTime() - autoPushButtonTimerStart > 2500000){
+                if(System.nanoTime() - autoPushButtonTimerStart > 2500000){
                     //return tape to previous position
-//                    cliffHanger1.setTargetPosition(curposCliffHangers);
-//                   cliffHanger2.setTargetPosition(curposCliffHangers);
+                    cliffHanger1.setTargetPosition(curposCliffHangers);
+                    cliffHanger2.setTargetPosition(curposCliffHangers);
                     autoStage++;
-//                    autoPushButtonTimerStart = System.nanoTime();
- //               }
+                    autoPushButtonTimerStart = System.nanoTime();
+                }
 
                 break;
 
@@ -950,8 +948,6 @@ public class IronDemo extends SynchronousOpMode {
 //                cliffHanger2.setPower(0);
                 //servoPlow.setPosition(ServoNormalize(plowDown));
                 autoStage++;
-                cliffHanger1.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-                cliffHanger2.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
                 break;
             default:
                 motorLeft.setPower(0);
@@ -963,7 +959,6 @@ public class IronDemo extends SynchronousOpMode {
         if (gamepad1.dpad_left)
         {
             KpDrive -= .001;
-
         }
         if (gamepad1.dpad_right) {
             KpDrive += .001;

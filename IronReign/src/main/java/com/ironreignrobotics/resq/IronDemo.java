@@ -1,7 +1,5 @@
 package com.ironreignrobotics.resq;
 
-import android.widget.SearchView;
-
 import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
 import com.qualcomm.robotcore.hardware.*;
 
@@ -38,7 +36,7 @@ public class IronDemo extends SynchronousOpMode {
     DcMotor cliffHanger2 = null;
 //    volatile DcMotor motorChurros = null;
     Servo servoPlow = null;
-    Servo servoClimber = null;
+    Servo servoCliffHanger = null;
     Servo servoTrough = null;
     Servo servoConveyor = null;
 
@@ -66,26 +64,18 @@ public class IronDemo extends SynchronousOpMode {
 //    public String[] State = {"TeleOp", "Auto", "GoStraight", "GoStraightIMU", "SquareDance"};
 
     private boolean climberScheme = false;
-    private boolean climberEngaged = false;
-    private boolean climberUp = false;
+
     private long autoPushButtonTimerStart = -1;
     public static int servoOffset = 280;
-    private final static int cliffEngage = 1850;//1637
-    private final static int cliffClear = 1730; //1577
-    private final static int mtnEngage = 1850 + servoOffset;
-    private final static int mtnClear = 1800 + servoOffset;
+
     private boolean demoCase = false;
     private int demoAngle = 0;
     private long climPrevPos = 0;
     private long climberZero = 0;
-    private final static int climberDefault = 2250;
-    private final static int climberStartPos = 900;
-    private final static int climberButton = 2250;
+
 //  private boolean diagnosticsStarted = false;
 //    private boolean tapeRetractFinish = false;
-    private int diagnosticCase = 0;
 //    private boolean diagnosticsFinished = false;
-    private long diagnosticTimer = 0;
 //    public String climberPos;
     public final static int troughDown = 1900;
     public final static int troughUp =   1688;
@@ -141,7 +131,7 @@ public class IronDemo extends SynchronousOpMode {
         this.motorRight = this.hardwareMap.dcMotor.get("motorRight");
         this.motorBeater = this.hardwareMap.dcMotor.get("motorBeater");
         this.servoPlow = this.hardwareMap.servo.get("servoCatcher");
-        this.servoClimber = this.hardwareMap.servo.get("servoCliff");
+        this.servoCliffHanger = this.hardwareMap.servo.get("servoCliff");
 //        this.motorChurros = this.hardwareMap.dcMotor.get("motorChurros");
         this.cliffHanger1 = this.hardwareMap.dcMotor.get("motorCliffHanger1");
         this.cliffHanger2 = this.hardwareMap.dcMotor.get("motorCliffHanger2");
@@ -177,7 +167,7 @@ public class IronDemo extends SynchronousOpMode {
         //imu.startAccelerationIntegration(new Position(), new Velocity());
 
         //Set up robot pose
-        pose = new Pose(0, 0, 0, 0);
+        pose = new Pose(0, 0, 0, 0, cliffHanger1, cliffHanger2, servoCliffHanger);
 
         //1120 ticks per rotation of Neverest 40 motor
         //1.5 increase in speed from 24 tooth drive sprocket to 16 tooth driven
@@ -193,19 +183,19 @@ public class IronDemo extends SynchronousOpMode {
         // Configure the dashboard however we want it
         this.configureDashboard();
 
-//        servoClimber.setPosition(climberStartPos);
+//        servoCliffHanger.setPosition(climberStartPos);
         servoTrough.setPosition(troughDown);
         servoConveyor.setPosition(conveyorStop);
         // Wait until we've been given the ok to go
         waitForThreadsWritesToReachHardware();
 
-//        servoClimber.setPosition(climberStartPos);
+//        servoCliffHanger.setPosition(climberStartPos);
         servoTrough.setPosition(troughDown);
         servoConveyor.setPosition(conveyorStop);
 
         this.waitForStart();
 
-        servoClimber.setPosition(climberStartPos);
+        pose.setCliffServoNonClimbing("Start");;
         servoTrough.setPosition(troughDown);
         servoConveyor.setPosition(conveyorStop);
 
@@ -223,74 +213,7 @@ public class IronDemo extends SynchronousOpMode {
 //                climber.run();
                 switch (demoMode) {
                     case 0:  //pre-match diagnostics
-                        switch(diagnosticCase) {
-                            case 0:
-                                climPrevPos = cliffHanger1.getCurrentPosition();
-                                diagnosticTimer = System.nanoTime();
-                                diagnosticCase++;
-                                break;
-                            case 1:
-                                cliffHanger1.setPower(-.20);
-                                cliffHanger2.setPower(-.20);
-                                diagnosticTimer = System.nanoTime();
-                                diagnosticCase++;
-                                break;
-                            case 2:
-                                if (System.nanoTime() - diagnosticTimer > 1e8) {
-                                    if (cliffHanger1.getCurrentPosition() == climPrevPos) {
-                                        cliffHanger1.setPower(0);
-                                        cliffHanger2.setPower(0);
-                                        climPrevPos = cliffHanger1.getCurrentPosition();
-                                        climberZero = climPrevPos;
-                                        pose.setTicksClimberOffset(climberZero);
-                                        diagnosticCase++;
-                                    }
-                                    diagnosticTimer = System.nanoTime();
-                                }
-                                climPrevPos = cliffHanger1.getCurrentPosition();
-
-                                break;
-                            case 3:
-                                cliffHanger1.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-                                cliffHanger2.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-                                cliffHanger1.setTargetPosition(pose.calcClimberTarget(cliffHanger1,0.1));
-                                cliffHanger2.setTargetPosition(cliffHanger1.getTargetPosition());
-                                cliffHanger1.setPower(.15);
-                                cliffHanger2.setPower(.15);
-                                diagnosticTimer = System.nanoTime();
-                                diagnosticCase++;
-                                break;
-                            case 4: //this will run once without effect as written
-                                if(gamepad1.left_trigger > .6)
-                                {
-                                    cliffHanger1.setPower(-.15);
-                                    cliffHanger2.setPower(-.15);
-                                }
-                                else if(gamepad1.right_trigger > .6)
-                                {
-                                    cliffHanger1.setPower(.15);
-                                    cliffHanger2.setPower(.15);
-                                }
-                                else
-                                {
-                                    cliffHanger1.setPower(0);
-                                    cliffHanger2.setPower(0);
-                                }
-                                if(gamepad1.a){
-                                    cliffHanger1.setPower(0);
-                                    cliffHanger2.setPower(0);
-                                    diagnosticCase++;
-                                }
-                                break;
-                            case 5:
-                                servoClimber.setPosition(climberStartPos);
-                                diagnosticCase++;
-                                break;
-                            default:
-                                cliffHanger1.setPower(0);
-                                cliffHanger2.setPower(0);
-                                break;
-                        }
+                        pose.cliffInit();
                         break;
 
                     case 1: //autonomous
@@ -300,22 +223,29 @@ public class IronDemo extends SynchronousOpMode {
                         this.doManualDrivingControl(this.gamepad1);
 
                         if (ctlLeft * ctlRight < 0) {
-                            this.motorLeft.setPower(ctlLeft);
-                            this.motorRight.setPower(ctlRight);
+                            pose.setCliffPower(ctlRight);
                         } else {
                             this.motorLeft.setPower(ctlLeft * direction);
                             this.motorRight.setPower(ctlRight * direction);
                         }
-                        this.cliffHanger1.setPower(climberPower);
-                        this.cliffHanger2.setPower(climberPower);
+                        pose.setCliffPower(climberPower);
 
                         break;
 
                     case 3:
                         MoveIMU(KpDrive, 0, KdDrive, 0, 45, drivePID);
                         break;
-                    case 4: //Pre-match diagnostics
-
+                    case 4: //Extra testing case
+                        if (gamepad1.b) {
+                            if(cliffHanger1.getMode().equals(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS))
+                            {
+                                pose.setCliffMode(DcMotorController.RunMode.RUN_TO_POSITION);
+                            }
+                            else
+                            {
+                                pose.setCliffMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+                            }
+                        }
 
                         break;
                     case 5:
@@ -335,8 +265,8 @@ public class IronDemo extends SynchronousOpMode {
                 pose.setOdometer(0);
                 cliffHanger1.setPower(0);
                 cliffHanger2.setPower(0);
-                servoClimber.getController().pwmDisable();
-//                motorChurros.setPower(0);
+                servoCliffHanger.getController().pwmDisable();
+//                motorChurros.setCliffPower(0);
             }
 
 
@@ -382,6 +312,7 @@ public class IronDemo extends SynchronousOpMode {
             {
                 ctlLeft = (float)-.6;
             }
+            //beginning of cliff hanger logic
             if(pad.right_trigger >.6)
             {
                 climberPower = pad.right_trigger;
@@ -396,31 +327,31 @@ public class IronDemo extends SynchronousOpMode {
             }
             if(pad.y)
             {
-                climberUp = !climberUp;
+                pose.setCliffUp(!pose.getCliffUp());
 
             }
             if(pad.b)
             {
-                climberEngaged = !climberEngaged;
+                pose.setCliffEngaged(!pose.getCliffEngaged());
             }
             if(pad.dpad_up)
             {
-                cliffHanger1.setPower(.2);
-                cliffHanger2.setPower(.2);
-                servoClimber.setPosition(climberDefault);
+                pose.setCliffPower(.2);
+                pose.setCliffServoNonClimbing("Relaxed");
             }
+            //ending of cliff hanger logic
 
         }
         else {
             if (pad.dpad_down)//1753 micros
             {
-                servoPlow.setPosition(ServoNormalize(plowDown));
+                servoPlow.setPosition(pose.ServoNormalize(plowDown));
             }
             if (pad.dpad_up) {
-                servoPlow.setPosition(ServoNormalize(plowUp));
+                servoPlow.setPosition(pose.ServoNormalize(plowUp));
             }
 //            if (pad.dpad_left) {
-//                servoPlow.setPosition(ServoNormalize(1517)); //1517
+//                servoPlow.setPosition(pose.ServoNormalize(1517)); //1517
 //            }
             if (pad.y) {
                 motorBeater.setPower(1);
@@ -442,14 +373,14 @@ public class IronDemo extends SynchronousOpMode {
             }*/
             /*(if (pad.left_trigger > 0.5) {
                 motorChurros.setTargetPosition(0);
-                motorChurros.setPower(-.5);
+                motorChurros.setCliffPower(-.5);
             }
             if (pad.right_trigger > 0.5) {
                 motorChurros.setTargetPosition(-1550);
-                motorChurros.setPower(-.5);
+                motorChurros.setCliffPower(-.5);
             }*/
         }
-        servoClimber.setPosition(ClimberAngle(climberUp, climberEngaged));
+        pose.updateServoElevation();
 
 
 
@@ -483,21 +414,20 @@ public class IronDemo extends SynchronousOpMode {
         ///float powerRight = Range.clip(ctlLeft + ctlRight, -1f, 1f);
 
         // Tell the motors
-        //this.motorLeftBack.setPower(ctlLeft);
-        //this.motorRightBack.setPower(ctlRight);
+        //this.motorLeftBack.setCliffPower(ctlLeft);
+        //this.motorRightBack.setCliffPower(ctlRight);
 
     }
 
     void dexSwitch(Gamepad pad) {
         if (pad.start) {
             active = !active;
-            if(active) servoClimber.getController().pwmEnable();
-            else servoClimber.getController().pwmDisable();
+            if(active) servoCliffHanger.getController().pwmEnable();
+            else servoCliffHanger.getController().pwmDisable();
 //            diagnosticsStarted = false;
 //            tapeRetractFinish = false;
-            diagnosticCase = 0;
-            cliffHanger1.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-            cliffHanger2.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            pose.resetCliffInit();
+            pose.setCliffMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         } else if (pad.right_bumper) {
             autoStage = 0;        //Add code preventing bumpers changing state if "halt" is true (halt is made true when state
             if (demoMode < 5)    //changes and made false when some other button is pressed)
@@ -507,7 +437,7 @@ public class IronDemo extends SynchronousOpMode {
             active = false;
 //            diagnosticsStarted = false;
 //            tapeRetractFinish = false;
-            diagnosticCase = 0;
+            pose.resetCliffInit();
 
         } else if (pad.left_bumper) {
             autoStage = 0;
@@ -519,7 +449,7 @@ public class IronDemo extends SynchronousOpMode {
 //            diagnosticsStarted = false;
 //            tapeRetractFinish = false;
 //            diagnosticsFinished = false;
-            diagnosticCase = 0;
+            pose.resetCliffInit();
         }
 
     }
@@ -565,19 +495,12 @@ public class IronDemo extends SynchronousOpMode {
         });
         this.telemetry.addLine
                 (
-                        this.telemetry.item("Climber Ticks:", new IFunc<Object>() {
+                        this.telemetry.item("Climber Mode:", new IFunc<Object>() {
                             @Override
                             public Object value() {
-                                return format(cliffHanger1.getCurrentPosition());
-                            }
-                        }),
-                        this.telemetry.item("Climber Servo:", new IFunc<Object>() {
-                            @Override
-                            public Object value() {
-                                return format(servoClimber.getPosition());
+                                return formatMotorMode(cliffHanger1.getMode());
                             }
                         })
-
                         );
         this.telemetry.addLine
                 (
@@ -596,7 +519,7 @@ public class IronDemo extends SynchronousOpMode {
                         this.telemetry.item(" ", new IFunc<Object>() {
                             @Override
                             public Object value() {
-                                return formatClimber();
+                                return pose.formatClimber();
                             }
                         })
                 );
@@ -820,6 +743,10 @@ public class IronDemo extends SynchronousOpMode {
         return String.format("%.1f", degrees);
     }
 
+    String formatMotorMode(DcMotorController.RunMode s){
+        return s.toString();
+    }
+
     String formatRate(double cyclesPerSecond) {
         return String.format("%.2f", cyclesPerSecond);
     }
@@ -832,18 +759,7 @@ public class IronDemo extends SynchronousOpMode {
                 ? "m" : "??";
         return String.format("%.3f%s", coordinate, unit);
     }
-    String formatClimber() {
-        if(climberUp)
-        {
-            if(climberEngaged) return "Cliff Engaged";
-            return "Cliff Clear";
-        }
-        else
-        {
-            if(climberEngaged) return "Mtn Engaged";
-            return "Mtn Clear";
-        }
-    }
+
 
     //----------------------------------------------------------------------------------------------
     // Utility
@@ -854,7 +770,7 @@ public class IronDemo extends SynchronousOpMode {
             case 0:   //Drive away from the wall to deploy beater bar ; angle = 0
                 pose.setPoseHeading(0);
                 pose.Update(imu.getAngularOrientation(), motorLeft.getCurrentPosition(), motorRight.getCurrentPosition());
-                servoPlow.setPosition(ServoNormalize(plowDown));
+                servoPlow.setPosition(pose.ServoNormalize(plowDown));
                 autoStage++;
 
                 break;
@@ -910,13 +826,13 @@ public class IronDemo extends SynchronousOpMode {
                 break;
 
             case 6:   //Push the button
-                int curposCliffHangers = cliffHanger1.getCurrentPosition();
-   //             cliffHanger1.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-   //             cliffHanger2.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+    //            int curposCliffHangers = cliffHanger1.getCurrentPosition();
+   //             cliffHanger1.setCliffMode(DcMotorController.RunMode.RUN_TO_POSITION);
+   //             cliffHanger2.setCliffMode(DcMotorController.RunMode.RUN_TO_POSITION);
    //             cliffHanger1.setTargetPosition(pose.calcClimberTarget(cliffHanger1,0.3));
    //             cliffHanger2.setTargetPosition(cliffHanger1.getTargetPosition());
-   //             cliffHanger1.setPower(.5);
-   //             cliffHanger2.setPower(.5);
+   //             cliffHanger1.setCliffPower(.5);
+   //             cliffHanger2.setCliffPower(.5);
 
                 //Retract tape again
                 // TODO: should test based on position, not time
@@ -931,7 +847,7 @@ public class IronDemo extends SynchronousOpMode {
                 break;
 
             case 7:   //move forward and drop climbers
-                servoPlow.setPosition(ServoNormalize(plowUp)); //pull up plow
+                servoPlow.setPosition(pose.ServoNormalize(plowUp)); //pull up plow
                 motorLeft.setPower(.2);
                 motorRight.setPower(.2);
                 // TODO: should test based on wall sensor or color blob width
@@ -941,14 +857,14 @@ public class IronDemo extends SynchronousOpMode {
                     autoStage++;
                     autoPushButtonTimerStart = System.nanoTime();
                 }
-                servoTrough.setPosition(ServoNormalize(troughUp)); //pull up trough to dump climbers
+                servoTrough.setPosition(pose.ServoNormalize(troughUp)); //pull up trough to dump climbers
                 autoStage++;
                 break;
 
             case 8:   //retreat
-//                cliffHanger1.setPower(0);
-//                cliffHanger2.setPower(0);
-                //servoPlow.setPosition(ServoNormalize(plowDown));
+//                cliffHanger1.setCliffPower(0);
+//                cliffHanger2.setCliffPower(0);
+                //servoPlow.setPosition(pose.ServoNormalize(plowDown));
                 autoStage++;
                 cliffHanger1.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
                 cliffHanger2.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
@@ -993,6 +909,7 @@ public class IronDemo extends SynchronousOpMode {
             demoAngle -= 5;
             demoAngle = (int)pose.wrapAngle(demoAngle, 0.0);
         }
+
         if(demoCase){
             MoveIMU(KpDrive, KiDrive, KdDrive, 0, demoAngle, drivePID);
         } else {
@@ -1016,6 +933,7 @@ public class IronDemo extends SynchronousOpMode {
         motorLeft.setPower(pwr + correction);
         motorRight.setPower(pwr - correction);
     }
+
     void MoveArgos(double Kp, double Ki, double Kd, double currentAngle, double targetAngle, PIDController PID){
 
 //        PID.setPID(Kp, Ki, Kd);
@@ -1052,30 +970,7 @@ double allianceAngle(double blueAngle) {
         return 360 - blueAngle;
 
 }
-    double ClimberAngle (boolean up, boolean engage){
-        int pulse = 0;
-        if(up){
-            if(engage)
-                pulse = cliffEngage;
 
-            else
-                pulse = cliffClear;
-
-        }
-        else{
-            if(engage)
-                pulse = mtnEngage;
-
-            else
-                pulse = mtnClear;
-
-        }
-        return ServoNormalize(pulse); //convert mr servo controller pulse width to double on 0 - 1 scale
-    }
-    double ServoNormalize(int pulse){
-        double normalized = (double)pulse;
-        return (normalized - 750.0) / 1500.0; //convert mr servo controller pulse width to double on 0 - 1 scale
-    }
 
     double normalizeDegrees(double degrees) {
         while (degrees >= 180.0) degrees -= 360.0;

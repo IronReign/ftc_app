@@ -1,9 +1,10 @@
-package com.ironempire.util;
+package com.ironreignrobotics.resq;
 
 import org.swerverobotics.library.*;
 import org.swerverobotics.library.interfaces.*;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
@@ -18,7 +19,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * @since 2015-10-17
  */
 
-public class Pose
+public class Pose extends CliffHanger
 {
 
 
@@ -36,6 +37,7 @@ public class Pose
     private long ticksPerMeterLeft = 20000; //arbitrary initial value so we don't get a divide by zero
     private long ticksPerMeterRight= 20000; //need actual measured value
     private long ticksPerMeterClimber = 11687; //actual measured value
+    private long ticksPerInchClimber = (long)(ticksPerMeterClimber / 39.3701); //used to verify the tick values vs the tape measure
     private long ticksClimberOffset = 0;
     private long ticksLeftPrev;
     private long ticksRightPrev;
@@ -52,8 +54,9 @@ public class Pose
      * @param heading The heading of the robot
      * @param speed The speed of the robot
      */
-    public Pose(double x, double y, double heading, double speed)
+    public Pose(double x, double y, double heading, double speed, DcMotor cliffHanger1, DcMotor cliffHanger2, Servo servoCliffHanger)
     {
+        super(cliffHanger1, cliffHanger2, servoCliffHanger);
         poseX     = x;
         poseY     = y;
         poseHeading = heading;
@@ -65,14 +68,15 @@ public class Pose
     /**
      * Creates a Pose instance with 0 speed, to prevent muscle fatigue
      * by excess typing demand on the software team members. This is likely
-     * the one to use on init when speed is zero and starting position is known
+     * the one to use on cliffInit when speed is zero and starting position is known
      *
      * @param x     The position relative to the x axis of the field
      * @param y     The position relative to the y axis of the field
      * @param angle The angle of the robot
      */
-    public Pose(double x, double y, double angle)
+    public Pose(double x, double y, double angle, DcMotor cliffHanger1, DcMotor cliffHanger2, Servo servoCliffHanger)
     {
+        super(cliffHanger1, cliffHanger2, servoCliffHanger);
         poseX     = x;
         poseY     = y;
         poseHeading = angle;
@@ -83,8 +87,9 @@ public class Pose
      * Creates a base Pose instance at the origin, (0,0), with 0 speed and 0 angle.
      * Useful for determining the Pose of the robot relative to the origin.
      */
-    public Pose()
+    public Pose(DcMotor cliffHanger1, DcMotor cliffHanger2, Servo servoCliffHanger)
     {
+        super(cliffHanger1, cliffHanger2, servoCliffHanger);
         poseX     = 0;
         poseY     = 0;
         poseHeading = 0;
@@ -203,32 +208,7 @@ public class Pose
         this.ticksPerMeterLeft = ticksPerMeterLeft;
     }
 
-    public long getTicksPerMeterClimber() {
-        return ticksPerMeterClimber;
-    }
 
-    public void setTicksPerMeterClimber(long ticksPerMeterClimber) {
-        this.ticksPerMeterClimber = ticksPerMeterClimber;
-    }
-    public long getTicksClimberOffset() {
-        return ticksClimberOffset;
-    }
-
-    public void setTicksClimberOffset(long ticksClimberOffset) {
-        this.ticksClimberOffset = ticksClimberOffset;
-    }
-
-    public double getClimberPosMeters(DcMotor cliffHanger)
-    {
-    return (double)(cliffHanger.getCurrentPosition()- getTicksClimberOffset())/ticksPerMeterClimber;
-
-    }
-
-    public int calcClimberTarget(DcMotor cliffHanger, double metersOut)
-    {
-        return (int) (getTicksClimberOffset()+(metersOut * ticksPerMeterClimber));
-
-    }
 
 
     /**

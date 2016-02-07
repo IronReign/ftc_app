@@ -1,7 +1,5 @@
 package com.ironreignrobotics.resq;
 
-import android.widget.SearchView;
-
 import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
 import com.qualcomm.robotcore.hardware.*;
 
@@ -193,13 +191,13 @@ public class IronBlue extends SynchronousOpMode {
         // Configure the dashboard however we want it
         this.configureDashboard();
 
-//        servoClimber.setPosition(climberStartPos);
+//        servoCliffHanger.setPosition(climberStartPos);
         servoTrough.setPosition(troughDown);
         servoConveyor.setPosition(conveyorStop);
         // Wait until we've been given the ok to go
         waitForThreadsWritesToReachHardware();
 
-//        servoClimber.setPosition(climberStartPos);
+//        servoCliffHanger.setPosition(climberStartPos);
         servoTrough.setPosition(troughDown);
         servoConveyor.setPosition(conveyorStop);
 
@@ -336,7 +334,7 @@ public class IronBlue extends SynchronousOpMode {
                 cliffHanger1.setPower(0);
                 cliffHanger2.setPower(0);
                 servoClimber.getController().pwmDisable();
-//                motorChurros.setPower(0);
+//                motorChurros.setCliffPower(0);
             }
 
 
@@ -442,11 +440,11 @@ public class IronBlue extends SynchronousOpMode {
             }*/
             /*(if (pad.left_trigger > 0.5) {
                 motorChurros.setTargetPosition(0);
-                motorChurros.setPower(-.5);
+                motorChurros.setCliffPower(-.5);
             }
             if (pad.right_trigger > 0.5) {
                 motorChurros.setTargetPosition(-1550);
-                motorChurros.setPower(-.5);
+                motorChurros.setCliffPower(-.5);
             }*/
         }
         servoClimber.setPosition(ClimberAngle(climberUp, climberEngaged));
@@ -483,8 +481,8 @@ public class IronBlue extends SynchronousOpMode {
         ///float powerRight = Range.clip(ctlLeft + ctlRight, -1f, 1f);
 
         // Tell the motors
-        //this.motorLeftBack.setPower(ctlLeft);
-        //this.motorRightBack.setPower(ctlRight);
+        //this.motorLeftBack.setCliffPower(ctlLeft);
+        //this.motorRightBack.setCliffPower(ctlRight);
 
     }
 
@@ -944,8 +942,8 @@ public class IronBlue extends SynchronousOpMode {
                 break;
 
             case 8:   //retreat
-//                cliffHanger1.setPower(0);
-//                cliffHanger2.setPower(0);
+//                cliffHanger1.setCliffPower(0);
+//                cliffHanger2.setCliffPower(0);
                 //servoPlow.setPosition(ServoNormalize(plowDown));
                 autoStage++;
                 break;

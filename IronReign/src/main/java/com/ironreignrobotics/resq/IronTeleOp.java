@@ -102,8 +102,8 @@ public class IronTeleOp extends SynchronousOpMode
         ///float powerRight = Range.clip(ctlLeft + ctlRight, -1f, 1f);
 
         // Tell the motors
-        //this.motorLeftBack.setPower(ctlLeft);
-        //this.motorRightBack.setPower(ctlRight);
+        //this.motorLeftBack.setCliffPower(ctlLeft);
+        //this.motorRightBack.setCliffPower(ctlRight);
         this.motorLeftFront.setPower(ctlLeft);
         this.motorRightFront.setPower(ctlRight);
     }

@@ -49,9 +49,11 @@ public class CliffHanger {
     }
 
     public void cliffInit() {
-        setCliffMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+
         switch(initCase) {
-            case 0: //redundant
+            case 0: //thing
+                setCliffMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+                servoCliffHanger.setPosition(climberRelaxed);
                 initCase++;
                 break;
             case 1: //begin retracting tape measure
@@ -72,9 +74,10 @@ public class CliffHanger {
 
                 break;
             case 3: //begin extending out to .1m (10cm)
+                setCliffMode(DcMotorController.RunMode.RESET_ENCODERS);
                 setCliffMode(DcMotorController.RunMode.RUN_TO_POSITION);
                 setCliffHangerPos(0.1);
-                setCliffPower(.15);
+                setCliffPower(.5);
                 initTimer = System.nanoTime();
                 initCase++;
                 break;
@@ -133,7 +136,7 @@ public class CliffHanger {
     public void setCliffHangerPos(double metersOut)
     {
         cliffHanger1.setTargetPosition(calcCliffHangerTarget(metersOut));
-        cliffHanger2.setTargetPosition(calcCliffHangerTarget(metersOut));
+        cliffHanger2.setTargetPosition(cliffHanger1.getTargetPosition());
     }
     public void setCliffPower(double pwr) {
         cliffHanger1.setPower(pwr);
@@ -176,6 +179,7 @@ public class CliffHanger {
                 break;
         }
     }
+
 
     private int ClimberAngle (boolean up, boolean engage){
         int pulse = 0;

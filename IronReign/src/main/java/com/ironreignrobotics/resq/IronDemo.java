@@ -145,8 +145,8 @@ public class IronDemo extends SynchronousOpMode {
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorBeater.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        this.cliffHanger1.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        this.cliffHanger2.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        cliffHanger1.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        cliffHanger2.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
 
 
 
@@ -252,20 +252,13 @@ public class IronDemo extends SynchronousOpMode {
                         DemoPID();
                         break;
                     default:
-                        motorLeft.setPower(0);
-                        motorRight.setPower(0);
+                        relax();
                         break;
 
                 }
             }
             else {
-                motorLeft.setPower(0);
-                motorRight.setPower(0);
-                motorBeater.setPower(0);
-                pose.setOdometer(0);
-                cliffHanger1.setPower(0);
-                cliffHanger2.setPower(0);
-                servoCliffHanger.getController().pwmDisable();
+                relax();
 //                motorChurros.setCliffPower(0);
             }
 
@@ -423,7 +416,7 @@ public class IronDemo extends SynchronousOpMode {
         if (pad.start) {
             active = !active;
             if(active) servoCliffHanger.getController().pwmEnable();
-            else servoCliffHanger.getController().pwmDisable();
+//            else servoCliffHanger.getController().pwmDisable();
 //            diagnosticsStarted = false;
 //            tapeRetractFinish = false;
             pose.resetCliffInit();
@@ -499,6 +492,12 @@ public class IronDemo extends SynchronousOpMode {
                             @Override
                             public Object value() {
                                 return formatMotorMode(cliffHanger1.getMode());
+                            }
+                        }),
+                        this.telemetry.item("Climber Ticks:", new IFunc<Object>() {
+                            @Override
+                            public Object value() {
+                                return format(cliffHanger1.getCurrentPosition());
                             }
                         })
                         );
@@ -866,8 +865,7 @@ public class IronDemo extends SynchronousOpMode {
 //                cliffHanger2.setCliffPower(0);
                 //servoPlow.setPosition(pose.ServoNormalize(plowDown));
                 autoStage++;
-                cliffHanger1.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-                cliffHanger2.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+                pose.setCliffMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
                 break;
             default:
                 motorLeft.setPower(0);
@@ -1020,6 +1018,14 @@ double allianceAngle(double blueAngle) {
         result.append(String.format("m%d", (status >> 0) & 0x03));  // MAG calibration status
 
         return result.toString();
+    }
+    void relax() {
+        servoCliffHanger.getController().pwmDisable();
+        pose.setCliffPower(0);
+        motorLeft.setPower(0);
+        motorRight.setPower(0);
+        motorBeater.setPower(0);
+        pose.setOdometer(0);
     }
 
 

@@ -18,32 +18,36 @@ public class CliffHanger {
 
     DcMotor cliffHanger1 = null;
     DcMotor cliffHanger2 = null;
+    DcMotor cliffElevation = null;
     private Servo servoCliffHanger = null;
     private long initTimer = System.nanoTime();
 
 
-    private boolean climberEngaged = false;
-    private boolean climberUp = false;
+    private boolean isClimberEngaged = false;
+    private boolean isClimberUp = false;
     private int targetPosTicks;
     private double targetPosMeters;
     private long ticksPerMeterCliffHanger = 11687; //actual measured value
     private long ticksPerInchCliffHanger = (long)(ticksPerMeterCliffHanger / 39.3701); //used to verify the tick values vs the tape measure
     int initCase = 0;
     int climPrevPos = 0;
-    private final static int climberRelaxed = 2250;
-    private final static int climberStartPos = 900;
-    private final static int climberButton = 2250;
-    public static int servoOffset = 280;
-    private final static int cliffEngage = 1850;//1637
-    private final static int cliffClear = 1730; //1577
-    private final static int mtnEngage = 1850 + servoOffset;
-    private final static int mtnClear = 1800 + servoOffset;
+    private final static double climberDown = 0;
+    private final static double climberStartPos = 90;
+//    private final static int climberButton = 2250;
+//    public static int servoOffset = 280;
+    private final static double cliffEngage = 40.0;
+    private final static double cliffClear = 45.0;
+    private final static double mtnEngage = 10.0;
+    private final static double mtnClear = 15.0;
+    private double climberTheta = 0;
+    private double ticksPerDegree = 8.0;
 
-    public CliffHanger(DcMotor cliffHanger1, DcMotor cliffHanger2, Servo servoCliffHanger) {
+    public CliffHanger(DcMotor cliffHanger1, DcMotor cliffHanger2, DcMotor cliffElevation, Servo servoCliffHanger) {
         this.cliffHanger1 = cliffHanger1;
         this.cliffHanger2 = cliffHanger2;
+        this.cliffElevation = cliffElevation;
         this.servoCliffHanger = servoCliffHanger;
-        setCliffMode(DcMotorController.RunMode.RESET_ENCODERS);
+        setCliffPullMode(DcMotorController.RunMode.RESET_ENCODERS);
         targetPosMeters = 0;
         targetPosTicks = 0;
     }
@@ -52,20 +56,34 @@ public class CliffHanger {
 
         switch(initCase) {
             case 0: //thing
-                setCliffMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-                servoCliffHanger.setPosition(climberRelaxed);
-                initCase++;
-                break;
-            case 1: //begin retracting tape measure
-                setCliffPower(-.20);
+                setCliffPullMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+                setCliffElevationMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+                cliffElevation.setPower(-.6);
+                servoCliffHanger.setPosition(climberDown);
                 initTimer = System.nanoTime();
                 initCase++;
                 break;
-            case 2: //determine if the tape has finished retracting
+            case 1:
+                if (System.nanoTime() - initTimer > 2e8) {
+                    if (cliffElevation.getCurrentPosition() <= (climPrevPos + 1) && cliffElevation.getCurrentPosition() >=(climPrevPos - 1)) {
+                        cliffElevation.setPower(0);
+                        setCliffElevationMode(DcMotorController.RunMode.RESET_ENCODERS);
+                        initCase++;
+                        climPrevPos = 0;
+                    }
+                    climPrevPos = cliffElevation.getCurrentPosition();
+                }
+                break;
+            case 2: //begin retracting tape measure
+                setCliffPullPower(-.20);
+                initTimer = System.nanoTime();
+                initCase++;
+                break;
+            case 3: //determine if the tape has finished retracting
                 if (System.nanoTime() - initTimer > 1e8) {
-                    if (cliffHanger1.getCurrentPosition() == climPrevPos) {
-                        setCliffPower(0);
-                        setCliffMode(DcMotorController.RunMode.RESET_ENCODERS);
+                    if (cliffHanger1.getCurrentPosition() <= (climPrevPos + 1) && cliffHanger1.getCurrentPosition() >=(climPrevPos - 1)) {
+                        setCliffPullPower(0);
+                        setCliffPullMode(DcMotorController.RunMode.RESET_ENCODERS);
                         initCase++;
                     }
                     initTimer = System.nanoTime();
@@ -73,29 +91,32 @@ public class CliffHanger {
                 climPrevPos = cliffHanger1.getCurrentPosition();
 
                 break;
-            case 3: //begin extending out to .1m (10cm)
-                setCliffMode(DcMotorController.RunMode.RESET_ENCODERS);
-                setCliffMode(DcMotorController.RunMode.RUN_TO_POSITION);
-                setCliffHangerPos(0.1);
-                setCliffPower(.5);
+            case 4: //begin extending out to .1m (10cm)
+                setCliffPullMode(DcMotorController.RunMode.RESET_ENCODERS);
+                setCliffPullMode(DcMotorController.RunMode.RUN_TO_POSITION);
+                setCliffHangerExtension(0.1);
+                setCliffPullPower(.5);
                 initTimer = System.nanoTime();
                 initCase++;
                 break;
-            case 4: //checks to see if the tape has finished extending
+            case 5: //checks to see if the tape has finished extending
                 if(cliffHanger1.getCurrentPosition() > cliffHanger1.getTargetPosition() - 50) {
-                    setCliffMode(DcMotorController.RunMode.RESET_ENCODERS);
-                    setCliffMode(DcMotorController.RunMode.RUN_TO_POSITION);
-                    setCliffHangerPos(0);
-                    setCliffPower(0);
+                    setCliffPullMode(DcMotorController.RunMode.RESET_ENCODERS);
+                    setCliffPullMode(DcMotorController.RunMode.RUN_TO_POSITION);
+                    setCliffHangerExtension(0);
+                    setCliffPullPower(0);
+                    setCliffElevationMode(DcMotorController.RunMode.RUN_TO_POSITION);
+                    setCliffElevationPower(.5);
                     initCase++;
                 }
                 break;
-            case 5: //lift the servo so that the robot fits in the sizing cube
-                servoCliffHanger.setPosition(climberStartPos);
+            case 6: //lift the servo so that the robot fits in the sizing cube
+                setCliffHangerElevation(climberStartPos);
+                setCliffHangerElevation();
                 initCase++;
                 break;
             default:
-                setCliffPower(0);
+                setCliffPullPower(0);
                 break;
         }
     }
@@ -105,13 +126,19 @@ public class CliffHanger {
 
     public long getTicksPerInchClimber() { return ticksPerInchCliffHanger; }
 
-    public boolean getCliffUp() { return climberUp; }
+    public boolean getCliffUp() { return isClimberUp; }
 
-    public boolean getCliffEngaged() { return climberEngaged; }
+    public boolean getCliffEngaged() { return isClimberEngaged; }
 
-    public DcMotorController.RunMode getCliffMode() { return cliffHanger1.getMode(); }
+    public double getCliffTheta() { return climberTheta; }
 
-    public int getCliffMotorPos() { return cliffHanger1.getCurrentPosition(); }
+    public DcMotorController.RunMode getCliffPullMode() { return cliffHanger1.getMode(); }
+
+    public DcMotorController.RunMode getCliffElevationMode() { return cliffElevation.getMode(); }
+
+    public int getCliffExtension() { return cliffHanger1.getCurrentPosition(); }
+
+    public int getCliffElevation() { return cliffElevation.getCurrentPosition(); }
 
     public void setTicksPerMeterCliffHanger(long ticksPerMeterCliffHanger) {
         this.ticksPerMeterCliffHanger = ticksPerMeterCliffHanger;
@@ -133,44 +160,61 @@ public class CliffHanger {
     {
         return (int) (calcCliffHangerTarget(inchesOut/ 39.3701));
     }
-    public void setCliffHangerPos(double metersOut)
+    public void setCliffHangerExtension(double metersOut)
     {
         cliffHanger1.setTargetPosition(calcCliffHangerTarget(metersOut));
         cliffHanger2.setTargetPosition(cliffHanger1.getTargetPosition());
     }
-    public void setCliffPower(double pwr) {
+    public void setCliffHangerElevation(double degreesUp) {
+        climberTheta = degreesUp;
+    }
+    public void setCliffHangerElevation() {
+        cliffElevation.setTargetPosition((int) (climberTheta * ticksPerDegree));
+    }
+    public void setCliffPullPower(double pwr) {
         cliffHanger1.setPower(pwr);
         cliffHanger2.setPower(pwr);
     }
-    public void setCliffMode(DcMotorController.RunMode runMode) {
+    public void setCliffElevationPower(double pwr) {
+        cliffElevation.setPower(pwr);
+    }
+    public void setCliffPullMode(DcMotorController.RunMode runMode) {
         cliffHanger1.setMode(runMode);
         cliffHanger2.setMode(runMode);
     }
-
-    public void setCliffServoPos(int pulse) {
-        servoCliffHanger.setPosition(ServoNormalize(pulse));
+    public void setCliffElevationMode(DcMotorController.RunMode runMode) {
+        cliffElevation.setMode(runMode);
     }
-    public void setCliffEngaged(boolean engaged) {climberEngaged = engaged;}
 
-    public void setCliffUp(boolean isUp) {climberUp = isUp;}
+    //public void setCliffServoPos(int pulse) {
+    //    servoCliffHanger.setPosition(ServoNormalize(pulse));
+    //}
+    public void setCliffEngaged(boolean engaged) {
+        isClimberEngaged = engaged;}
+
+    public void setCliffUp(boolean isUp) {
+        isClimberUp = isUp;}
 
     public void updateServoElevation() {
-        int pulse = ClimberAngle(climberUp, climberEngaged);
-        setCliffServoPos(pulse);
+        //int pulse = ClimberAngle(isClimberUp, isClimberEngaged);
+        //setCliffServoPos(pulse);
 
+    }
+    public void updateBooleanElevation(){
+        ClimberAngle(isClimberUp, isClimberEngaged);
     }
 
     public void resetCliffInit() {
         initCase = 0;
     }
-
+/*
     public void setCliffServoNonClimbing(String position){
         switch(position) {
             case "Start":
                 setCliffServoPos(climberStartPos);
                 break;
             case "Relaxed":
-                setCliffServoPos(climberRelaxed);
+                setCliffServoPos(climberDown);
                 break;
             case "Button":
                 setCliffServoPos(climberButton);
@@ -179,27 +223,27 @@ public class CliffHanger {
                 break;
         }
     }
+*/
 
 
-    private int ClimberAngle (boolean up, boolean engage){
+    private void ClimberAngle (boolean up, boolean engage){
         int pulse = 0;
         if(up){
             if(engage)
-                pulse = cliffEngage;
+                climberTheta = cliffEngage;
 
             else
-                pulse = cliffClear;
+                climberTheta = cliffClear;
 
         }
         else{
             if(engage)
-                pulse = mtnEngage;
+                climberTheta = mtnEngage;
 
             else
-                pulse = mtnClear;
+                climberTheta = mtnClear;
 
         }
-        return pulse; //convert mr servo controller pulse width to double on 0 - 1 scale
     }
 
     public double ServoNormalize(int pulse){
@@ -207,14 +251,14 @@ public class CliffHanger {
         return (normalized - 750.0) / 1500.0; //convert mr servo controller pulse width to double on 0 - 1 scale
     }
     public String formatClimber() {
-        if(climberUp)
+        if(isClimberUp)
         {
-            if(climberEngaged) return "Cliff Engaged";
+            if(isClimberEngaged) return "Cliff Engaged";
             return "Cliff Clear";
         }
         else
         {
-            if(climberEngaged) return "Mtn Engaged";
+            if(isClimberEngaged) return "Mtn Engaged";
             return "Mtn Clear";
         }
     }

@@ -54,9 +54,9 @@ public class Pose extends CliffHanger
      * @param heading The heading of the robot
      * @param speed The speed of the robot
      */
-    public Pose(double x, double y, double heading, double speed, DcMotor cliffHanger1, DcMotor cliffHanger2, Servo servoCliffHanger)
+    public Pose(double x, double y, double heading, double speed, DcMotor cliffHanger1, DcMotor cliffHanger2, DcMotor cliffElevation, Servo servoCliffHanger)
     {
-        super(cliffHanger1, cliffHanger2, servoCliffHanger);
+        super(cliffHanger1, cliffHanger2, cliffElevation, servoCliffHanger);
         poseX     = x;
         poseY     = y;
         poseHeading = heading;
@@ -74,9 +74,9 @@ public class Pose extends CliffHanger
      * @param y     The position relative to the y axis of the field
      * @param angle The angle of the robot
      */
-    public Pose(double x, double y, double angle, DcMotor cliffHanger1, DcMotor cliffHanger2, Servo servoCliffHanger)
+    public Pose(double x, double y, double angle, DcMotor cliffHanger1, DcMotor cliffHanger2, DcMotor cliffElevation, Servo servoCliffHanger)
     {
-        super(cliffHanger1, cliffHanger2, servoCliffHanger);
+        super(cliffHanger1, cliffHanger2, cliffElevation, servoCliffHanger);
         poseX     = x;
         poseY     = y;
         poseHeading = angle;
@@ -87,9 +87,9 @@ public class Pose extends CliffHanger
      * Creates a base Pose instance at the origin, (0,0), with 0 speed and 0 angle.
      * Useful for determining the Pose of the robot relative to the origin.
      */
-    public Pose(DcMotor cliffHanger1, DcMotor cliffHanger2, Servo servoCliffHanger)
+    public Pose(DcMotor cliffHanger1, DcMotor cliffHanger2, DcMotor cliffElevation, Servo servoCliffHanger)
     {
-        super(cliffHanger1, cliffHanger2, servoCliffHanger);
+        super(cliffHanger1, cliffHanger2, cliffElevation, servoCliffHanger);
         poseX     = 0;
         poseY     = 0;
         poseHeading = 0;
@@ -243,6 +243,7 @@ public class Pose extends CliffHanger
         //poseHeading = imu.heading + offsetHeading;
         //posePitch = imu.pitch + offsetPitch;
         //poseRoll = imu.roll + offsetRoll;
+        super.setCliffHangerElevation();
 
         poseHeading = wrapAngle(imu.heading, offsetHeading);
         posePitch = wrapAngle(imu.pitch, offsetPitch);

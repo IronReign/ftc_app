@@ -238,11 +238,11 @@ public class IronBlue extends SynchronousOpMode {
                         if (gamepad1.b) {
                             if(cliffHanger1.getMode().equals(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS))
                             {
-                                pose.setCliffMode(DcMotorController.RunMode.RUN_TO_POSITION);
+                                pose.setCliffPullMode(DcMotorController.RunMode.RUN_TO_POSITION);
                             }
                             else
                             {
-                                pose.setCliffMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+                                pose.setCliffPullMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
                             }
                         }
 
@@ -326,12 +326,12 @@ public class IronBlue extends SynchronousOpMode {
             }
             if(pad.y)
             {
-                pose.setCliffUp(!pose.getCliffUp());
+                pose.setCliffServoUp(!pose.getCliffUp());
 
             }
             if(pad.b)
             {
-                pose.setCliffEngaged(!pose.getCliffEngaged());
+                pose.setCliffServoEngaged(!pose.getCliffEngaged());
             }
             if(pad.dpad_up)
             {
@@ -426,7 +426,7 @@ public class IronBlue extends SynchronousOpMode {
 //            diagnosticsStarted = false;
 //            tapeRetractFinish = false;
             pose.resetCliffInit();
-            pose.setCliffMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+            pose.setCliffPullMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         } else if (pad.right_bumper) {
             autoStage = 0;        //Add code preventing bumpers changing state if "halt" is true (halt is made true when state
             if (demoMode < 5)    //changes and made false when some other button is pressed)
@@ -826,8 +826,8 @@ public class IronBlue extends SynchronousOpMode {
 
             case 6:   //Push the button
                 //            int curposCliffHangers = cliffHanger1.getCurrentPosition();
-                //             cliffHanger1.setCliffMode(DcMotorController.RunMode.RUN_TO_POSITION);
-                //             cliffHanger2.setCliffMode(DcMotorController.RunMode.RUN_TO_POSITION);
+                //             cliffHanger1.setCliffPullMode(DcMotorController.RunMode.RUN_TO_POSITION);
+                //             cliffHanger2.setCliffPullMode(DcMotorController.RunMode.RUN_TO_POSITION);
                 //             cliffHanger1.setTargetPosition(pose.calcClimberTarget(cliffHanger1,0.3));
                 //             cliffHanger2.setTargetPosition(cliffHanger1.getTargetPosition());
                 //             cliffHanger1.setCliffPower(.5);

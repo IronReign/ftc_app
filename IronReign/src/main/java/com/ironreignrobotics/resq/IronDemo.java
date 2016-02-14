@@ -493,31 +493,31 @@ public class IronDemo extends SynchronousOpMode {
         });
         this.telemetry.addLine
                 (
-                        this.telemetry.item("Climber Mode:", new IFunc<Object>() {
-                            @Override
-                            public Object value() {
-                                return formatMotorMode(cliffHanger1.getMode());
-                            }
-                        }),
-                        this.telemetry.item("Climber Ticks:", new IFunc<Object>() {
-                            @Override
-                            public Object value() {
-                                return format(cliffHanger1.getCurrentPosition());
-                            }
-                        })
-                        );
-        this.telemetry.addLine
-                (
                         this.telemetry.item("state:", new IFunc<Object>() {
                             @Override
                             public Object value() {
                                 return format(demoMode);
                             }
                         }),
-                        this.telemetry.item("a_stage:", new IFunc<Object>() {
+                        this.telemetry.item("active:", new IFunc<Object>() {
                             @Override
                             public Object value() {
-                                return format(autoStage);
+                                return format(active);
+                            }
+                        })
+                        );
+        this.telemetry.addLine
+                (
+                        this.telemetry.item("Climber Mode:", new IFunc<Object>() {
+                            @Override
+                            public Object value() {
+                                return formatMotorMode(cliffHanger1.getMode());
+                            }
+                        }),
+                        this.telemetry.item("Climber Theta:", new IFunc<Object>() {
+                            @Override
+                            public Object value() {
+                                return format(pose.getClimberTheta());
                             }
                         }),
                         this.telemetry.item(" ", new IFunc<Object>() {
@@ -736,6 +736,8 @@ public class IronDemo extends SynchronousOpMode {
     String formatAngle(double angle) {
         return parameters.angleUnit == IBNO055IMU.ANGLEUNIT.DEGREES ? formatDegrees(angle) : formatRadians(angle);
     }
+
+    String format(boolean b) { return b + ""; }
 
     String formatRadians(double radians) {
         return formatDegrees(degreesFromRadians(radians));

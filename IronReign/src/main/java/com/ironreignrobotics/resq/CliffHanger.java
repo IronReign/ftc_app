@@ -124,6 +124,8 @@ public class CliffHanger {
 
     public long getTicksPerMeterCliffHanger() { return ticksPerMeterCliffHanger; }
 
+    public double getClimberTheta() { return climberTheta; }
+
     public long getTicksPerInchClimber() { return ticksPerInchCliffHanger; }
 
     public boolean getCliffUp() { return isClimberUp; }

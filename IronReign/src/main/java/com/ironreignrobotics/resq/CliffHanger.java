@@ -25,6 +25,8 @@ public class CliffHanger {
 
     private boolean isClimberEngaged = false;
     private boolean isClimberUp = false;
+    private boolean wasClimberEngaged = false;
+    private boolean wasClimberUp = false;
     private int targetPosTicks;
     private double targetPosMeters;
     private long ticksPerMeterCliffHanger = 11687; //actual measured value
@@ -37,10 +39,11 @@ public class CliffHanger {
 //    public static int servoOffset = 280;
     private final static double cliffEngage = 40.0;
     private final static double cliffClear = 45.0;
-    private final static double mtnEngage = 10.0;
-    private final static double mtnClear = 15.0;
+    private final static double mtnEngage = 20.0;
+    private final static double mtnClear = 30.0;
     private double climberTheta = 0;
     private double ticksPerDegree = 8.0;
+    private long cliffRelaxDelay = 0;
 
     public CliffHanger(DcMotor cliffHanger1, DcMotor cliffHanger2, DcMotor cliffElevation, Servo servoCliffHanger) {
         this.cliffHanger1 = cliffHanger1;
@@ -104,19 +107,19 @@ public class CliffHanger {
                     setCliffPullMode(DcMotorController.RunMode.RESET_ENCODERS);
                     setCliffPullMode(DcMotorController.RunMode.RUN_TO_POSITION);
                     setCliffHangerExtension(0);
-                    setCliffPullPower(0);
+                    setCliffPullPower(1);
                     setCliffElevationMode(DcMotorController.RunMode.RUN_TO_POSITION);
                     setCliffElevationPower(.5);
                     initCase++;
                 }
                 break;
             case 6: //lift the servo so that the robot fits in the sizing cube
-                setCliffHangerElevation(climberStartPos);
-                setCliffHangerElevation();
+                setCliffElevation(climberStartPos);
+                setCliffElevation();
                 initCase++;
                 break;
             default:
-                setCliffPullPower(0);
+                setCliffPullPower(1);
                 break;
         }
     }
@@ -125,6 +128,8 @@ public class CliffHanger {
     public long getTicksPerMeterCliffHanger() { return ticksPerMeterCliffHanger; }
 
     public double getClimberTheta() { return climberTheta; }
+
+    public int getCurrentClimberTheta() { return (int)(cliffElevation.getCurrentPosition() / ticksPerDegree); }
 
     public long getTicksPerInchClimber() { return ticksPerInchCliffHanger; }
 
@@ -167,11 +172,15 @@ public class CliffHanger {
         cliffHanger1.setTargetPosition(calcCliffHangerTarget(metersOut));
         cliffHanger2.setTargetPosition(cliffHanger1.getTargetPosition());
     }
-    public void setCliffHangerElevation(double degreesUp) {
+    public void setCliffElevation(double degreesUp) {
         climberTheta = degreesUp;
     }
-    public void setCliffHangerElevation() {
+    public void setCliffElevation() {
         cliffElevation.setTargetPosition((int) (climberTheta * ticksPerDegree));
+        if(cliffRelaxDelay < System.nanoTime() && cliffRelaxDelay > 0){
+            cliffRelaxDelay = 0;
+            cliffElevation.setPower(0);
+        }
     }
     public void setCliffPullPower(double pwr) {
         cliffHanger1.setPower(pwr);
@@ -192,9 +201,15 @@ public class CliffHanger {
     //    servoCliffHanger.setPosition(ServoNormalize(pulse));
     //}
     public void setCliffEngaged(boolean engaged) {
-        isClimberEngaged = engaged;}
+        if(isClimberEngaged != engaged && engaged == true)
+            cliffRelaxDelay = System.nanoTime() + (long)1e9;
+        if (!engaged) cliffElevation.setPower(1);
+        isClimberEngaged = engaged;
+    }
+
 
     public void setCliffUp(boolean isUp) {
+        wasClimberUp = isClimberUp;
         isClimberUp = isUp;}
 
     public void updateServoElevation() {
@@ -231,20 +246,21 @@ public class CliffHanger {
     private void ClimberAngle (boolean up, boolean engage){
         int pulse = 0;
         if(up){
-            if(engage)
+            if(engage) {
                 climberTheta = cliffEngage;
+            }
+            else {
 
-            else
                 climberTheta = cliffClear;
-
+            }
         }
         else{
-            if(engage)
+            if(engage) {
                 climberTheta = mtnEngage;
-
-            else
+            }
+            else {
                 climberTheta = mtnClear;
-
+            }
         }
     }
 

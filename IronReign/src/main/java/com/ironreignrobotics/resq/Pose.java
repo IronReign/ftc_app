@@ -1,11 +1,9 @@
 package com.ironreignrobotics.resq;
 
-import org.swerverobotics.library.*;
 import org.swerverobotics.library.interfaces.*;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
  * The Pose class stores the current real world position/orientation: <b>position</b>, <b>heading</b>,
@@ -243,7 +241,7 @@ public class Pose extends CliffHanger
         //poseHeading = imu.heading + offsetHeading;
         //posePitch = imu.pitch + offsetPitch;
         //poseRoll = imu.roll + offsetRoll;
-        super.setCliffHangerElevation();
+        super.setCliffElevation();
 
         poseHeading = wrapAngle(imu.heading, offsetHeading);
         posePitch = wrapAngle(imu.pitch, offsetPitch);

@@ -79,8 +79,8 @@ public class IronDemo extends SynchronousOpMode {
 //    private boolean tapeRetractFinish = false;
 //    private boolean diagnosticsFinished = false;
 //    public String climberPos;
-    public final static int troughDown = 2250;
-    public final static int troughUp =   750;
+    public final static int troughDown = 2100;
+    public final static int troughUp =   900;
     public final static int troughMid =  1855;
     public final static int conveyorLeft  = 1000;
     public final static int conveyorRight = 2000;

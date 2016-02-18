@@ -84,7 +84,7 @@ public class IronDemo extends SynchronousOpMode {
 //    public String climberPos;
     public final static int troughDown = 2100;
     public final static int troughUp =   900;
-    public final static int troughMid =  2000;
+    public final static int troughMid =  1964; //last servo
     public final static int conveyorLeft  = 1000;
     public final static int conveyorRight = 2000;
     public final static int conveyorStop  = 1500;

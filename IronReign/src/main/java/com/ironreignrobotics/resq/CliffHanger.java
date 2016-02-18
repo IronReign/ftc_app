@@ -38,9 +38,9 @@ public class CliffHanger {
 //    private final static int climberButton = 2250;
 //    public static int servoOffset = 280;
     private final static double cliffEngage = 40.0;
-    private final static double cliffClear = 45.0;
+    private final static double cliffClear = 47.0;
     private final static double mtnEngage = 20.0;
-    private final static double mtnClear = 30.0;
+    private final static double mtnClear = 28.0;
     private double climberTheta = 0;
     private double ticksPerDegree = 8.0;
     private long cliffRelaxDelay = 0;
@@ -129,7 +129,7 @@ public class CliffHanger {
 
     public double getClimberTheta() { return climberTheta; }
 
-    public int getCurrentClimberTheta() { return (int)(cliffElevation.getCurrentPosition() / ticksPerDegree); }
+    public int getCurrentCliffTheta() { return (int)(cliffElevation.getCurrentPosition() / ticksPerDegree); }
 
     public long getTicksPerInchClimber() { return ticksPerInchCliffHanger; }
 

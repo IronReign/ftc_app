@@ -66,14 +66,17 @@ public class IronDemo extends SynchronousOpMode {
     private long xTimer = 0;
     private long yTimer = 0;
     private long startTimer = 0;
+    private boolean isTroughUp = false;
 //    double baseSpeed = 0;
 //    double baseHeading = 0;
 //    public String[] State = {"TeleOp", "Auto", "GoStraight", "GoStraightIMU", "SquareDance"};
 
     private boolean climberScheme = false;
+    private boolean cliffPreset = true;
     private long autoPushButtonTimerStart = -1;
     private boolean demoCase = false;
     private int demoAngle = 0;
+
 
 //  private boolean diagnosticsStarted = false;
 //    private boolean tapeRetractFinish = false;
@@ -81,7 +84,7 @@ public class IronDemo extends SynchronousOpMode {
 //    public String climberPos;
     public final static int troughDown = 2100;
     public final static int troughUp =   900;
-    public final static int troughMid =  1855;
+    public final static int troughMid =  2000;
     public final static int conveyorLeft  = 1000;
     public final static int conveyorRight = 2000;
     public final static int conveyorStop  = 1500;
@@ -188,20 +191,11 @@ public class IronDemo extends SynchronousOpMode {
         this.configureDashboard();
 
 //        servoCliffHanger.setPosition(climberStartPos);
-        servoTrough.setPosition(troughDown);
-        servoConveyor.setPosition(conveyorStop);
+        servoTrough.setPosition(pose.ServoNormalize(troughDown));
+        servoConveyor.setPosition(pose.ServoNormalize(conveyorStop));
         // Wait until we've been given the ok to go
-        waitForThreadsWritesToReachHardware();
-
-//        servoCliffHanger.setPosition(climberStartPos);
-        servoTrough.setPosition(troughDown);
-        servoConveyor.setPosition(conveyorStop);
-
         this.waitForStart();
 
-        //pose.setCliffServoNonClimbing("Start");;
-        servoTrough.setPosition(troughDown);
-        servoConveyor.setPosition(conveyorStop);
 //        pose.setCliffElevationPower(1);
 
         // Enter a loop processing all the input we receive
@@ -290,10 +284,13 @@ public class IronDemo extends SynchronousOpMode {
 
         if (pad.x) {
 //            climber.stroke();
+
             if(System.nanoTime() - xTimer < 1e8 || System.nanoTime() - xTimer > 1e9) {
                 climberScheme = !climberScheme;
             }
             xTimer = System.nanoTime();
+            if(climberScheme)
+                servoPlow.setPosition(pose.ServoNormalize(plowUp));
         }
         if(climberScheme)
         {
@@ -333,7 +330,9 @@ public class IronDemo extends SynchronousOpMode {
             {
                 if(System.nanoTime() - yTimer < 1e8 || System.nanoTime() - yTimer > 1e9) {
                     pose.setCliffUp(!pose.getCliffUp());
+                    pose.setCliffElevationPower(1);
                     pose.updateBooleanElevation();
+                    cliffPreset = true;
                 }
                 yTimer = System.nanoTime();
             }
@@ -342,40 +341,66 @@ public class IronDemo extends SynchronousOpMode {
                 if(System.nanoTime() - bTimer < 1e8 || System.nanoTime() - bTimer > 1e9) {
                     pose.setCliffEngaged(!pose.getCliffEngaged());
                     pose.updateBooleanElevation();
+                    cliffPreset = true;
                 }
                 bTimer = System.nanoTime();
             }
-            if(pad.dpad_left) {
+            if(pad.dpad_up) {
+                if(cliffElevation.getPower() == 0)
+                    pose.setCliffElevationPower(1);
                 if(System.nanoTime() - dpadHorizontalTimer < 1e8 || System.nanoTime() - dpadHorizontalTimer > 1e9) {
-                    pose.setCliffElevation(pose.getCliffElevation() - 1);
+                    pose.setCliffElevation(pose.getCurrentCliffTheta() + 5);
+                    cliffPreset = false;
                 }
                 dpadHorizontalTimer = System.nanoTime();
             }
-            if(pad.dpad_right) {
+            else if(pad.dpad_down) {
+                if(cliffElevation.getPower() == 0)
+                    pose.setCliffElevationPower(1);
                 if(System.nanoTime() - dpadHorizontalTimer < 1e8) {
-                    pose.setCliffElevation(pose.getCliffElevation() + 1);
+                    pose.setCliffElevation(pose.getCurrentCliffTheta() - 5);
+                    cliffPreset = false;
                 }
                 dpadHorizontalTimer = System.nanoTime();
             }
-            if(pad.dpad_up)
-            {
-                pose.setCliffPullPower(.2);
-                pose.setCliffElevationPower(0);
+            else{
+                if(!cliffPreset)
+                    pose.setCliffElevation(pose.getCurrentCliffTheta());
+            }
+            if(pad.dpad_left) {
+                servoConveyor.setPosition(pose.ServoNormalize(conveyorLeft));
+            }
+            else if(pad.dpad_right) {
+                servoConveyor.setPosition(pose.ServoNormalize(conveyorRight));
+            }
+            else{
+                servoConveyor.setPosition(pose.ServoNormalize(conveyorStop));
+            }
+            if(pad.a) {
+                isTroughUp = !isTroughUp;
+                if(isTroughUp) {
+                    servoTrough.setPosition(pose.ServoNormalize(troughUp));
+
+                }
+                else {
+                    servoTrough.setPosition(pose.ServoNormalize(troughMid));
+                }
             }
             //ending of cliff hanger logic
 
         }
         else {
-            if (pad.dpad_down)//1753 micros
+            if(servoTrough.getPosition() != pose.ServoNormalize(troughMid))
+                servoTrough.setPosition(pose.ServoNormalize(troughMid));
+            if(servoConveyor.getPosition() != pose.ServoNormalize(conveyorStop))
+                servoConveyor.setPosition(pose.ServoNormalize(conveyorStop));
+            if (pad.dpad_down)
             {
                 servoPlow.setPosition(pose.ServoNormalize(plowDown));
             }
             if (pad.dpad_up) {
                 servoPlow.setPosition(pose.ServoNormalize(plowUp));
             }
-//            if (pad.dpad_left) {
-//                servoPlow.setPosition(pose.ServoNormalize(1517)); //1517
-//            }
             if (pad.y) {
                 motorBeater.setPower(1);
             }
@@ -393,14 +418,6 @@ public class IronDemo extends SynchronousOpMode {
             if (pad.right_trigger > 0.6)
             {
                 KiDrive += .001;
-            }*/
-            /*(if (pad.left_trigger > 0.5) {
-                motorChurros.setTargetPosition(0);
-                motorChurros.setCliffPullPower(-.5);
-            }
-            if (pad.right_trigger > 0.5) {
-                motorChurros.setTargetPosition(-1550);
-                motorChurros.setCliffPullPower(-.5);
             }*/
         }
         pose.updateServoElevation();
@@ -554,7 +571,7 @@ public class IronDemo extends SynchronousOpMode {
                         this.telemetry.item("CH Current Angle:", new IFunc<Object>() {
                             @Override
                             public Object value() {
-                                return format(pose.getCurrentClimberTheta());
+                                return format(pose.getCurrentCliffTheta());
                             }
                         }),
                         this.telemetry.item(" ", new IFunc<Object>() {
@@ -566,6 +583,12 @@ public class IronDemo extends SynchronousOpMode {
                 );
         this.telemetry.addLine
                 (
+                        this.telemetry.item("Trough pos:", new IFunc<Object>() {
+                            @Override
+                            public Object value() {
+                                return formatPosition(KpDrive);
+                            }
+                        }),
                         this.telemetry.item("Kp:", new IFunc<Object>() {
                             @Override
                             public Object value() {

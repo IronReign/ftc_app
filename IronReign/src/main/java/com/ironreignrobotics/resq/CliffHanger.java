@@ -266,7 +266,7 @@ public class CliffHanger {
 
     public double ServoNormalize(int pulse){
         double normalized = (double)pulse;
-        return (normalized - 750.0) / 1500.0; //convert mr servo controller pulse width to double on 0 - 1 scale
+        return (normalized - 750.0) / 1500.0; //convert mr servo controller pulse width to double on _0 - 1 scale
     }
     public String formatClimber() {
         if(isClimberUp)

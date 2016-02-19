@@ -2,6 +2,9 @@ package com.ironreignrobotics.resq;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.swerverobotics.library.interfaces.TeleOp;
+
+@TeleOp(name = "6832 Config", group = "IronReign")
 public class OpFtcConfig extends OpMode {
 //
 

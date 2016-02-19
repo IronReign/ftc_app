@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.hardware.Servo;
  * orientation and location of the robot.  The update method must be called regularly, it
  * monitors and integrates data from the orientation (IMU) and odometry (motor encoder) sensors.
  * @author Max Virani, Eliot Partridge,
- * @version 0.2
+ * @version _0.2
  * @since 2015-10-17
  */
 
@@ -64,7 +64,7 @@ public class Pose extends CliffHanger
     }
 
     /**
-     * Creates a Pose instance with 0 speed, to prevent muscle fatigue
+     * Creates a Pose instance with _0 speed, to prevent muscle fatigue
      * by excess typing demand on the software team members. This is likely
      * the one to use on cliffInit when speed is zero and starting position is known
      *
@@ -82,7 +82,7 @@ public class Pose extends CliffHanger
     }
 
     /**
-     * Creates a base Pose instance at the origin, (0,0), with 0 speed and 0 angle.
+     * Creates a base Pose instance at the origin, (_0,_0), with _0 speed and _0 angle.
      * Useful for determining the Pose of the robot relative to the origin.
      */
     public Pose(DcMotor cliffHanger1, DcMotor cliffHanger2, DcMotor cliffElevation, Servo servoCliffHanger)
@@ -114,7 +114,7 @@ public class Pose extends CliffHanger
     }
 
     /**
-     * Set the absolute heading (yaw) of the robot 0-360 degrees
+     * Set the absolute heading (yaw) of the robot _0-360 degrees
      * @param poseHeading
      */
     public void setPoseHeading(double poseHeading) {
@@ -123,7 +123,7 @@ public class Pose extends CliffHanger
     }
 
     /**
-     * Set the absolute pitch of the robot 0-360 degrees
+     * Set the absolute pitch of the robot _0-360 degrees
      * @param posePitch
      */
     public void setPosePitch(double posePitch) {
@@ -132,7 +132,7 @@ public class Pose extends CliffHanger
     }
 
     /**
-     * Set the absolute roll of the robot 0-360 degrees
+     * Set the absolute roll of the robot _0-360 degrees
      * @param poseRoll
      */
     public void setPoseRoll(double poseRoll) {

@@ -97,7 +97,7 @@ public class FtcConfig {
     // read the gamepad state
     back1 = opMode.gamepad1.back || opMode.gamepad1.left_bumper || opMode.gamepad1.right_bumper;
     a1 = opMode.gamepad1.a;
-    b2 = opMode.gamepad2.b;
+    b2 = opMode.gamepad1.b;
     y1 = opMode.gamepad1.y;
     start1 = opMode.gamepad1.start;
 

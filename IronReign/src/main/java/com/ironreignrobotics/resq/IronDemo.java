@@ -8,6 +8,7 @@ import org.swerverobotics.library.interfaces.*;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.ironempire.util.*;
+import android.content.Context;
 
 
 //Modern robotics servo range is 750 us - 2250 us
@@ -26,8 +27,7 @@ public class IronDemo extends SynchronousOpMode {
 
     // All hardware variables can only be initialized inside the main() function,
     // not here at their member variable declarations.
-    //DcMotor motorLeftBack = null;
-    //DcMotor motorRightBack = null;
+
 
     DcMotor motorLeft = null;
     DcMotor motorRight = null;
@@ -35,15 +35,10 @@ public class IronDemo extends SynchronousOpMode {
     DcMotor cliffHanger1 = null;
     DcMotor cliffHanger2 = null;
     DcMotor cliffElevation = null;
-//    volatile DcMotor motorChurros = null;
     Servo servoPlow = null;
     Servo servoCliffHanger = null;
     Servo servoTrough = null;
     Servo servoConveyor = null;
-
-//    public Climber climber;
-
-    //public Thread churroClimber;
 
 
     PIDController drivePID = new PIDController(0, 0, 0);
@@ -56,7 +51,7 @@ public class IronDemo extends SynchronousOpMode {
      private double KdDrive = 0.04;
     private double driveIMUBasePower = .5;
     private double motorPower = 0;
-   // private double climberTargetM = 0;
+   // private double climberTargetM = _0;
     float ctlLeft;
     float ctlRight;
     int direction = 1;
@@ -65,10 +60,12 @@ public class IronDemo extends SynchronousOpMode {
     private long bTimer = 0;
     private long xTimer = 0;
     private long yTimer = 0;
+    static final private long toggleLockout = (long)3e8; // fractional second lockout between all toggle buttons
+    private long toggleOKTime = 0; //when should next toggle be allowed
     private long startTimer = 0;
     private boolean isTroughUp = false;
-//    double baseSpeed = 0;
-//    double baseHeading = 0;
+//    double baseSpeed = _0;
+//    double baseHeading = _0;
 //    public String[] State = {"TeleOp", "Auto", "GoStraight", "GoStraightIMU", "SquareDance"};
 
     private boolean climberScheme = false;
@@ -84,7 +81,8 @@ public class IronDemo extends SynchronousOpMode {
 //    public String climberPos;
     public final static int troughDown = 2100;
     public final static int troughUp =   900;
-    public final static int troughMid =  1964; //last servo
+    public final static int troughMid =  1980; //last servo
+    public final static int troughRelaxed = 1366;
     public final static int conveyorLeft  = 1000;
     public final static int conveyorRight = 2000;
     public final static int conveyorStop  = 1500;
@@ -221,7 +219,7 @@ public class IronDemo extends SynchronousOpMode {
                     case 2: //tele-op driving
                         this.doManualDrivingControl(this.gamepad1);
 
-                        if (ctlLeft * ctlRight < 0) {
+                        if (ctlLeft * ctlRight < 0) { //controls are opposing - in place turns should be unaffected by primary direction
                             this.motorRight.setPower(ctlRight);
                             this.motorLeft.setPower(ctlLeft);
                         } else {
@@ -232,7 +230,7 @@ public class IronDemo extends SynchronousOpMode {
 
                         break;
 
-                    case 3:
+                    case 3: //turn to 45 degrees and maintain
                         MoveIMU(KpDrive, 0, KdDrive, 0, 45, drivePID);
                         break;
                     case 4: //Extra testing case
@@ -259,7 +257,7 @@ public class IronDemo extends SynchronousOpMode {
             }
             else {
                 relax();
-//                motorChurros.setCliffPullPower(0);
+//                motorChurros.setCliffPullPower(_0);
             }
 
 
@@ -283,15 +281,19 @@ public class IronDemo extends SynchronousOpMode {
         ctlRight = -pad.right_stick_y;
 
         if (pad.x) {
-//            climber.stroke();
 
-            if(System.nanoTime() - xTimer < 1e8 || System.nanoTime() - xTimer > 1e9) {
+            if (toggleAllowed()){
                 climberScheme = !climberScheme;
             }
-            xTimer = System.nanoTime();
+
             if(climberScheme)
                 servoPlow.setPosition(pose.ServoNormalize(plowUp));
         }
+
+        if(pose.getPitch() < 290 && pose.getPitch() > 30) //when near vertical we must be cliffhanging - set trough to relaxed position
+            if(servoTrough.getPosition() != pose.ServoNormalize(troughRelaxed))
+                servoTrough.setPosition(pose.ServoNormalize(troughRelaxed));
+
         if(climberScheme)
         {
             if(ctlRight > .6)
@@ -326,24 +328,26 @@ public class IronDemo extends SynchronousOpMode {
             {
                 pose.setCliffHangerExtension(pose.getCliffPosMeters(cliffHanger1));
             }
-            if(pad.y)
+            if(pad.y) //toggle cliff vs. mountain
             {
-                if(System.nanoTime() - yTimer < 1e8 || System.nanoTime() - yTimer > 1e9) {
+                //if(System.nanoTime() - yTimer < 1e8 || System.nanoTime() - yTimer > 1e9) {
+                if (toggleAllowed()){
                     pose.setCliffUp(!pose.getCliffUp());
                     pose.setCliffElevationPower(1);
                     pose.updateBooleanElevation();
                     cliffPreset = true;
                 }
-                yTimer = System.nanoTime();
+                //yTimer = System.nanoTime();
             }
-            if(pad.b)
+            if(pad.b) //toggle engaged vs. clear
             {
-                if(System.nanoTime() - bTimer < 1e8 || System.nanoTime() - bTimer > 1e9) {
+                //if(System.nanoTime() - bTimer < 1e8 || System.nanoTime() - bTimer > 1e9) {
+                if (toggleAllowed()){
                     pose.setCliffEngaged(!pose.getCliffEngaged());
                     pose.updateBooleanElevation();
                     cliffPreset = true;
                 }
-                bTimer = System.nanoTime();
+                //bTimer = System.nanoTime();
             }
             if(pad.dpad_up) {
                 if(cliffElevation.getPower() == 0)
@@ -367,23 +371,31 @@ public class IronDemo extends SynchronousOpMode {
                 if(!cliffPreset)
                     pose.setCliffElevation(pose.getCurrentCliffTheta());
             }
-            if(pad.dpad_left) {
-                servoConveyor.setPosition(pose.ServoNormalize(conveyorLeft));
+            if(pad.dpad_left) { //control conveyor if trough is up, otherwise control direction
+                if (isTroughUp)
+                    servoConveyor.setPosition(pose.ServoNormalize(conveyorLeft));
+                else
+                    direction = -1;
             }
-            else if(pad.dpad_right) {
-                servoConveyor.setPosition(pose.ServoNormalize(conveyorRight));
+            else if(pad.dpad_right) { //control conveyor if trough is up, otherwise control direction
+                if (isTroughUp)
+                    servoConveyor.setPosition(pose.ServoNormalize(conveyorRight));
+                else
+                    direction = 1;
+
             }
             else{
                 servoConveyor.setPosition(pose.ServoNormalize(conveyorStop));
             }
             if(pad.a) {
-                isTroughUp = !isTroughUp;
-                if(isTroughUp) {
-                    servoTrough.setPosition(pose.ServoNormalize(troughUp));
+                if (toggleAllowed()) {
+                    isTroughUp = !isTroughUp;
+                    if (isTroughUp) {
+                        servoTrough.setPosition(pose.ServoNormalize(troughUp));
 
-                }
-                else {
-                    servoTrough.setPosition(pose.ServoNormalize(troughMid));
+                    } else {
+                        servoTrough.setPosition(pose.ServoNormalize(troughMid));
+                    }
                 }
             }
             //ending of cliff hanger logic
@@ -411,11 +423,11 @@ public class IronDemo extends SynchronousOpMode {
                 motorBeater.setPower(-1);
             }
             /*
-            if (pad.left_trigger > 0.6)
+            if (pad.left_trigger > _0.6)
             {
                 KiDrive -= .001;
             }
-            if (pad.right_trigger > 0.6)
+            if (pad.right_trigger > _0.6)
             {
                 KiDrive += .001;
             }*/
@@ -552,6 +564,12 @@ public class IronDemo extends SynchronousOpMode {
                             public Object value() {
                                 return format(active);
                             }
+                        }),
+                        this.telemetry.item("", new IFunc<Object>() {
+                            @Override
+                            public Object value() {
+                                return formatMountainMode();
+                            }
                         })
                         );
         this.telemetry.addLine
@@ -583,12 +601,6 @@ public class IronDemo extends SynchronousOpMode {
                 );
         this.telemetry.addLine
                 (
-                        this.telemetry.item("Trough pos:", new IFunc<Object>() {
-                            @Override
-                            public Object value() {
-                                return formatPosition(KpDrive);
-                            }
-                        }),
                         this.telemetry.item("Kp:", new IFunc<Object>() {
                             @Override
                             public Object value() {
@@ -813,6 +825,12 @@ public class IronDemo extends SynchronousOpMode {
         return s.toString();
     }
 
+    String formatMountainMode() {
+        if(climberScheme)
+            return "Mountain";
+        return "Floor";
+    }
+
     String formatRate(double cyclesPerSecond) {
         return String.format("%.2f", cyclesPerSecond);
     }
@@ -833,10 +851,11 @@ public class IronDemo extends SynchronousOpMode {
 
     void Autonomous(){
         switch (autoStage) {
-            case 0:   //Drive away from the wall to deploy beater bar ; angle = 0
+            case 0:   //Get ready to take off with plow down
                 pose.setPoseHeading(0);
                 pose.Update(imu.getAngularOrientation(), motorLeft.getCurrentPosition(), motorRight.getCurrentPosition());
                 servoPlow.setPosition(pose.ServoNormalize(plowDown));
+                SwerveUtil.playSound(hardwareMap.appContext, R.raw.a26);
                 autoStage++;
 
                 break;
@@ -844,30 +863,32 @@ public class IronDemo extends SynchronousOpMode {
 //                autoStage++; //skipping case 1 right now ********************
                 MoveIMU(KpDrive, KiDrive, KdDrive, driveIMUBasePower, 0, drivePID);
                 if (pose.getOdometer() > 0.1) {
-//                    autoStage++;
-//                    motorLeft.setPower(0);
-                    pose.updateBooleanElevation();
-//                    motorRight.setPower(0);
-//                    pose.setOdometer(0);
+
+                    pose.updateBooleanElevation(); //lower cliffhanger to trigger beater bar slide out
+
+                    SwerveUtil.playSound(hardwareMap.appContext, R.raw.a02);
+
                     autoStage++;
                 }
                 break;
-            case 2:   //Drive to the beacon; angle = 0
+            case 2:   //Drive to the beacon; angle = _0
                 MoveIMU(KpDrive, KiDrive, KdDrive, driveIMUBasePower, 0, drivePID);
                 if (pose.getOdometer() > 2.5) { //TODO: fix distance value
                     motorLeft.setPower(0);
                     motorRight.setPower(0);
                     pose.setOdometer(0);
 //                    pose.setCliffElevation(15);
+                    SwerveUtil.playSound(hardwareMap.appContext, R.raw.a03);
                     autoStage++;
                 }
                 break;
 
-            case 3:   //rough turn to beacon; angle = 0 to 45(blu) or 360-45(red)
+            case 3:   //rough turn to beacon; angle = _0 to 45(blu) or 360-45(red)
                 MoveIMU(KpDrive, KiDrive, KdDrive, 0, allianceAngle(45), drivePID);   //
-                if (pose.getHeading() >= allianceAngle(45)-2 && pose.getHeading() <= allianceAngle(45)+ 2) { //TODO: this closeness test won't work right around 0 degrees because of the discontinuity
+                if (pose.getHeading() >= allianceAngle(45)-2 && pose.getHeading() <= allianceAngle(45)+ 2) { //TODO: this closeness test won't work right around _0 degrees because of the discontinuity
                     motorLeft.setPower(0);
                     pose.setOdometer(0);
+                    SwerveUtil.playSound(hardwareMap.appContext, R.raw.a04);
                     autoStage++;
                 }
                 break;
@@ -878,6 +899,7 @@ public class IronDemo extends SynchronousOpMode {
                     motorLeft.setPower(0);
                     motorRight.setPower(0);
                     pose.setOdometer(0);
+                    SwerveUtil.playSound(hardwareMap.appContext, R.raw.a05);
                     autoStage++;
                 }
                 break;
@@ -889,6 +911,7 @@ public class IronDemo extends SynchronousOpMode {
                     motorRight.setPower(0);
                     pose.setOdometer(0);
                     autoPushButtonTimerStart = System.nanoTime();
+                    SwerveUtil.playSound(hardwareMap.appContext, R.raw.a06);
                     autoStage++;
                 }
                 break;
@@ -903,6 +926,7 @@ public class IronDemo extends SynchronousOpMode {
 //                   cliffHanger2.setTargetPosition(curposCliffHangers);
                 pose.setCliffHangerExtension(0.3);
                 if(!cliffHanger1.isBusy())
+                    SwerveUtil.playSound(hardwareMap.appContext, R.raw.a07);
                     autoStage++;
 //                    autoPushButtonTimerStart = System.nanoTime();
  //               }
@@ -911,7 +935,9 @@ public class IronDemo extends SynchronousOpMode {
             case 7:
                 pose.setCliffHangerExtension(0);
                 if(!cliffHanger1.isBusy())
+                    SwerveUtil.playSound(hardwareMap.appContext, R.raw.a08);
                     autoStage++;
+
 
                 break;
 
@@ -927,13 +953,15 @@ public class IronDemo extends SynchronousOpMode {
                     autoPushButtonTimerStart = System.nanoTime();
                 }
                 servoTrough.setPosition(pose.ServoNormalize(troughUp)); //pull up trough to dump climbers
+                SwerveUtil.playSound(hardwareMap.appContext, R.raw.a09);
                 autoStage++;
                 break;
 
             case 9:   //retreat
-//                cliffHanger1.setCliffPullPower(0);
-//                cliffHanger2.setCliffPullPower(0);
+//                cliffHanger1.setCliffPullPower(_0);
+//                cliffHanger2.setCliffPullPower(_0);
                 //servoPlow.setPosition(pose.ServoNormalize(plowDown));
+
                 autoStage++;
                 pose.setCliffPullMode(DcMotorController.RunMode.RUN_TO_POSITION);
                 break;
@@ -966,8 +994,10 @@ public class IronDemo extends SynchronousOpMode {
         if (gamepad1.dpad_up) {
             KdDrive += .001;
         }
-        if (gamepad1.x){
-            demoCase = !demoCase;
+        if (gamepad1.x){ //toggle between color tracking and imu inputs
+            if (toggleAllowed()) {
+                demoCase = !demoCase;
+            }
         }
         if (gamepad1.right_trigger > .6) {
             demoAngle += 5;
@@ -978,12 +1008,12 @@ public class IronDemo extends SynchronousOpMode {
             demoAngle = (int)pose.wrapAngle(demoAngle, 0.0);
         }
 
-        if(demoCase){
+        if(demoCase){ //use X to toggle between color tracking and IMU inputs
             MoveIMU(KpDrive, KiDrive, KdDrive, 0, demoAngle, drivePID);
         } else {
-            if (gamepad1.b) {
+            if (gamepad1.b) { //hold B to also maintain distance
                 MoveArgos(KpDrive, KiDrive, KdDrive, ErrorPixToDeg(x), 0, drivePID);
-            } else {
+            } else { //otherwise just center on blob
                 MoveRobot(KpDrive, KiDrive, KdDrive, 0, ErrorPixToDeg(x), 0, drivePID);
             }
         }
@@ -1008,7 +1038,7 @@ public class IronDemo extends SynchronousOpMode {
 //        PID.setSetpoint(targetAngle);
 //        PID.enable();
 //        //drivePID.setInput(pose.diffAngle(drivePID.getSetpoint(), pose.getHeading()));
-//        PID.setInputRange(0, 360);
+//        PID.setInputRange(_0, 360);
 //        PID.setContinuous();
 //        //PID.setInput(pose.getHeading());
 //        PID.setInput(currentAngle);
@@ -1097,6 +1127,17 @@ double allianceAngle(double blueAngle) {
         motorBeater.setPower(0);
         pose.setOdometer(0);
     }
+
+boolean toggleAllowed()
+{
+    if (System.nanoTime()> toggleOKTime)
+    {
+        toggleOKTime= System.nanoTime()+toggleLockout;
+        return true;
+    }
+    else
+        return false;
+}
 
 
 }

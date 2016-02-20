@@ -23,6 +23,7 @@ public class CliffHanger {
     private long initTimer = System.nanoTime();
 
 
+    public boolean isInitComplete = false;
     private boolean isClimberEngaged = false;
     private boolean isClimberUp = false;
     private boolean wasClimberEngaged = false;
@@ -40,7 +41,7 @@ public class CliffHanger {
     private final static double cliffEngage = 40.0;
     private final static double cliffClear = 47.0;
     private final static double mtnEngage = 20.0;
-    private final static double mtnClear = 28.0;
+    public final static double mtnClear = 28.0;
     private double climberTheta = 0;
     private double ticksPerDegree = 8.0;
     private long cliffRelaxDelay = 0;
@@ -120,6 +121,7 @@ public class CliffHanger {
                 break;
             default:
                 setCliffPullPower(1);
+                isInitComplete = true;
                 break;
         }
     }

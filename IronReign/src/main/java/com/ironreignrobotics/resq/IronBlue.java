@@ -15,12 +15,12 @@ import android.content.Context;
 /**
  * An example of a synchronous opmode that implements a simple drive-a-bot.
  */
-@TeleOp(name = "6832 Demo (sync)", group = "IronReign")
+@TeleOp(name = "6832 AutoBlue (sync)", group = "IronReign")
 //@Disabled Q
-public class IronDemo extends SynchronousOpMode {
+public class IronBlue extends SynchronousOpMode {
 
-    private boolean active = false;
-    public int demoMode = 0;
+    private boolean active = true;
+    public int demoMode = 1;
     public int autoStage = 0;
     public boolean isBlueAlliance = true;
 

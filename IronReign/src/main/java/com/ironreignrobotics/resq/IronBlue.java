@@ -22,7 +22,7 @@ public class IronBlue extends SynchronousOpMode {
     private boolean active = true;
     public int demoMode = 1;
     public int autoStage = 0;
-    public boolean isBlueAlliance = true;
+    public boolean isBlueAlliance = false;
 
 
     // All hardware variables can only be initialized inside the main() function,
@@ -914,7 +914,7 @@ public class IronBlue extends SynchronousOpMode {
                 break;
 
             case 4:   //Precise turn to beacon - color blob assisted; angle = 45(?)
-                //MoveRobot(KpDrive, KiDrive, KdDrive, 0, ErrorPixToDeg(x), 0, drivePID);
+                /*//MoveRobot(KpDrive, KiDrive, KdDrive, 0, ErrorPixToDeg(x), 0, drivePID);
                 //if((ErrorPixToDeg(x) < 2) || (ErrorPixToDeg(x) > 358)) {
                 MoveIMU(KpDrive, KiDrive, KdDrive, 0, pose.wrapAngle(pose.getHeading(), ErrorPixToDeg(x)), drivePID);
                 if (pose.getHeading() >= pose.wrapAngle(pose.getHeading(), ErrorPixToDeg(x)) - 2 && pose.getHeading() <= pose.wrapAngle(pose.getHeading(), ErrorPixToDeg(x))+ 2) { //TODO: this closeness test won't work right around _0 degrees because of the discontinuity
@@ -923,11 +923,12 @@ public class IronBlue extends SynchronousOpMode {
                     pose.setOdometer(0);
                     SwerveUtil.playSound(hardwareMap.appContext, R.raw.a05);
                     autoStage++;
-                }
+                }*/
+                autoStage++;
                 break;
 
             case 5:   //Beacon approach - color blob assisted; angle = 45(?)
-                MoveRobot(KpDrive, KiDrive, KdDrive, .25, ErrorPixToDeg(x), 0, drivePID);
+                /*MoveRobot(KpDrive, KiDrive, KdDrive, .25, ErrorPixToDeg(x), 0, drivePID);
                 if(pose.getOdometer() >= .5) {
                     motorLeft.setPower(0);
                     motorRight.setPower(0);
@@ -936,46 +937,48 @@ public class IronBlue extends SynchronousOpMode {
                     SwerveUtil.playSound(hardwareMap.appContext, R.raw.a06);
                     autoStage++;
                 }
+                */
+                autoStage++;
                 break;
 
             case 6:   //Push the button
-                int curposCliffHangers = cliffHanger1.getCurrentPosition();
+//                int curposCliffHangers = cliffHanger1.getCurrentPosition();
                 //Retract tape again
                 // TODO: should test based on position, not time
 //                if(System.nanoTime() - autoPushButtonTimerStart > 2500000){
                     //return tape to previous position
 //                    cliffHanger1.setTargetPosition(curposCliffHangers);
 //                   cliffHanger2.setTargetPosition(curposCliffHangers);
-                pose.setCliffHangerExtension(0.3);
-                if(!cliffHanger1.isBusy())
-                    SwerveUtil.playSound(hardwareMap.appContext, R.raw.a07);
+//                pose.setCliffHangerExtension(0.3);
+//                if(!cliffHanger1.isBusy())
+//                    SwerveUtil.playSound(hardwareMap.appContext, R.raw.a07);
                     autoStage++;
 //                    autoPushButtonTimerStart = System.nanoTime();
  //               }
 
                 break;
             case 7:
-                pose.setCliffHangerExtension(0);
-                if(!cliffHanger1.isBusy())
-                    SwerveUtil.playSound(hardwareMap.appContext, R.raw.a08);
+//                pose.setCliffHangerExtension(0);
+//                if(!cliffHanger1.isBusy())
+//                    SwerveUtil.playSound(hardwareMap.appContext, R.raw.a08);
                     autoStage++;
 
 
                 break;
 
             case 8:   //move forward and drop climbers
-                servoPlow.setPosition(pose.ServoNormalize(plowUp)); //pull up plow
-                motorLeft.setPower(.2);
-                motorRight.setPower(.2);
-                // TODO: should test based on wall sensor or color blob width
-                if(System.nanoTime() - autoPushButtonTimerStart > 2500000){
-                    motorLeft.setPower(0);
-                    motorRight.setPower(0);
-                    autoStage++;
-                    autoPushButtonTimerStart = System.nanoTime();
-                }
-                servoTrough.setPosition(pose.ServoNormalize(troughUp)); //pull up trough to dump climbers
-                SwerveUtil.playSound(hardwareMap.appContext, R.raw.a09);
+//                servoPlow.setPosition(pose.ServoNormalize(plowUp)); //pull up plow
+//                motorLeft.setPower(.2);
+//                motorRight.setPower(.2);
+//                 TODO: should test based on wall sensor or color blob width
+//                if(System.nanoTime() - autoPushButtonTimerStart > 2500000){
+//                    motorLeft.setPower(0);
+//                    motorRight.setPower(0);
+//                    autoStage++;
+//                    autoPushButtonTimerStart = System.nanoTime();
+//                }
+//                servoTrough.setPosition(pose.ServoNormalize(troughUp)); //pull up trough to dump climbers
+//                SwerveUtil.playSound(hardwareMap.appContext, R.raw.a09);
                 autoStage++;
                 break;
 

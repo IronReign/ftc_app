@@ -20,23 +20,29 @@ public class I2cDeviceReplacementHelper<TARGET>
     // State
     //----------------------------------------------------------------------------------------------
 
-    private OpMode                              context;
-    private TARGET                              client;
-    private TARGET                              target;
-    private String                              targetName;
-    private HardwareMap.DeviceMapping           targetDeviceMapping;
-    private boolean                             isEngaged;
+    protected OpMode                              context;
+    protected TARGET                              client;
+    protected TARGET                              target;
+    protected String                              targetName;
+    protected HardwareMap.DeviceMapping           targetDeviceMapping;
+    protected I2cController                       controller;
+    protected int                                 targetPort;
+    protected I2cController.I2cPortReadyCallback  targetCallback;
+    protected boolean                             isEngaged;
 
     //----------------------------------------------------------------------------------------------
     // Construction
     //----------------------------------------------------------------------------------------------
 
-    public I2cDeviceReplacementHelper(OpMode context, TARGET client, /* may be null */ TARGET target)
+    public I2cDeviceReplacementHelper(OpMode context, TARGET client, /* may be null */ TARGET target, I2cController controller, int targetPort)
         {
         this.context        = context;
         this.isEngaged      = false;
         this.client         = client;
         this.target         = target;       // may be null
+        this.controller     = controller;
+        this.targetPort     = targetPort;
+        this.targetCallback = controller.getI2cPortReadyCallback(targetPort);
 
         this.targetName     = null;
         this.targetDeviceMapping = null;
@@ -58,7 +64,10 @@ public class I2cDeviceReplacementHelper<TARGET>
         if (!this.isEngaged)
             {
             // Have the existing controller stop managing its hardware
-            ((Engagable)this.target).disengage();
+            if (target instanceof Engagable)
+                ((Engagable)this.target).disengage();
+            else
+                this.controller.deregisterForPortReadyCallback(this.targetPort);
 
             // Put ourselves in the hardware map
             if (this.targetName != null) this.targetDeviceMapping.put(this.targetName, this.client);
@@ -77,7 +86,10 @@ public class I2cDeviceReplacementHelper<TARGET>
             if (this.targetName != null) this.targetDeviceMapping.put(this.targetName, this.target);
 
             // Start up the original controller again
-            ((Engagable)this.target).engage();
+            if (target instanceof Engagable)
+                ((Engagable)this.target).engage();
+            else
+                this.controller.registerForI2cPortReadyCallback(this.targetCallback, this.targetPort);
             }
         }
 

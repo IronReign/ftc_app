@@ -11,7 +11,7 @@ import org.swerverobotics.library.interfaces.*;
  * http://www.adafruit.com/products/2472
  */
 @TeleOp(name="IMU Demo (Synch)", group="Swerve Examples")
-@Disabled
+//@Disabled
 public class SynchIMUDemo extends SynchronousOpMode
     {
     //----------------------------------------------------------------------------------------------

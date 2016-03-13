@@ -90,6 +90,7 @@ public class IronBlue extends SynchronousOpMode {
     public final static int plowUp = 850;
 //
 // Our sensors, motors, and other devices go here, along with other long term state
+    I2cDevice               i2cDevice;
     IBNO055IMU imu;
     ElapsedTime elapsed = new ElapsedTime();
     IBNO055IMU.Parameters parameters = new IBNO055IMU.Parameters();
@@ -166,6 +167,7 @@ public class IronBlue extends SynchronousOpMode {
         parameters.accelUnit = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
         parameters.loggingEnabled = false;
         parameters.loggingTag = "BNO055";
+        i2cDevice = hardwareMap.i2cDevice.get("imu");
         imu = ClassFactory.createAdaFruitBNO055IMU(hardwareMap.i2cDevice.get("imu"), parameters);
 
         // Enable reporting of position using the naive integrator
@@ -553,7 +555,8 @@ public class IronBlue extends SynchronousOpMode {
                 // The rest of this is pretty cheap to acquire, but we may as well do it
                 // all while we're gathering the above.
                 loopCycles = getLoopCount();
-                i2cCycles = ((II2cDeviceClientUser) imu).getI2cDeviceClient().getI2cCycleCount();
+                //i2cCycles = ((II2cDeviceClientUser) imu).getI2cDeviceClient().getI2cCycleCount();
+                i2cCycles  = i2cDevice.getCallbackCount();
                 ms = elapsed.time() * 1000.0;
                 x = FtcRobotControllerActivity.blobx;
             }

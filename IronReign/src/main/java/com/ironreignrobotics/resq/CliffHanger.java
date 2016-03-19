@@ -68,20 +68,24 @@ public class CliffHanger {
                 initCase++;
                 break;
             case 1:
-                if (System.nanoTime() - initTimer > 2e8) {
+                if (System.nanoTime() - initTimer > 3e8) {
                     if (cliffElevation.getCurrentPosition() <= (climPrevPos + 1) && cliffElevation.getCurrentPosition() >=(climPrevPos - 1)) {
                         cliffElevation.setPower(0);
                         setCliffElevationMode(DcMotorController.RunMode.RESET_ENCODERS);
                         initCase++;
+
                         climPrevPos = 0;
                     }
+                    initTimer = System.nanoTime();
                     climPrevPos = cliffElevation.getCurrentPosition();
                 }
                 break;
             case 2: //begin retracting tape measure
-                setCliffPullPower(-.20);
-                initTimer = System.nanoTime();
-                initCase++;
+                setCliffPullPower(-.25);
+                if(System.nanoTime() - initTimer > 2e8) {
+                    initTimer = System.nanoTime();
+                    initCase++;
+                }
                 break;
             case 3: //determine if the tape has finished retracting
                 if (System.nanoTime() - initTimer > 1e8) {
@@ -91,8 +95,9 @@ public class CliffHanger {
                         initCase++;
                     }
                     initTimer = System.nanoTime();
+                    climPrevPos = cliffHanger1.getCurrentPosition();
                 }
-                climPrevPos = cliffHanger1.getCurrentPosition();
+
 
                 break;
             case 4: //begin extending out to .1m (10cm)

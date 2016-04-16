@@ -12,6 +12,8 @@ import org.swerverobotics.library.interfaces.*;
 import com.ironempire.util.*;
 import android.content.Context;
 
+import java.util.ArrayList;
+
 
 //Modern robotics servo range is 750 us - 2250 us
 /**
@@ -48,15 +50,20 @@ public class IronDemo extends SynchronousOpMode {
     //private int isRed = 1;
 
 
-    private double KpDrive = .025;
-    private double KiDrive = 150;
-     private double KdDrive = 0.04;
+    private double KpDrive = .015;
+    private double KiDrive = 0.01;
+     private double KdDrive = 0;
     private double driveIMUBasePower = .5;
     private double motorPower = 0;
+
+
    // private double climberTargetM = _0;
     float ctlLeft;
     float ctlRight;
     int direction = 1;
+    public final double loopTimeMin = .0334; //.0334 seconds = 1/30 of a second - camera frame rate
+    public double loopTimeLast = 0;
+    public double loopTime = 0;
     private long dpadHorizontalTimer = 0;
     private long aTimer = 0;
     private long bTimer = 0;
@@ -96,7 +103,7 @@ public class IronDemo extends SynchronousOpMode {
     IBNO055IMU imu;
     ElapsedTime elapsed = new ElapsedTime();
     IBNO055IMU.Parameters parameters = new IBNO055IMU.Parameters();
-    Pose pose;
+    public Pose pose;
 
 
     // Here we have state we use for updating the dashboard. The first of these is important
@@ -107,8 +114,10 @@ public class IronDemo extends SynchronousOpMode {
     int loopCycles;
     int i2cCycles;
     double ms;
+    public CsvLogKeeper logger;
 
     int x = FtcRobotControllerActivity.blobx;
+
 
     private double ErrorPixToDeg(int blobx){
         int ViewWidth = 800;
@@ -190,6 +199,8 @@ public class IronDemo extends SynchronousOpMode {
         pose.setOdometer(0);
 
 
+
+
         // Configure the dashboard however we want it
         this.configureDashboard();
 
@@ -226,6 +237,8 @@ public class IronDemo extends SynchronousOpMode {
                         break;
 
                     case 1: //autonomous
+                        logger = new CsvLogKeeper("test",9,"NanoTime, Deltatime,Odometer,Error,TotalError,PowerP,PowerI,PowerD,Correction");
+
                         Autonomous();
                         break;
                     case 2: //tele-op driving
@@ -342,24 +355,24 @@ public class IronDemo extends SynchronousOpMode {
             }
             if(pad.y) //toggle cliff vs. mountain
             {
-                //if(System.nanoTime() - yTimer < 1e8 || System.nanoTime() - yTimer > 1e9) {
+
                 if (toggleAllowed()){
                     pose.setCliffUp(!pose.getCliffUp());
                     pose.setCliffElevationPower(1);
                     pose.updateBooleanElevation();
                     cliffPreset = true;
                 }
-                //yTimer = System.nanoTime();
+
             }
             if(pad.b) //toggle engaged vs. clear
             {
-                //if(System.nanoTime() - bTimer < 1e8 || System.nanoTime() - bTimer > 1e9) {
+
                 if (toggleAllowed()){
                     pose.setCliffEngaged(!pose.getCliffEngaged());
                     pose.updateBooleanElevation();
                     cliffPreset = true;
                 }
-                //bTimer = System.nanoTime();
+
             }
             if(pad.dpad_up) {
                 if(cliffElevation.getPower() == 0)
@@ -864,93 +877,103 @@ public class IronDemo extends SynchronousOpMode {
     //----------------------------------------------------------------------------------------------
 
     void Autonomous(){
-        switch (autoStage) {
-            case 0:   //Get ready to take off with plow down
-                pose.setPoseHeading(0);
-                pose.Update(imu.getAngularOrientation(), motorLeft.getCurrentPosition(), motorRight.getCurrentPosition());
-                servoPlow.setPosition(pose.ServoNormalize(plowDown));
-                SwerveUtil.playSound(hardwareMap.appContext, R.raw.a26);
-                autoStage++;
+        loopTime = System.nanoTime();
+        if (loopTime-loopTimeLast>loopTimeMin) {
+            loopTimeLast = loopTime;
+            switch (autoStage) {
 
-                break;
-            case 1:   //commented out
+
+                case 0:   //Get ready to take off with plow down
+                    pose.setPoseHeading(0);
+                    pose.Update(imu.getAngularOrientation(), motorLeft.getCurrentPosition(), motorRight.getCurrentPosition());
+                    servoPlow.setPosition(pose.ServoNormalize(plowDown));
+                    SwerveUtil.playSound(hardwareMap.appContext, R.raw.a26);
+                    autoStage++;
+                    //drivePID.enable();
+
+                    break;
+                case 1:   //commented out
 //                autoStage++; //skipping case 1 right now ********************
-                MoveIMU(KpDrive, KiDrive, KdDrive, driveIMUBasePower, 0, drivePID);
-                if (pose.getOdometer() > 0.1) {
 
-                    //pose.updateBooleanElevation();
-                    // lower cliffhanger to trigger beater bar slide out
-                    pose.setCliffElevationMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-                    cliffElevation.setPower(-.6);
+                    MoveIMU(KpDrive, KiDrive, KdDrive, driveIMUBasePower, 0, drivePID);
+                    if (pose.getOdometer() > 0.1) {
 
-                    SwerveUtil.playSound(hardwareMap.appContext, R.raw.a02);
+                        //pose.updateBooleanElevation();
+                        // lower cliffhanger to trigger beater bar slide out
+                        pose.setCliffElevationMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+                        cliffElevation.setPower(-.6);
 
-                    autoStage++;
-                }
-                break;
-            case 2:   //Drive to the beacon; angle = _0
-                MoveIMU(KpDrive, KiDrive, KdDrive, driveIMUBasePower, 0, drivePID);
-                if (pose.getOdometer() > 2.5) { //TODO: fix distance value
+                        SwerveUtil.playSound(hardwareMap.appContext, R.raw.a02);
 
-                    pose.setCliffElevationMode(DcMotorController.RunMode.RESET_ENCODERS);
-                    cliffElevation.setPower(0);
-                    pose.setCliffElevationMode(DcMotorController.RunMode.RUN_TO_POSITION);
+                        autoStage++;
+                    }
+                    break;
+                case 2:   //Drive to the beacon; angle = _0
+                    MoveIMU(KpDrive, KiDrive, KdDrive, driveIMUBasePower, 0, drivePID);
+                    if (pose.getOdometer() > 3) { //TODO: fix distance value
 
-                    pose.setCliffElevation(pose.mtnClear);
-                    pose.setCliffElevationPower(.5);
-                    pose.setCliffElevation();
-                    motorLeft.setPower(0);
-                    motorRight.setPower(0);
-                    servoTrough.setPosition(pose.ServoNormalize(troughDown)); //retract trough to allow beater assembly to rotate into position
-                    pose.setOdometer(0);
+                        pose.setCliffElevationMode(DcMotorController.RunMode.RESET_ENCODERS);
+                        cliffElevation.setPower(0);
+                        pose.setCliffElevationMode(DcMotorController.RunMode.RUN_TO_POSITION);
+
+                        pose.setCliffElevation(pose.mtnClear);
+                        pose.setCliffElevationPower(.5);
+                        pose.setCliffElevation();
+                        motorLeft.setPower(0);
+                        motorRight.setPower(0);
+                        servoTrough.setPosition(pose.ServoNormalize(troughDown)); //retract trough to allow beater assembly to rotate into position
+                        pose.setOdometer(0);
 //                    pose.setCliffElevation(15);
-                    SwerveUtil.playSound(hardwareMap.appContext, R.raw.a03);
-                    autoStage++;
-                }
-                break;
+                        SwerveUtil.playSound(hardwareMap.appContext, R.raw.a03);
+                        autoStage++;
+                        logger.CloseLog();
 
-            case 3:   //rough turn to beacon; angle = _0 to 45(blu) or 360-45(red)
-                MoveIMU(KpDrive, KiDrive, KdDrive, 0, allianceAngle(45), drivePID);   //
-                if (pose.getHeading() >= allianceAngle(45)-2 && pose.getHeading() <= allianceAngle(45)+ 2) { //TODO: this closeness test won't work right around _0 degrees because of the discontinuity
-                    motorLeft.setPower(0);
-                    pose.setOdometer(0);
-                    SwerveUtil.playSound(hardwareMap.appContext, R.raw.a04);
-                    double beaconOffset = pose.wrapAngleMinus(pose.getHeading(), ErrorPixToDeg(x));
-                    autoStage++;
-                }
-                break;
+                    }
+                    break;
 
-            case 4:   //Precise turn to beacon - color blob assisted; angle = 45(?)
-                //MoveRobot(KpDrive, KiDrive, KdDrive, 0, ErrorPixToDeg(x), 0, drivePID);
-                //if((ErrorPixToDeg(x) < 2) || (ErrorPixToDeg(x) > 358)) {
-               /* MoveIMU(KpDrive, KiDrive, KdDrive, 0, pose.wrapAngle(pose.getHeading(), ErrorPixToDeg(x)), drivePID);
-                if (pose.getHeading() >= pose.wrapAngle(pose.getHeading(), ErrorPixToDeg(x)) - 2 && pose.getHeading() <= pose.wrapAngle(pose.getHeading(), ErrorPixToDeg(x))+ 2) { //TODO: this closeness test won't work right around _0 degrees because of the discontinuity
+                case 3:   //rough turn to beacon; angle = _0 to 45(blu) or 360-45(red)
+                    MoveIMU(KpDrive, KiDrive, KdDrive, 0, allianceAngle(45), drivePID);   //
+                    if (pose.getHeading() >= allianceAngle(45) - 2 && pose.getHeading() <= allianceAngle(45) + 2) { //TODO: this closeness test won't work right around _0 degrees because of the discontinuity
+                        motorLeft.setPower(0);
+                        pose.setOdometer(0);
+                        SwerveUtil.playSound(hardwareMap.appContext, R.raw.a04);
+                        double beaconOffset = pose.wrapAngleMinus(pose.getHeading(), ErrorPixToDeg(x));
+                        autoStage++;
+                    }
+                    break;
+
+                case 4:   //Precise turn to beacon - color blob assisted; angle = 45(?)
+                    MoveRobot(KpDrive, KiDrive, KdDrive, 0, ErrorPixToDeg(x), 0, drivePID);
+                    if((ErrorPixToDeg(x) < 2) || (ErrorPixToDeg(x) > 358)) {
+                //MoveIMU(KpDrive, KiDrive, KdDrive, 0, pose.wrapAngle(pose.getHeading(), ErrorPixToDeg(x)), drivePID);
+                //if (pose.getHeading() >= pose.wrapAngle(pose.getHeading(), ErrorPixToDeg(x)) - 2 && pose.getHeading() <= pose.wrapAngle(pose.getHeading(), ErrorPixToDeg(x))+ 2) { //TODO: this closeness test won't work right around _0 degrees because of the discontinuity
                     motorLeft.setPower(0);
                     motorRight.setPower(0);
                     pose.setOdometer(0);
                     SwerveUtil.playSound(hardwareMap.appContext, R.raw.a05);
                     autoStage++;
                 }
-                */
-                autoStage++;
-                break;
 
-            case 5:   //Beacon approach - color blob assisted; angle = 45(?)
-                MoveRobot(KpDrive, KiDrive, KdDrive, .25, ErrorPixToDeg(x), 0, drivePID);
-                if(pose.getOdometer() >= .5) {
-                    motorLeft.setPower(0);
-                    motorRight.setPower(0);
-                    pose.setOdometer(0);
-                    autoPushButtonTimerStart = System.nanoTime();
-                    SwerveUtil.playSound(hardwareMap.appContext, R.raw.a06);
                     autoStage++;
-                }
-                break;
+                    //autoStage = 6;
+                    break;
 
-            case 6:   //Push the button
+                case 5:   //Beacon approach - color blob assisted; angle = 45(?)
+                    MoveRobot(KpDrive, KiDrive, KdDrive, .25, ErrorPixToDeg(x), 0, drivePID);
+                    if (pose.getOdometer() >= .5) {
+                        motorLeft.setPower(0);
+                        motorRight.setPower(0);
+                        pose.setOdometer(0);
+                        autoPushButtonTimerStart = System.nanoTime();
+                        SwerveUtil.playSound(hardwareMap.appContext, R.raw.a06);
+                        autoStage++;
+                    }
+                    break;
+
+                case 6:   //Push the button
 //                int curposCliffHangers = cliffHanger1.getCurrentPosition();
-                //Retract tape again
-                // TODO: should test based on position, not time
+                    //Retract tape again
+                    // TODO: should test based on position, not time
 //                if(System.nanoTime() - autoPushButtonTimerStart > 2500000){
                     //return tape to previous position
 //                    cliffHanger1.setTargetPosition(curposCliffHangers);
@@ -960,19 +983,19 @@ public class IronDemo extends SynchronousOpMode {
 //                    SwerveUtil.playSound(hardwareMap.appContext, R.raw.a07);
                     autoStage++;
 //                    autoPushButtonTimerStart = System.nanoTime();
- //               }
+                    //               }
 
-                break;
-            case 7:
+                    break;
+                case 7:
 //                pose.setCliffHangerExtension(0);
 //                if(!cliffHanger1.isBusy())
 //                    SwerveUtil.playSound(hardwareMap.appContext, R.raw.a08);
                     autoStage++;
 
 
-                break;
+                    break;
 
-            case 8:   //move forward and drop climbers
+                case 8:   //move forward and drop climbers
 //                servoPlow.setPosition(pose.ServoNormalize(plowUp)); //pull up plow
 //                motorLeft.setPower(.2);
 //                motorRight.setPower(.2);
@@ -985,22 +1008,25 @@ public class IronDemo extends SynchronousOpMode {
 //                }
 //                servoTrough.setPosition(pose.ServoNormalize(troughUp)); //pull up trough to dump climbers
 //                SwerveUtil.playSound(hardwareMap.appContext, R.raw.a09);
-                autoStage++;
-                break;
+                    autoStage++;
+                    break;
 
-            case 9:   //retreat
+                case 9:   //retreat
 //                cliffHanger1.setCliffPullPower(_0);
 //                cliffHanger2.setCliffPullPower(_0);
-                //servoPlow.setPosition(pose.ServoNormalize(plowDown));
+                    //servoPlow.setPosition(pose.ServoNormalize(plowDown));
 
-                autoStage++;
-                pose.setCliffPullMode(DcMotorController.RunMode.RUN_TO_POSITION);
-                break;
-            default:
-                motorLeft.setPower(0);
-                motorRight.setPower(0);
-                break;
+                    autoStage++;
+                    pose.setCliffPullMode(DcMotorController.RunMode.RUN_TO_POSITION);
+                    break;
+                default:
+                    motorLeft.setPower(0);
+                    motorRight.setPower(0);
+                    break;
+            }
+
         }
+
     }
     void DemoPID(){
         if (gamepad1.dpad_left)
@@ -1050,15 +1076,26 @@ public class IronDemo extends SynchronousOpMode {
         }
     }
     void MoveRobot(double Kp, double Ki, double Kd, double pwr, double currentAngle, double targetAngle, PIDController PID) {
+        //if (pwr>0) PID.setOutputRange(pwr-(1-pwr),1-pwr);
+        //else PID.setOutputRange(pwr - (-1 - pwr),-1-pwr);
+        PID.setOutputRange(-1,1);
         PID.setPID(Kp, Ki, Kd);
         PID.setSetpoint(targetAngle);
         PID.enable();
-        //drivePID.setInput(pose.diffAngle(drivePID.getSetpoint(), pose.getHeading()));
+
         PID.setInputRange(0, 360);
         PID.setContinuous();
-        //PID.setInput(pose.getHeading());
         PID.setInput(currentAngle);
         double correction = PID.performPID();
+        /*ArrayList toUpdate = new ArrayList();
+        toUpdate.add((PID.m_deltaTime));
+        toUpdate.add(Double.valueOf(PID.m_error));
+        toUpdate.add(new Double(PID.m_totalError));
+        toUpdate.add(new Double(PID.pwrP));
+        toUpdate.add(new Double(PID.pwrI));
+        toUpdate.add(new Double(PID.pwrD));*/
+
+        logger.UpdateLog(Long.toString(System.nanoTime()) + "," + Double.toString(PID.m_deltaTime) + "," + Double.toString(pose.getOdometer()) + "," + Double.toString(PID.m_error) + "," + Double.toString(PID.m_totalError) + "," + Double.toString(PID.pwrP) + "," + Double.toString(PID.pwrI) + "," + Double.toString(PID.pwrD) + "," + Double.toString(correction));
         motorLeft.setPower(pwr + correction);
         motorRight.setPower(pwr - correction);
     }

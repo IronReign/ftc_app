@@ -4,10 +4,13 @@ package com.ironreignrobotics.resq;
  * Created by Maximillian Virani on 3/19/2016.
  */
 
+import android.os.Environment;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import com.qualcomm.robotcore.hardware.configuration.Utility;
 
 public class CsvLogKeeper{
 
@@ -17,12 +20,15 @@ public class CsvLogKeeper{
     private static boolean alreadyExists;
     private static File logFile;
     private static int dataLength;
+    private Utility util;
+    private String filesdir = Environment.getExternalStorageDirectory() + "/FIRST/";
 
     public CsvLogKeeper(String varname){
 
         dataLength = 1;
         variableName = varname;
-        fileName = varname+".csv";
+
+        fileName = filesdir+varname+".csv";
         alreadyExists = new File(fileName).exists();
         logFile = new File(fileName);
         try{
@@ -40,9 +46,9 @@ public class CsvLogKeeper{
 
     public CsvLogKeeper(String title, int numvars, String varnames){
 
-        dataLength = numvars;
+       dataLength = numvars;
         variableName = title;
-        fileName = title+".csv";
+        fileName = filesdir+title+".csv";
         alreadyExists = new File(fileName).exists();
         logFile = new File(fileName);
         try{
@@ -60,10 +66,10 @@ public class CsvLogKeeper{
         }
     }
 
-    public static void UpdateLog(ArrayList data){
+    public void UpdateLog(ArrayList data){
         try{
             for(int i=0; i<dataLength; i++){
-                logKeeper.append(data.get(i)+",");
+                logKeeper.append(data.get(i).toString()+",");
             }
             logKeeper.append("\n");
             logKeeper.flush();
@@ -73,7 +79,7 @@ public class CsvLogKeeper{
         }
     }
 
-    public static void UpdateLog(double data){
+    public void UpdateLog(double data){
         try{
             logKeeper.append(data+"\n");
             logKeeper.flush();
@@ -83,7 +89,7 @@ public class CsvLogKeeper{
         }
     }
 
-    public static void UpdateLog(int data){
+    public void UpdateLog(int data){
         try{
             logKeeper.append(data+"\n");
             logKeeper.flush();
@@ -93,7 +99,7 @@ public class CsvLogKeeper{
         }
     }
 
-    public static void UpdateLog(short data){
+    public void UpdateLog(short data){
         try{
             logKeeper.append(data+"\n");
             logKeeper.flush();
@@ -103,7 +109,7 @@ public class CsvLogKeeper{
         }
     }
 
-    public static void UpdateLog(String data){
+    public void UpdateLog(String data){
         try{
             logKeeper.append(data+"\n");
             logKeeper.flush();
@@ -113,7 +119,7 @@ public class CsvLogKeeper{
         }
     }
 
-    public static void UpdateLog(long data){
+    public void UpdateLog(long data){
         try{
             logKeeper.append(data+"\n");
             logKeeper.flush();
@@ -123,7 +129,7 @@ public class CsvLogKeeper{
         }
     }
 
-    public static void UpdateLog(float data){
+    public void UpdateLog(float data){
         try{
             logKeeper.append(data+"\n");
             logKeeper.flush();
@@ -133,7 +139,7 @@ public class CsvLogKeeper{
         }
     }
 
-    public static void UpdateLog(char data){
+    public void UpdateLog(char data){
         try{
             logKeeper.append(data+"\n");
             logKeeper.flush();
@@ -143,7 +149,7 @@ public class CsvLogKeeper{
         }
     }
 
-    public static void UpdateLog(boolean data){
+    public void UpdateLog(boolean data){
         try{
             logKeeper.append(data+"\n");
             logKeeper.flush();
@@ -153,7 +159,7 @@ public class CsvLogKeeper{
         }
     }
 
-    public static void UpdateLog(byte data){
+    public void UpdateLog(byte data){
         try{
             logKeeper.append(data+"\n");
             logKeeper.flush();
@@ -163,7 +169,7 @@ public class CsvLogKeeper{
         }
     }
 
-    public static void UpdateLog(Object data){
+    public void UpdateLog(Object data){
         try{
             logKeeper.append(data.toString()+"\n");
             logKeeper.flush();
@@ -173,7 +179,7 @@ public class CsvLogKeeper{
         }
     }
 
-    public static void CloseLog(){
+    public void CloseLog(){
         try{
             logKeeper.append("\n");
             logKeeper.flush();

@@ -1,7 +1,6 @@
 package com.ironempire.util;
 
 import android.util.Log;
-
 /**
  * Created on 6/28/2015.
  */
@@ -50,7 +49,7 @@ public class PIDController {
     public double m_totalError = 0.0; //the sum of the errors for use in the integral calc
     private double m_tolerance = 0.05;  //the percentage error that is considered on target
     private double m_setpoint = 0.0;
-    private double m_error = 0.0;
+    public double m_error = 0.0;
     private double m_result = 0.0;
     private long m_prevTime; //time of previous calculate() in nanoseconds from the current epoch
     public double m_deltaTime; // time between calls to calculate() in fractional seconds
@@ -58,6 +57,7 @@ public class PIDController {
     public double pwrP = 0.0;
     public double pwrI = 0.0;
     public double pwrD = 0.0;
+
 
     /**
      * Allocate a PID object with the given constants for P, I, D
@@ -114,21 +114,17 @@ public class PIDController {
 //                    ((m_totalError + m_error) * m_deltaTime * m_I > m_minimumOutput)) {
 //                m_totalError += m_error;
 //            }
-            if(m_deltaTime > 2E-5)
+            if(m_deltaTime > .15)
             {
-                Log.e("", "Time Jump! " + m_deltaTime * 1E5 + " E-5 sec");
-                m_deltaTime = 0;
+                Log.e("", "Laggy Loop! " + m_deltaTime  + "  sec");
+                //m_deltaTime = 0;
             }
-            if(Math.abs(m_error) > 15)
-                m_totalError = 0;
-            else
-                m_totalError += m_error;
+            m_totalError += (m_error * m_deltaTime);
 
             // Perform the primary PID calculation
-//            m_result = (m_P * m_error + m_I * m_totalError * m_deltaTime + m_D * (m_error - m_prevError) * m_deltaTime);
-            //TEST VARS TO RETURN
+
             pwrP = m_P * m_error;
-            pwrI = m_I * m_totalError * m_deltaTime;
+            pwrI = m_I * m_totalError;
             pwrD = m_D * (m_error - m_prevError) * m_deltaTime;
 
             m_result = pwrP + pwrI + pwrD;
@@ -298,7 +294,7 @@ public class PIDController {
      */
     public void enable() {
 
-        m_prevTime=System.nanoTime();
+        if (!m_enabled) m_prevTime=System.nanoTime(); //if it's been false for a while, the previous time is likely very stale
         m_enabled = true;
     }
 

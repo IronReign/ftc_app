@@ -36,10 +36,10 @@ public class Pele extends SynchronousOpMode {
     DcMotor flingLeft = null;
     DcMotor flingRight = null;
     DcMotor cliffElevation = null;
-    Servo servoPlow = null;
-    Servo servoCliffHanger = null;
-    Servo servoTrough = null;
-    Servo servoConveyor = null;
+    Servo paddleLeft = null;
+    Servo paddleRight = null;
+    Servo beaterServo = null;
+    //Servo servoConveyor = null;
 
 
     PIDController drivePID = new PIDController(0, 0, 0);
@@ -85,15 +85,15 @@ public class Pele extends SynchronousOpMode {
 //    private boolean tapeRetractFinish = false;
 //    private boolean diagnosticsFinished = false;
 //    public String climberPos;
-    public final static int troughDown = 2100;
-    public final static int troughUp =   900;
-    public final static int troughMid =  1980; //last servo
-    public final static int troughRelaxed = 1366;
-    public final static int conveyorLeft  = 1000;
-    public final static int conveyorRight = 2000;
-    public final static int conveyorStop  = 1500;
-    public final static int plowDown = 1950;
-    public final static int plowUp = 850;
+    public final static int paddleLeftOut = 2200; //maybe more
+    public final static int paddleLeftIn =   900;
+    public final static int paddleRightOut =  800;
+    public final static int paddleRightIn = 2100;
+    public final static int beaterServoOut  = 1000; //not calibrated
+    public final static int beaterServoIn = 2000; //not calibrated
+  //  public final static int conveyorStop  = 1500;
+   // public final static int plowDown = 1950;
+   // public final static int plowUp = 850;
 //
 // Our sensors, motors, and other devices go here, along with other long term state
     I2cDevice i2cDevice;
@@ -141,32 +141,26 @@ public class Pele extends SynchronousOpMode {
         //this.motorRightBack = this.hardwareMap.dcMotor.get("motorRightBack");
         this.motorLeft = this.hardwareMap.dcMotor.get("motorLeft");
         this.motorRight = this.hardwareMap.dcMotor.get("motorRight");
-//        this.motorBeater = this.hardwareMap.dcMotor.get("motorBeater");
-//        this.servoPlow = this.hardwareMap.servo.get("servoCatcher");
-//        this.cliffElevation = this.hardwareMap.dcMotor.get("motorCliffElevation");
-//        this.servoCliffHanger = this.hardwareMap.servo.get("servoCliff");
-//        this.motorChurros = this.hardwareMap.dcMotor.get("motorChurros");
+
+        this.beaterServo = this.hardwareMap.servo.get("beaterServo");
+
+        this.paddleLeft = this.hardwareMap.servo.get("paddleLeft");
+        this.paddleRight = this.hardwareMap.servo.get("paddleRight");
+
         this.flingLeft = this.hardwareMap.dcMotor.get("flingLeft");
         this.flingRight = this.hardwareMap.dcMotor.get("flingRight");
-//        this.servoTrough = this.hardwareMap.servo.get("servoTrough");
-//        this.servoConveyor = this.hardwareMap.servo.get("servoConveyor");
-        // Configure the knobs of the hardware according to how you've wired your
-        // robot. Here, we assume that there are no encoders connected to the motors,
-        // so we inform the motor objects of that fact.
-        //this.motorLeftBack.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        //this.motorRightBack.setChannelMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+
         this.motorLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.motorRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        //this.motorBeater.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+
         this.flingLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         this.flingRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        //this.cliffElevation.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+
 
 
 
         this.motorRight.setDirection(DcMotor.Direction.REVERSE);
         this.flingRight.setDirection(DcMotor.Direction.REVERSE);
-
 
         // We are expecting the IMU to be attached to an I2C port on  a core device interface
         // module and named "imu". Retrieve that raw I2cDevice and then wrap it in an object that

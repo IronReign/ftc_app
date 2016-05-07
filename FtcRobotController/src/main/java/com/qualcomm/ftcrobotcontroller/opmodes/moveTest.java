@@ -9,6 +9,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
+import org.swerverobotics.library.interfaces.TeleOp;
+
+@TeleOp(name = "3734 moveTest (sync)", group = "IronReign")
     public class moveTest extends OpMode {
 
         /*
@@ -75,8 +78,8 @@ import com.qualcomm.robotcore.util.Range;
             motorLeft = hardwareMap.dcMotor.get("motor_1");
             motorLeft.setDirection(DcMotor.Direction.REVERSE);
 
-            arm = hardwareMap.servo.get("servo_1");
-            claw = hardwareMap.servo.get("servo_6");
+            //arm = hardwareMap.servo.get("servo_1");
+            //claw = hardwareMap.servo.get("servo_6");
 
             // assign the starting position of the wrist and claw
             armPosition = 0.2;
@@ -147,8 +150,8 @@ import com.qualcomm.robotcore.util.Range;
             clawPosition = Range.clip(clawPosition, CLAW_MIN_RANGE, CLAW_MAX_RANGE);
 
             // write position values to the wrist and claw servo
-            arm.setPosition(armPosition);
-            claw.setPosition(clawPosition);
+            //arm.setPosition(armPosition);
+            //claw.setPosition(clawPosition);
 
 
 

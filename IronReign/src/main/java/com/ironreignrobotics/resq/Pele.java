@@ -89,7 +89,7 @@ public class Pele extends SynchronousOpMode {
     public final static int paddleLeftIn =   900;
     public final static int paddleRightOut =  800;
     public final static int paddleRightIn = 2100;
-    public final static int beaterServoOut  = 1000; //not calibrated
+    public final static int beaterServoOut  = 900; //not calibrated
     public final static int beaterServoIn = 2000; //not calibrated
   //  public final static int conveyorStop  = 1500;
    // public final static int plowDown = 1950;
@@ -356,19 +356,22 @@ public class Pele extends SynchronousOpMode {
 
             }
             if(pad.dpad_up) {
-
+                beaterServo.setPosition(beaterServoOut);
             }
             else if(pad.dpad_down) {
+                beaterServo.setPosition(beaterServoIn);
 
             }
             else{
 
             }
             if(pad.dpad_left) {
-
+                paddleLeft.setPosition(paddleLeftOut);
+                paddleRight.setPosition(paddleRightOut );
             }
             else if(pad.dpad_right) { //control conveyor if trough is up, otherwise control direction
-
+                paddleLeft.setPosition(paddleLeftIn);
+                paddleRight.setPosition(paddleRightIn );
 
             }
             else{

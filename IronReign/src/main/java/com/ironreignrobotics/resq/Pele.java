@@ -798,6 +798,9 @@ public class Pele extends SynchronousOpMode {
             else {
                 switch (autoStage) {
                     case 0:
+                        paddleLeft.setPosition(pose.ServoNormalize(paddleLeftOut));
+                        paddleRight.setPosition(pose.ServoNormalize(paddleRightOut));
+
                         motorLeft.setPower(.1);
                         motorRight.setPower(-.07 );
                         autoStage++;
@@ -808,7 +811,7 @@ public class Pele extends SynchronousOpMode {
                     case 2: //approach can
                         //MoveArgos(KpDrive, KiDrive, KdDrive, );
                         MoveCan(KpDrive, KiDrive, KdDrive, ErrorPixToDeg(x), 0, drivePID);
-                        if (blobH>210) {  //an upright can is close enough to grab
+                        if (blobH>150) {  //an upright can is close enough to grab
                             motorLeft.setPower(0); //stop
                             motorRight.setPower(0);
                             //topple can into flinger

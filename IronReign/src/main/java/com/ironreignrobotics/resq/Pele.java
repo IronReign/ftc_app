@@ -79,6 +79,9 @@ public class Pele extends SynchronousOpMode {
     private long autoPushButtonTimerStart = -1;
     private boolean demoCase = false;
     private int demoAngle = 0;
+    private boolean run = false;
+    private double lw = 0;
+    private double wl = 0;
 
 
 //  private boolean diagnosticsStarted = false;
@@ -114,6 +117,8 @@ public class Pele extends SynchronousOpMode {
     public CsvLogKeeper logger;
 
     int x = FtcRobotControllerActivity.blobx;
+    int blobW = FtcRobotControllerActivity.blobWidth;
+    int blobH = FtcRobotControllerActivity.blobHeight;
 
 
     private double ErrorPixToDeg(int blobx){
@@ -220,6 +225,9 @@ public class Pele extends SynchronousOpMode {
             }
 
             pose.Update(imu.getAngularOrientation(), motorLeft.getCurrentPosition(), motorRight.getCurrentPosition());
+            x = FtcRobotControllerActivity.blobx;
+            blobW = FtcRobotControllerActivity.blobWidth;
+            blobH = FtcRobotControllerActivity.blobHeight;
             if (active) {
 //                climber.run();
                 switch (demoMode) {
@@ -347,38 +355,35 @@ public class Pele extends SynchronousOpMode {
             }
             if(pad.y)
             {
-
-
+                pose.Fling();
             }
             if(pad.b)
             {
-
-
-            }
-            if(pad.dpad_up) {
-                beaterServo.setPosition(beaterServoOut);
-            }
-            else if(pad.dpad_down) {
-                beaterServo.setPosition(beaterServoIn);
+                //paddleLeft.setPosition(pose.ServoNormalize(paddleLeftOut));
+                //paddleRight.setPosition(pose.ServoNormalize(paddleRightOut));
+                pose.flingerReset();
 
             }
-            else{
+         if(pad.dpad_up) {
+                beaterServo.setPosition(pose.ServoNormalize(beaterServoOut));
+            }
+            if(pad.dpad_down) {
+                beaterServo.setPosition(pose.ServoNormalize(beaterServoIn));
 
             }
             if(pad.dpad_left) {
-                paddleLeft.setPosition(paddleLeftOut);
-                paddleRight.setPosition(paddleRightOut );
+                paddleLeft.setPosition(pose.ServoNormalize(paddleLeftOut));
+                paddleRight.setPosition(pose.ServoNormalize(paddleRightOut));
             }
-            else if(pad.dpad_right) { //control conveyor if trough is up, otherwise control direction
-                paddleLeft.setPosition(paddleLeftIn);
-                paddleRight.setPosition(paddleRightIn );
+            if(pad.dpad_right) { //control conveyor if trough is up, otherwise control direction
+                paddleLeft.setPosition(pose.ServoNormalize(paddleLeftIn));
+                paddleRight.setPosition(pose.ServoNormalize(paddleRightIn));
 
             }
-            else{
 
-            }
             if(pad.a) {
-
+                paddleLeft.setPosition(pose.ServoNormalize(paddleLeftIn));
+                paddleRight.setPosition(pose.ServoNormalize(paddleRightIn));
                 }
             }
 
@@ -719,7 +724,18 @@ public class Pele extends SynchronousOpMode {
                     public Object value() {
                         return x;
                     }
-                }));
+                }),
+                telemetry.item("blobW: ", new IFunc<Object>() {
+                    public Object value() {
+                        return blobW;
+                    }
+                }),
+                telemetry.item("blobH: ", new IFunc<Object>() {
+                    public Object value() {
+                        return blobH;
+                    }
+                })
+        );
     }
 
 
@@ -776,142 +792,43 @@ public class Pele extends SynchronousOpMode {
         loopTime = System.nanoTime();
         if (loopTime-loopTimeLast>loopTimeMin) {
             loopTimeLast = loopTime;
-            switch (autoStage) {
-
-
-                case 0:   //Get ready to take off with plow down
-                    pose.setPoseHeading(0);
-                    pose.Update(imu.getAngularOrientation(), motorLeft.getCurrentPosition(), motorRight.getCurrentPosition());
-
-                    SwerveUtil.playSound(hardwareMap.appContext, R.raw.a26);
-                    autoStage++;
-                    //drivePID.enable();
-
-                    break;
-                case 1:   //commented out
-//                autoStage++; //skipping case 1 right now ********************
-
-                    MoveIMU(KpDrive, KiDrive, KdDrive, driveIMUBasePower, 0, drivePID);
-                    if (pose.getOdometer() > 0.1) {
-
-                        //pose.updateBooleanElevation();
-                        // lower cliffhanger to trigger beater bar slide out
-
-                        cliffElevation.setPower(-.6);
-
-                        SwerveUtil.playSound(hardwareMap.appContext, R.raw.a02);
-
+            if(run){
+                run = false;
+            }
+            else {
+                switch (autoStage) {
+                    case 0:
+                        motorLeft.setPower(.1);
+                        motorRight.setPower(-.07 );
                         autoStage++;
-                    }
-                    break;
-                case 2:   //Drive to the beacon; angle = _0
-                    MoveIMU(KpDrive, KiDrive, KdDrive, driveIMUBasePower, 0, drivePID);
-                    if (pose.getOdometer() > 3) { //TODO: fix distance value
+                        break;
+                    case 1:
+                        if (blobH>40) autoStage++; //found a blob large enough to pursue
+                        break;
+                    case 2: //approach can
+                        //MoveArgos(KpDrive, KiDrive, KdDrive, );
+                        MoveCan(KpDrive, KiDrive, KdDrive, ErrorPixToDeg(x), 0, drivePID);
+                        if (blobH>210) {  //an upright can is close enough to grab
+                            motorLeft.setPower(0); //stop
+                            motorRight.setPower(0);
+                            //topple can into flinger
+                            //close doors
+                            autoStage++;
 
+                        }
+
+                        break;
+
+                    //Upright can ready to be grabbed: blobH around 217, blowW around 157 but more variable due to specular changes
+                    //Horizontal can ready to be grabbed:  blobW near 280 to 295, blobH variable 95-150 and touching bottom of screen
+                    //Can is in flinger when blobW near 360 +-20 and blowH near 75 +-15, touching bottom of screen
+
+
+                    default:
                         motorLeft.setPower(0);
                         motorRight.setPower(0);
-
-                        pose.setOdometer(0);
-//                    pose.setCliffElevation(15);
-                        SwerveUtil.playSound(hardwareMap.appContext, R.raw.a03);
-                        autoStage++;
-                        logger.CloseLog();
-
-                    }
-                    break;
-
-                case 3:   //rough turn to beacon; angle = _0 to 45(blu) or 360-45(red)
-                    MoveIMU(KpDrive, KiDrive, KdDrive, 0, allianceAngle(45), drivePID);   //
-                    if (pose.getHeading() >= allianceAngle(45) - 2 && pose.getHeading() <= allianceAngle(45) + 2) { //TODO: this closeness test won't work right around _0 degrees because of the discontinuity
-                        motorLeft.setPower(0);
-                        pose.setOdometer(0);
-                        SwerveUtil.playSound(hardwareMap.appContext, R.raw.a04);
-                        double beaconOffset = pose.wrapAngleMinus(pose.getHeading(), ErrorPixToDeg(x));
-                        autoStage++;
-                    }
-                    break;
-
-                case 4:   //Precise turn to beacon - color blob assisted; angle = 45(?)
-                    MoveRobot(KpDrive, KiDrive, KdDrive, 0, ErrorPixToDeg(x), 0, drivePID);
-                    if((ErrorPixToDeg(x) < 2) || (ErrorPixToDeg(x) > 358)) {
-                //MoveIMU(KpDrive, KiDrive, KdDrive, 0, pose.wrapAngle(pose.getHeading(), ErrorPixToDeg(x)), drivePID);
-                //if (pose.getHeading() >= pose.wrapAngle(pose.getHeading(), ErrorPixToDeg(x)) - 2 && pose.getHeading() <= pose.wrapAngle(pose.getHeading(), ErrorPixToDeg(x))+ 2) { //TODO: this closeness test won't work right around _0 degrees because of the discontinuity
-                    motorLeft.setPower(0);
-                    motorRight.setPower(0);
-                    pose.setOdometer(0);
-                    SwerveUtil.playSound(hardwareMap.appContext, R.raw.a05);
-                    autoStage++;
+                        break;
                 }
-
-                    autoStage++;
-                    //autoStage = 6;
-                    break;
-
-                case 5:   //Beacon approach - color blob assisted; angle = 45(?)
-                    MoveRobot(KpDrive, KiDrive, KdDrive, .25, ErrorPixToDeg(x), 0, drivePID);
-                    if (pose.getOdometer() >= .5) {
-                        motorLeft.setPower(0);
-                        motorRight.setPower(0);
-                        pose.setOdometer(0);
-                        autoPushButtonTimerStart = System.nanoTime();
-                        SwerveUtil.playSound(hardwareMap.appContext, R.raw.a06);
-                        autoStage++;
-                    }
-                    break;
-
-                case 6:   //Push the button
-//                int curposCliffHangers = flingLeft.getCurrentPosition();
-                    //Retract tape again
-                    // TODO: should test based on position, not time
-//                if(System.nanoTime() - autoPushButtonTimerStart > 2500000){
-                    //return tape to previous position
-//                    flingLeft.setTargetPosition(curposCliffHangers);
-//                   flingRight.setTargetPosition(curposCliffHangers);
-//                pose.setCliffHangerExtension(0.3);
-//                if(!flingLeft.isBusy())
-//                    SwerveUtil.playSound(hardwareMap.appContext, R.raw.a07);
-                    autoStage++;
-//                    autoPushButtonTimerStart = System.nanoTime();
-                    //               }
-
-                    break;
-                case 7:
-//                pose.setCliffHangerExtension(0);
-//                if(!flingLeft.isBusy())
-//                    SwerveUtil.playSound(hardwareMap.appContext, R.raw.a08);
-                    autoStage++;
-
-
-                    break;
-
-                case 8:   //move forward and drop climbers
-//                servoPlow.setPosition(pose.ServoNormalize(plowUp)); //pull up plow
-//                motorLeft.setPower(.2);
-//                motorRight.setPower(.2);
-//                 TODO: should test based on wall sensor or color blob width
-//                if(System.nanoTime() - autoPushButtonTimerStart > 2500000){
-//                    motorLeft.setPower(0);
-//                    motorRight.setPower(0);
-//                    autoStage++;
-//                    autoPushButtonTimerStart = System.nanoTime();
-//                }
-//                servoTrough.setPosition(pose.ServoNormalize(troughUp)); //pull up trough to dump climbers
-//                SwerveUtil.playSound(hardwareMap.appContext, R.raw.a09);
-                    autoStage++;
-                    break;
-
-                case 9:   //retreat
-//                flingLeft.setCliffPullPower(_0);
-//                flingRight.setCliffPullPower(_0);
-                    //servoPlow.setPosition(pose.ServoNormalize(plowDown));
-
-                    autoStage++;
-
-                    break;
-                default:
-                    motorLeft.setPower(0);
-                    motorRight.setPower(0);
-                    break;
             }
 
         }
@@ -1012,8 +929,30 @@ public class Pele extends SynchronousOpMode {
         {
             motorPower = Math.sqrt(FtcRobotControllerActivity.targetContour) - Math.sqrt(FtcRobotControllerActivity.maxContour);
 
-            motorPower /= -3.5;
+            motorPower /= 3.5;
             motorPower /= 100;
+        }
+//        if(motorPower > .5)
+//            motorPower = .5;
+//        if(motorPower < -.5)
+//            motorPower = -.5;
+        MoveRobot(KpDrive, 0, KdDrive, motorPower, ErrorPixToDeg(x), 0, drivePID);
+
+    }
+    void MoveCan(double Kp, double Ki, double Kd, double currentAngle, double targetAngle, PIDController PID){
+
+//        PID.setPID(Kp, Ki, Kd);
+//        PID.setSetpoint(targetAngle);
+//        PID.enable();
+//        //drivePID.setInput(pose.diffAngle(drivePID.getSetpoint(), pose.getHeading()));
+//        PID.setInputRange(_0, 360);
+//        PID.setContinuous();
+//        //PID.setInput(pose.getHeading());
+//        PID.setInput(currentAngle);
+
+        if((FtcRobotControllerActivity.maxContour >0) && (FtcRobotControllerActivity.targetContour > 0))
+        {
+            motorPower = .2;
         }
 //        if(motorPower > .5)
 //            motorPower = .5;

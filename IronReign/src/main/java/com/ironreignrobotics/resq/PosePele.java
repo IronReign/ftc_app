@@ -42,6 +42,14 @@ public class PosePele
     private long ticksLeftOffset; //provide a way to offset (effectively reset) the motor encoder readings
     private long ticksRightOffset;
     private double wheelbase; //the width between the wheels
+    public DcMotor flingerLeft;
+    private DcMotor flingerRight;
+    protected boolean flingerRelaxing = false;
+    protected boolean flingerFlinging = false;
+    final protected double flingerRelaxPwr = 0.05;
+    final protected double flingerFlingPwr = -1;
+    long flingerTimer;
+
 
     /**
      * Create a Pose instance that stores all real world position/orientation elements:
@@ -61,6 +69,8 @@ public class PosePele
         poseSpeed = speed;
         posePitch = 0;
         poseRoll = 0;
+        flingerLeft = flingLeft;
+        flingerRight = flingRight;
     }
 
     /**
@@ -79,6 +89,8 @@ public class PosePele
         poseY     = y;
         poseHeading = angle;
         poseSpeed = 0;
+        flingerLeft = flingLeft;
+        flingerRight = flingRight;
     }
 
     /**
@@ -94,6 +106,8 @@ public class PosePele
         poseSpeed = 0;
         posePitch=0;
         poseRoll=0;
+        flingerLeft = flingLeft;
+        flingerRight = flingRight;
     }
 
 
@@ -206,7 +220,19 @@ public class PosePele
         this.ticksPerMeterLeft = ticksPerMeterLeft;
     }
 
+    public void Fling ()
+    {
+        flingerFlinging = true;
+        flingerLeft.setPower(flingerFlingPwr);
+        flingerRight.setPower(flingerFlingPwr);
+    }
 
+    public void flingerReset(){
+        flingerRelaxing = true; //indicate we've started resetting the flinger
+        flingerLeft.setPower(flingerRelaxPwr);
+        flingerRight.setPower(flingerRelaxPwr);
+
+    }
 
 
     /**
@@ -259,7 +285,26 @@ public class PosePele
 
         poseX += displacement * Math.cos(poseHeadingRad);
         poseY += displacement * Math.sin(poseHeadingRad);
+
+        if (flingerFlinging){
+            flingerTimer = currentTime + (long).5e9; //.5 seconds into the future
+            flingerFlinging = false;
+        }
+
+        if (flingerRelaxing){
+            flingerTimer = currentTime + (long)1e9; //3 seconds into the future
+            flingerRelaxing = false;
+        }
+
+        if (currentTime> flingerTimer){
+            flingerTimer = 0;
+            flingerLeft.setPower(0);
+            flingerRight.setPower(0);
+
+
+        }
     }
+
     public long getTicksLeftPrev()
     {
         return ticksLeftPrev;
@@ -331,4 +376,11 @@ public class PosePele
     public double wrapAngleMinus(double angle1, double angle2){
         return 360-((angle1 + angle2) % 360);
     }
+
+    public double ServoNormalize(int pulse){
+        double normalized = (double)pulse;
+        return (normalized - 750.0) / 1500.0; //convert mr servo controller pulse width to double on _0 - 1 scale
+    }
+
+
 }

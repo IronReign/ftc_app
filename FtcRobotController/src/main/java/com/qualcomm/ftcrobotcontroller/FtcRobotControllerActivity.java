@@ -126,6 +126,9 @@ public class FtcRobotControllerActivity extends Activity implements View.OnTouch
   static private int screenHeight;
   static volatile public int blobx; //current x value of the centroid (center of mass) of the largest tracked blob contour
   static volatile public int bloby; //current y value of the centroid of the largest tracked blob
+  static volatile public org.opencv.core.Rect blobBox;
+  static volatile public int blobHeight;
+  static volatile public int blobWidth;
   static volatile public double maxContour = 0;
   static private double minContour = 1000; //smallest contour area that we will pay attention to
   static volatile public double targetContour = -1; //what is the size of the maximum contour just after it is selected by touch? - serves as the target size (distance to maintain from the object)
@@ -635,6 +638,10 @@ public class FtcRobotControllerActivity extends Activity implements View.OnTouch
 
       List<Moments> mu = new ArrayList<Moments>(contours.size());
       maxContour=0;
+      blobWidth = 0;
+      blobHeight = 0;
+      blobBox = null;
+
       for (int i = 0; i < contours.size(); i++) {
         mu.add(i, Imgproc.moments(contours.get(i), false));
         Moments p = mu.get(i);
@@ -648,6 +655,9 @@ public class FtcRobotControllerActivity extends Activity implements View.OnTouch
           maxContour=area;
           blobx=x;
           bloby=y;
+          blobBox=Imgproc.boundingRect(contours.get(i));
+          blobWidth=blobBox.width;
+          blobHeight = blobBox.height;
         }
       }
 

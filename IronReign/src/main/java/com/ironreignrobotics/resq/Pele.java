@@ -47,7 +47,7 @@ public class Pele extends SynchronousOpMode {
     //private int isRed = 1;
 
 
-    private double KpDrive = .015;
+    private double KpDrive = .010;
     private double KiDrive = 0.01;
      private double KdDrive = 0;
     private double driveIMUBasePower = .5;
@@ -62,6 +62,7 @@ public class Pele extends SynchronousOpMode {
     public double loopTimeLast = 0;
     public double loopTime = 0;
     private long dpadHorizontalTimer = 0;
+
     private long aTimer = 0;
     private long bTimer = 0;
     private long xTimer = 0;
@@ -82,6 +83,7 @@ public class Pele extends SynchronousOpMode {
     private boolean run = false;
     private double lw = 0;
     private double wl = 0;
+    protected long autoGPTimer = 0;
 
 
 //  private boolean diagnosticsStarted = false;
@@ -801,24 +803,50 @@ public class Pele extends SynchronousOpMode {
                         paddleLeft.setPosition(pose.ServoNormalize(paddleLeftOut));
                         paddleRight.setPosition(pose.ServoNormalize(paddleRightOut));
 
-                        motorLeft.setPower(.1);
-                        motorRight.setPower(-.07 );
+                        motorLeft.setPower(.075);
+                        motorRight.setPower(-.075 );
                         autoStage++;
                         break;
                     case 1:
                         if (blobH>40) autoStage++; //found a blob large enough to pursue
                         break;
-                    case 2: //approach can
+                    case 2: //approach can and tip in if vertical
                         //MoveArgos(KpDrive, KiDrive, KdDrive, );
                         MoveCan(KpDrive, KiDrive, KdDrive, ErrorPixToDeg(x), 0, drivePID);
-                        if (blobH>150) {  //an upright can is close enough to grab
+                        if (blobH>150 && blobW > 130) {  //an upright can is close enough to grab
                             motorLeft.setPower(0); //stop
                             motorRight.setPower(0);
                             //topple can into flinger
                             //close doors
+                            beaterServo.setPosition(pose.ServoNormalize(beaterServoIn));
+
+                            autoGPTimer=(long)loopTime + (long)3e9;
                             autoStage++;
+                            break;
 
                         }
+
+                    case 3:
+                        if (autoGPTimer>(long)loopTime) //wait for servo to tip can in
+                        {
+                            beaterServo.setPosition(pose.ServoNormalize(beaterServoOut));
+                            autoGPTimer=(long)loopTime + (long)3e9;
+                            autoStage++;
+                        }
+                        break;
+                    case 4:
+                    if (autoGPTimer>(long)loopTime) //wait for tipping paddle to get out of the ay
+                    {
+                        beaterServo.setPosition(pose.ServoNormalize(beaterServoOut));
+                        autoGPTimer=(long)loopTime + (long)1e9;
+                        autoStage++;
+                    }
+                    break;
+                    case 5: //close gates
+
+                        paddleLeft.setPosition(pose.ServoNormalize(paddleLeftIn));
+                        paddleRight.setPosition(pose.ServoNormalize(paddleRightIn));
+                        autoStage++;
 
                         break;
 

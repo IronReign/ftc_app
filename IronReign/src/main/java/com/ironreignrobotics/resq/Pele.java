@@ -234,6 +234,8 @@ public class Pele extends SynchronousOpMode {
 //                climber.run();
                 switch (demoMode) {
                     case 0:  //pre-match diagnostics
+                        if (pose.flingerWiggle()) demoMode = 2;
+
 
                         break;
 
@@ -849,6 +851,20 @@ public class Pele extends SynchronousOpMode {
                         autoStage++;
 
                         break;
+
+                    case 6: //wiggle
+
+                        if (pose.flingerWiggle()) autoStage++;
+                        break;
+
+                    case 7: //turn toward goal
+
+                        break;
+
+                    case 8: //fire
+
+                        break;
+
 
                     //Upright can ready to be grabbed: blobH around 217, blowW around 157 but more variable due to specular changes
                     //Horizontal can ready to be grabbed:  blobW near 280 to 295, blobH variable 95-150 and touching bottom of screen

@@ -46,7 +46,7 @@ public class PosePele
     private DcMotor flingerRight;
     protected boolean flingerRelaxing = false;
     protected boolean flingerFlinging = false;
-    final protected double flingerRelaxPwr = 0.05;
+    final protected double flingerRelaxPwr = 0.075;
     final protected double flingerFlingPwr = -1;
     long flingerTimer;
 
@@ -234,6 +234,31 @@ public class PosePele
 
     }
 
+    protected int flingCount=0;
+
+
+    public boolean flingerWiggle(){ //return true when settled
+        if (System.nanoTime() > flingerTimer ) {
+            if (flingCount < 20) {
+                if ((flingCount & 1) == 0) {//upstroke on even
+                    flingerLeft.setPower(-.15);
+                    flingerRight.setPower(-.15);
+                } else { //downstroke on odds
+                    flingerLeft.setPower(.25);
+                    flingerRight.setPower(.25);
+                }
+                flingerTimer = System.nanoTime() + (long).5e8;
+                flingCount++;
+                return false;
+            }
+            else {
+                flingCount = 0; //reset if we need to re-wiggle
+                return true;
+            }
+        }
+        else return false;
+
+    }
 
     /**
      * Update the current location of the robot. This implementation gets heading and orientation
@@ -287,7 +312,7 @@ public class PosePele
         poseY += displacement * Math.sin(poseHeadingRad);
 
         if (flingerFlinging){
-            flingerTimer = currentTime + (long).5e9; //.5 seconds into the future
+            flingerTimer = currentTime + (long).15e9; //.5 seconds into the future
             flingerFlinging = false;
         }
 

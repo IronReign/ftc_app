@@ -402,6 +402,21 @@ public class PosePele
         return 360-((angle1 + angle2) % 360);
     }
 
+    double getBearingTo(double x, double y){
+        double diffx = x-poseX;
+        double diffy = y-poseY;
+        return ( Math.toDegrees(Math.atan2( diffy, diffx)) + 360 ) % 360;
+    }
+
+    double getDistanceTo(double x, double y){
+
+            double dx = x - poseX;
+            double dy = y - poseY;
+            return Math.sqrt(dx*dx + dy*dy);
+
+        }
+
+
     public double ServoNormalize(int pulse){
         double normalized = (double)pulse;
         return (normalized - 750.0) / 1500.0; //convert mr servo controller pulse width to double on _0 - 1 scale

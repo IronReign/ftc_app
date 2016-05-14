@@ -405,7 +405,13 @@ public class PosePele
     double getBearingTo(double x, double y){
         double diffx = x-poseX;
         double diffy = y-poseY;
-        return ( Math.toDegrees(Math.atan2( diffy, diffx)) + 360 ) % 360;
+        return ( Math.toDegrees(Math.atan2( diffy, diffx)) - 90  + 360 ) % 360;
+    }
+
+    double getBearingOpposite(double x, double y){
+        double diffx = x-poseX;
+        double diffy = y-poseY;
+        return ( Math.toDegrees(Math.atan2( diffy, diffx)) + 90 + 360 ) % 360;
     }
 
     double getDistanceTo(double x, double y){

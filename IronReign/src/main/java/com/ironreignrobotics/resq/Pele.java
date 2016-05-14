@@ -47,7 +47,7 @@ public class Pele extends SynchronousOpMode {
     //private int isRed = 1;
 
 
-    private double KpDrive = .010;
+    private double KpDrive = .007;
     private double KiDrive = 0.01;
      private double KdDrive = 0;
     private double driveIMUBasePower = .5;
@@ -71,6 +71,7 @@ public class Pele extends SynchronousOpMode {
     private long toggleOKTime = 0; //when should next toggle be allowed
     private long startTimer = 0;
     private boolean isTroughUp = false;
+    private double goalAngle;
 //    double baseSpeed = _0;
 //    double baseHeading = _0;
 //    public String[] State = {"TeleOp", "Auto", "GoStraight", "GoStraightIMU", "SquareDance"};
@@ -99,6 +100,10 @@ public class Pele extends SynchronousOpMode {
   //  public final static int conveyorStop  = 1500;
    // public final static int plowDown = 1950;
    // public final static int plowUp = 850;
+
+    public final static double goalX = 0.0;
+    public final static double goalY = 3.05;
+    public final static double goalDist = 1.0;
 //
 // Our sensors, motors, and other devices go here, along with other long term state
     I2cDevice i2cDevice;
@@ -810,7 +815,12 @@ public class Pele extends SynchronousOpMode {
                         autoStage++;
                         break;
                     case 1:
-                        if (blobH>40) autoStage++; //found a blob large enough to pursue
+                        if (blobH>40){
+                            drivePID.reset();
+                            motorLeft.setPower(0);
+                            motorRight.setPower(0);
+                            autoStage++; //found a blob large enough to pursue
+                        }
                         break;
                     case 2: //approach can and tip in if vertical
                         //MoveArgos(KpDrive, KiDrive, KdDrive, );
@@ -854,11 +864,16 @@ public class Pele extends SynchronousOpMode {
 
                     case 6: //wiggle
 
-                        if (pose.flingerWiggle()) autoStage++;
+                        if (pose.flingerWiggle()) {
+                            drivePID.reset();
+                            goalAngle = pose.getBearingOpposite(goalX, goalY);
+                            autoStage++;
+                        }
+
                         break;
 
                     case 7: //turn toward goal
-
+                        MoveIMU(KpDrive, 0, KdDrive, 0, goalAngle, drivePID);
                         break;
 
                     case 8: //fire
@@ -931,7 +946,7 @@ public class Pele extends SynchronousOpMode {
     void MoveRobot(double Kp, double Ki, double Kd, double pwr, double currentAngle, double targetAngle, PIDController PID) {
         //if (pwr>0) PID.setOutputRange(pwr-(1-pwr),1-pwr);
         //else PID.setOutputRange(pwr - (-1 - pwr),-1-pwr);
-        PID.setOutputRange(-1,1);
+        PID.setOutputRange(-.5,.5);
         PID.setPID(Kp, Ki, Kd);
         PID.setSetpoint(targetAngle);
         PID.enable();
@@ -999,7 +1014,7 @@ public class Pele extends SynchronousOpMode {
 
         if((FtcRobotControllerActivity.maxContour >0) && (FtcRobotControllerActivity.targetContour > 0))
         {
-            motorPower = .2;
+            motorPower = .15;
         }
 //        if(motorPower > .5)
 //            motorPower = .5;

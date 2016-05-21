@@ -49,7 +49,7 @@ public class Pele extends SynchronousOpMode {
 
     private double KpDrive = .007;
     private double KiDrive = 0.01;
-     private double KdDrive = 0;
+     private double KdDrive = .1;
     private double driveIMUBasePower = .5;
     private double motorPower = 0;
 
@@ -810,8 +810,8 @@ public class Pele extends SynchronousOpMode {
                         paddleLeft.setPosition(pose.ServoNormalize(paddleLeftOut));
                         paddleRight.setPosition(pose.ServoNormalize(paddleRightOut));
 
-                        motorLeft.setPower(.075);
-                        motorRight.setPower(-.075 );
+                        motorLeft.setPower(.07);
+                        motorRight.setPower(-.07 );
                         autoStage++;
                         break;
                     case 1:
@@ -833,13 +833,21 @@ public class Pele extends SynchronousOpMode {
                             beaterServo.setPosition(pose.ServoNormalize(beaterServoIn));
 
                             autoGPTimer=(long)loopTime + (long)3e9;
-                            autoStage++;
-                            break;
+                            autoStage=20;
+
 
                         }
+                        break;
+
+                    case 20:
+                        if (blobH>25 && blobW > 250) {  //a toppled can is close enough to grab
+
+                            autoStage = 3;
+                        }
+                        break;
 
                     case 3:
-                        if (autoGPTimer>(long)loopTime) //wait for servo to tip can in
+                        if (autoGPTimer<(long)loopTime) //wait for servo to tip can in
                         {
                             beaterServo.setPosition(pose.ServoNormalize(beaterServoOut));
                             autoGPTimer=(long)loopTime + (long)3e9;
@@ -847,7 +855,7 @@ public class Pele extends SynchronousOpMode {
                         }
                         break;
                     case 4:
-                    if (autoGPTimer>(long)loopTime) //wait for tipping paddle to get out of the ay
+                    if (autoGPTimer<(long)loopTime) //wait for tipping paddle to get out of the ay
                     {
                         beaterServo.setPosition(pose.ServoNormalize(beaterServoOut));
                         autoGPTimer=(long)loopTime + (long)1e9;
@@ -868,16 +876,27 @@ public class Pele extends SynchronousOpMode {
                             drivePID.reset();
                             goalAngle = pose.getBearingOpposite(goalX, goalY);
                             autoStage++;
+                            autoGPTimer=(long)loopTime + (long)5e9;
                         }
 
                         break;
 
                     case 7: //turn toward goal
                         MoveIMU(KpDrive, 0, KdDrive, 0, goalAngle, drivePID);
+                        if (autoGPTimer<(long)loopTime) //wait for turnabout
+                        {
+                            pose.Fling();
+                            autoGPTimer=(long)loopTime + (long)1e9;
+                            autoStage++;
+
+                        }
                         break;
 
                     case 8: //fire
 
+                        if (autoGPTimer<(long)loopTime) //wait for turnabout
+                        {autoStage=0;}
+                        pose.flingerReset();
                         break;
 
 
@@ -1020,7 +1039,7 @@ public class Pele extends SynchronousOpMode {
 //            motorPower = .5;
 //        if(motorPower < -.5)
 //            motorPower = -.5;
-        MoveRobot(KpDrive, 0, KdDrive, motorPower, ErrorPixToDeg(x), 0, drivePID);
+        MoveRobot(KpDrive, 0, 0, motorPower, ErrorPixToDeg(x), 0, drivePID);
 
     }
 

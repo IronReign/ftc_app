@@ -241,11 +241,11 @@ public class PosePele
         if (System.nanoTime() > flingerTimer ) {
             if (flingCount < 20) {
                 if ((flingCount & 1) == 0) {//upstroke on even
-                    flingerLeft.setPower(-.15);
-                    flingerRight.setPower(-.15);
+                    flingerLeft.setPower(-.1);
+                    flingerRight.setPower(-.1);
                 } else { //downstroke on odds
-                    flingerLeft.setPower(.25);
-                    flingerRight.setPower(.25);
+                    flingerLeft.setPower(.2);
+                    flingerRight.setPower(.2);
                 }
                 flingerTimer = System.nanoTime() + (long).5e8;
                 flingCount++;

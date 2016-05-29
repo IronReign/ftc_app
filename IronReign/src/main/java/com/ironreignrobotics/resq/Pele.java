@@ -193,34 +193,19 @@ public class Pele extends SynchronousOpMode {
 
         //1120 ticks per rotation of Neverest 40 motor
         //1.5 increase in speed from 24 tooth drive sprocket to 16 tooth driven
-        //~80 mm diameter to outside of tread on track sprocket * pi = 251 mm = .25 meter travel per motor turn
-        //1120 * 4 = 4480
+        //0.1016m (4") diameter * pi = .31918 meter travel per motor turn
+        //reciprocal is number of turns to go 1 meter = 3.133
+        //1120 * 3.133 = 3509 ticks per meter
         //this estimated approach needs to be replaced with a calibrated and measured set of ticks per meter
 
-        pose.setTicksPerMeterLeft(2940);
-        pose.setTicksPerMeterRight(2940);
+        pose.setTicksPerMeterLeft(3509);
+        pose.setTicksPerMeterRight(3509);
         pose.setOdometer(0);
-
-
-
 
         // Configure the dashboard however we want it
         this.configureDashboard();
 
-//        servoCliffHanger.setPosition(climberStartPos);
-//        servoTrough.setPosition(pose.ServoNormalize(troughDown));
-//        servoConveyor.setPosition(pose.ServoNormalize(conveyorStop));
-        //flingLeft.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        //flingRight.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        //pose.resetCliffInit();
-        // Wait until we've been given the ok to go
-        //while(!pose.isInitComplete)
-        //    pose.cliffInit();
-
-
-        this.waitForStart();
-
-//        pose.setCliffElevationPower(1);
+        this.waitForStart(); //wait until remote start on driver station
 
         // Enter a loop processing all the input we receive
         while (this.opModeIsActive()) {
@@ -291,7 +276,7 @@ public class Pele extends SynchronousOpMode {
             }
             else {
                 relax();
-//                motorChurros.setCliffPullPower(_0);
+
             }
 
 
@@ -364,17 +349,17 @@ public class Pele extends SynchronousOpMode {
             }
             if(pad.y)
             {
-                pose.Fling();
+                pose.fling();
             }
             if(pad.b)
             {
                 //paddleLeft.setPosition(pose.ServoNormalize(paddleLeftOut));
                 //paddleRight.setPosition(pose.ServoNormalize(paddleRightOut));
-                pose.flingerReset();
+                pose.flingRelax();
 
             }
          if(pad.dpad_up) {
-                beaterServo.setPosition(pose.ServoNormalize(beaterServoOut));
+             beaterServo.setPosition(pose.ServoNormalize(beaterServoOut));
             }
             if(pad.dpad_down) {
                 beaterServo.setPosition(pose.ServoNormalize(beaterServoIn));
@@ -395,44 +380,6 @@ public class Pele extends SynchronousOpMode {
                 paddleRight.setPosition(pose.ServoNormalize(paddleRightIn));
                 }
             }
-
-
-
-
-
-
-
-
-        // We're going to assume that the deadzone processing has been taken care of for us
-        // already by the underlying system (that appears to be the intent). Were that not
-        // the case, then we would here process ctlLeft and ctlRight to be exactly zero
-        // within the deadzone.
-
-        // Map the power and steering to have more oomph at low values (optional)
-        //  ctlLeft = this.xformDrivingPowerLevels(ctlLeft);
-        //ctlRight = this.xformDrivingPowerLevels(ctlRight);
-
-        // Dampen power to avoid clipping so we can still effectively steer even
-        // under heavy throttle.
-        //
-        // We want
-        //      -1 <= ctlLeft - ctlRight <= 1
-        //      -1 <= ctlLeft + ctlRight <= 1
-        // i.e
-        //      ctlRight -1 <= ctlLeft <=  ctlRight + 1
-        //     -ctlRight -1 <= ctlLeft <= -ctlRight + 1
-        //ctlLeft = Range.clip(ctlLeft, ctlRight - 1, ctlRight + 1);
-        //ctlLeft = Range.clip(ctlLeft, -ctlRight - 1, -ctlRight + 1);
-
-        // Figure out how much power to send to each motor. Be sure
-        // not to ask for too much, or the motor will throw an exception.
-        //  float powerLeft = Range.clip(ctlLeft - ctlRight, -1f, 1f);
-        ///float powerRight = Range.clip(ctlLeft + ctlRight, -1f, 1f);
-
-        // Tell the motors
-        //this.motorLeftBack.setCliffPullPower(ctlLeft);
-        //this.motorRightBack.setCliffPullPower(ctlRight);
-
 
 
     void dexSwitch(Gamepad pad) {
@@ -799,7 +746,7 @@ public class Pele extends SynchronousOpMode {
 
     void Autonomous(){
         loopTime = System.nanoTime();
-        if (loopTime-loopTimeLast>loopTimeMin) {
+        if (loopTime-loopTimeLast>loopTimeMin) { //skip over this loop if racing through
             loopTimeLast = loopTime;
             if(run){
                 run = false;
@@ -815,59 +762,54 @@ public class Pele extends SynchronousOpMode {
                         autoStage++;
                         break;
                     case 1:
-                        if (blobH>40){
+                        if (blobH>40){  //a can is probably in view - stop motors and set up the drive to it
                             drivePID.reset();
                             motorLeft.setPower(0);
                             motorRight.setPower(0);
                             autoStage++; //found a blob large enough to pursue
                         }
                         break;
-                    case 2: //approach can and tip in if vertical
-                        //MoveArgos(KpDrive, KiDrive, KdDrive, );
+                    case 2: //approach can
+
                         MoveCan(KpDrive, KiDrive, KdDrive, ErrorPixToDeg(x), 0, drivePID);
                         if (blobH>150 && blobW > 130) {  //an upright can is close enough to grab
                             motorLeft.setPower(0); //stop
                             motorRight.setPower(0);
+
                             //topple can into flinger
-                            //close doors
                             beaterServo.setPosition(pose.ServoNormalize(beaterServoIn));
 
-                            autoGPTimer=(long)loopTime + (long)3e9;
-                            autoStage=20;
-
-
+                            autoGPTimer=(long)loopTime + (long)1e9;
+                            autoStage++;
                         }
-                        break;
-
-                    case 20:
                         if (blobH>25 && blobW > 250) {  //a toppled can is close enough to grab
 
-                            autoStage = 3;
+                            autoStage=4;
                         }
+
                         break;
 
                     case 3:
                         if (autoGPTimer<(long)loopTime) //wait for servo to tip can in
                         {
                             beaterServo.setPosition(pose.ServoNormalize(beaterServoOut));
-                            autoGPTimer=(long)loopTime + (long)3e9;
+                            autoGPTimer=(long)loopTime + (long)1e9;
                             autoStage++;
                         }
                         break;
+
                     case 4:
-                    if (autoGPTimer<(long)loopTime) //wait for tipping paddle to get out of the ay
+                    if (autoGPTimer<(long)loopTime) //wait for tipping paddle to get out of the way
                     {
-                        beaterServo.setPosition(pose.ServoNormalize(beaterServoOut));
-                        autoGPTimer=(long)loopTime + (long)1e9;
+                        paddleLeft.setPosition(pose.ServoNormalize(paddleLeftIn));
+                        paddleRight.setPosition(pose.ServoNormalize(paddleRightIn));
+                        autoGPTimer=(long)loopTime + (long).5e9; //time to let gates close
                         autoStage++;
                     }
                     break;
-                    case 5: //close gates
 
-                        paddleLeft.setPosition(pose.ServoNormalize(paddleLeftIn));
-                        paddleRight.setPosition(pose.ServoNormalize(paddleRightIn));
-                        autoStage++;
-
+                    case 5: //wait for gates to close
+                        if (autoGPTimer<(long)loopTime) autoStage++;
                         break;
 
                     case 6: //wiggle
@@ -876,29 +818,33 @@ public class Pele extends SynchronousOpMode {
                             drivePID.reset();
                             goalAngle = pose.getBearingOpposite(goalX, goalY);
                             autoStage++;
-                            autoGPTimer=(long)loopTime + (long)5e9;
+                            autoGPTimer=(long)loopTime + (long)5e9; //set turn-around max duration
                         }
 
                         break;
 
                     case 7: //turn toward goal
                         MoveIMU(KpDrive, 0, KdDrive, 0, goalAngle, drivePID);
-                        if (autoGPTimer<(long)loopTime) //wait for turnabout
+                        if (autoGPTimer<(long)loopTime) //wait for turnabout - this is a very simple method - should wait until we settle on a close-enough target heading?
                         {
-                            pose.Fling();
-                            autoGPTimer=(long)loopTime + (long)1e9;
+                            motorLeft.setPower(0); //stop
+                            motorRight.setPower(0);
+
                             autoStage++;
 
                         }
                         break;
 
-                    case 8: //fire
+                    case 8: //shoot
 
-                        if (autoGPTimer<(long)loopTime) //wait for turnabout
-                        {autoStage=0;}
-                        pose.flingerReset();
+                        if (pose.fling()) autoStage++; //fling until flung
                         break;
 
+                    case 9: //relax
+
+                        if (pose.flingRelax()) autoStage = 0; //wait until relaxed then loop back to look for another can
+                                //todo: add logic to terminate when no more cans are found?
+                        break;
 
                     //Upright can ready to be grabbed: blobH around 217, blowW around 157 but more variable due to specular changes
                     //Horizontal can ready to be grabbed:  blobW near 280 to 295, blobH variable 95-150 and touching bottom of screen
@@ -1105,7 +1051,7 @@ double allianceAngle(double blueAngle) {
         return result.toString();
     }
     void relax() {
-        //servoCliffHanger.getController().pwmDisable();
+
 
         motorLeft.setPower(0);
         motorRight.setPower(0);

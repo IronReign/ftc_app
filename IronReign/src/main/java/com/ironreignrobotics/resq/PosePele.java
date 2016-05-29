@@ -220,19 +220,35 @@ public class PosePele
         this.ticksPerMeterLeft = ticksPerMeterLeft;
     }
 
-    public void Fling ()
+    public boolean fling(){ //returns true when complete - any subsequent call will restart the fling
+        return flingerMove(.15, flingerFlingPwr);
+    }
+
+    public boolean flingRelax(){//returns true when complete - any subsequent call will restart the relax
+        return flingerMove(1, flingerRelaxPwr);
+    }
+
+
+    private boolean flingerMove(double seconds, double power) //returns true when move is complete - so don't call after it returns true unless we want to start a fresh move
     {
-        flingerFlinging = true;
-        flingerLeft.setPower(flingerFlingPwr);
-        flingerRight.setPower(flingerFlingPwr);
+        if (((long)flingerTimer)==0){ //this needs to be true only the first time in
+            flingerTimer=System.nanoTime() + (long)(seconds * 1e9); //set expiration time
+            flingerLeft.setPower(power);
+            flingerRight.setPower(power);
+
+        }
+        if (flingerTimer < System.nanoTime()) //timer has expired
+        {
+            flingerLeft.setPower(0);
+            flingerRight.setPower(0);
+            flingerTimer=0;
+            return true;
+        }
+
+        return false; //do nothing - motors should already be moving at specified power
+
     }
 
-    public void flingerReset(){
-        flingerRelaxing = true; //indicate we've started resetting the flinger
-        flingerLeft.setPower(flingerRelaxPwr);
-        flingerRight.setPower(flingerRelaxPwr);
-
-    }
 
     protected int flingCount=0;
 
@@ -252,7 +268,8 @@ public class PosePele
                 return false;
             }
             else {
-                flingCount = 0; //reset if we need to re-wiggle
+                flingCount = 0; //reset in case we need to re-wiggle later
+                flingerTimer=0;
                 return true;
             }
         }
@@ -311,13 +328,14 @@ public class PosePele
         poseX += displacement * Math.cos(poseHeadingRad);
         poseY += displacement * Math.sin(poseHeadingRad);
 
+        /*
         if (flingerFlinging){
-            flingerTimer = currentTime + (long).15e9; //.5 seconds into the future
+            flingerTimer = currentTime + (long).15e9; //.15 seconds into the future
             flingerFlinging = false;
         }
 
         if (flingerRelaxing){
-            flingerTimer = currentTime + (long)1e9; //3 seconds into the future
+            flingerTimer = currentTime + (long)1e9; //1 seconds into the future
             flingerRelaxing = false;
         }
 
@@ -328,6 +346,7 @@ public class PosePele
 
 
         }
+        */
     }
 
     public long getTicksLeftPrev()

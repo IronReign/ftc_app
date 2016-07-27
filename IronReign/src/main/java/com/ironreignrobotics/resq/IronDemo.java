@@ -90,7 +90,7 @@ public class IronDemo extends SynchronousOpMode {
 //    public String climberPos;
     public final static int troughDown = 2100;
     public final static int troughUp =   900;
-    public final static int troughMid =  1980; //last servo
+    public final static int troughMid = 2100; //1980
     public final static int troughRelaxed = 1366;
     public final static int conveyorLeft  = 1000;
     public final static int conveyorRight = 2000;
@@ -380,6 +380,7 @@ public class IronDemo extends SynchronousOpMode {
                 if(System.nanoTime() - dpadHorizontalTimer < 1e8 || System.nanoTime() - dpadHorizontalTimer > 1e9) {
                     pose.setCliffElevation(pose.getCurrentCliffTheta() + 5);
                     cliffPreset = false;
+
                 }
                 dpadHorizontalTimer = System.nanoTime();
             }
@@ -389,6 +390,7 @@ public class IronDemo extends SynchronousOpMode {
                 if(System.nanoTime() - dpadHorizontalTimer < 1e8) {
                     pose.setCliffElevation(pose.getCurrentCliffTheta() - 5);
                     cliffPreset = false;
+
                 }
                 dpadHorizontalTimer = System.nanoTime();
             }

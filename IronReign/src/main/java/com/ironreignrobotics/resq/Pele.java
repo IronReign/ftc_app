@@ -49,7 +49,7 @@ public class Pele extends SynchronousOpMode {
 
     private double KpDrive = .007;
     private double KiDrive = 0.01;
-     private double KdDrive = .1;
+     private double KdDrive = 0;
     private double driveIMUBasePower = .5;
     private double motorPower = 0;
 
@@ -899,7 +899,7 @@ public class Pele extends SynchronousOpMode {
         }
 
         if(demoCase){ //use X to toggle between color tracking and IMU inputs
-            MoveIMU(KpDrive, KiDrive, KdDrive, 0, demoAngle, drivePID);
+            MoveCan(KpDrive, KiDrive, KdDrive, 0, demoAngle, drivePID);
         } else {
             if (gamepad1.b) { //hold B to also maintain distance
                 MoveArgos(KpDrive, KiDrive, KdDrive, ErrorPixToDeg(x), 0, drivePID);
@@ -927,7 +927,7 @@ public class Pele extends SynchronousOpMode {
         toUpdate.add(new Double(PID.pwrP));
         toUpdate.add(new Double(PID.pwrI));
         toUpdate.add(new Double(PID.pwrD));*/
-
+/*
         logger.UpdateLog(Long.toString(System.nanoTime()) + ","
                 + Double.toString(PID.m_deltaTime) + ","
                 + Double.toString(pose.getOdometer()) + ","
@@ -938,7 +938,8 @@ public class Pele extends SynchronousOpMode {
                 + Double.toString(PID.pwrD) + ","
                 + Double.toString(correction));
         motorLeft.setPower(pwr + correction);
-        motorRight.setPower(pwr - correction);
+        motorRight.setPower(pwr - correction
+*/
     }
 
     void MoveArgos(double Kp, double Ki, double Kd, double currentAngle, double targetAngle, PIDController PID){
@@ -985,7 +986,7 @@ public class Pele extends SynchronousOpMode {
 //            motorPower = .5;
 //        if(motorPower < -.5)
 //            motorPower = -.5;
-        MoveRobot(KpDrive, 0, 0, motorPower, ErrorPixToDeg(x), 0, drivePID);
+        MoveRobot(KpDrive, 0, KdDrive, motorPower, ErrorPixToDeg(x), 0, drivePID);
 
     }
 
